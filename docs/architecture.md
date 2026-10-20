@@ -17,7 +17,7 @@ HealthKitReader / DemoData
 ## 模块边界
 
 - WristlabCore只依赖Foundation，模型均可Codable/Sendable。日期、时区、配置和asOf显式输入；数据不足为状态，不给默认正常分。
-- iOS适配器在系统回调边界把HKSample转为规范值。HealthKit读取权限请求与可读记录分开处理，观察完成回调在刷新后执行。
+- iOS适配器在系统回调边界把HKSample转为规范值。HealthKit读取权限请求与可读记录分开处理，观察完成回调在刷新后执行。应用启动委托恢复已启用的观察，不依赖前台视图task；锁屏暂不可读时保留文件并在前台启动重试。
 - HealthRepository为actor，串行计算并原子写文件；失败不推进anchor、旧revision不能覆盖新任务。当前以确定性全量重放优先保证一致性，最多保留150日规范记录，不依赖不完整的增量电量检查点。
 - iPhone是评分权威。Watch和Widget只展示最小快照，校验schema、producer、epoch/sequence与数值。App Group缓存是Watch与组件的共同来源。
 - 演示通过相同业务引擎处理合成记录，界面有明确标识；真实同步拒收demo来源。

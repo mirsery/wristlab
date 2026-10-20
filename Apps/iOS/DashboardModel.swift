@@ -24,7 +24,17 @@ final class DashboardModel: ObservableObject {
         catch { loadError = true; status = "本地缓存不可读取，请保留文件并重试，未覆盖原数据。" }
         bridge.onRefresh = { [weak self] in await self?.refresh() }
     }
+    func restoreObservers() async {
+        guard let repository else { return }
+        let state = await repository.current()
+        if state.readingEnabled { observe() }
+    }
     func start() async {
+        if repository == nil {
+            let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Wristlab")
+            do { repository = try HealthRepository(file: base.appendingPathComponent("health-state.json")); loadError = false }
+            catch { status = "本地缓存暂不可读取，已保留原文件，请解锁设备后重试。" }
+        }
         guard let repository else { return }
         let state = await repository.current(); profile = state.profile; report = state.report
         if let snapshot = state.snapshot { bridge.publish(snapshot) }

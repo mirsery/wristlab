@@ -2,7 +2,8 @@ import SwiftUI
 
 @main
 struct WristlabApp: App {
-    @StateObject private var model = DashboardModel()
+    @UIApplicationDelegateAdaptor(WristlabAppDelegate.self) private var appDelegate
+    @StateObject private var model = AppServices.dashboard
     @Environment(\.scenePhase) private var phase
     var body: some Scene {
         WindowGroup {
