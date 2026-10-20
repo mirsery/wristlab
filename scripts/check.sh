@@ -2,5 +2,5 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/check_specs.py
-swift test --package-path Packages/WristlabCore
-swift test
+./scripts/swift-test.sh --package-path Packages/WristlabCore
+./scripts/swift-test.sh

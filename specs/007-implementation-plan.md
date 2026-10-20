@@ -1,6 +1,6 @@
 # 007 实现顺序与完成定义
 
-规格状态：可执行；运行状态：以下切片待实现。本轮只交付业务规格。
+规格状态：可执行；运行状态：B1–B5计算与B6领域事务已进入代码并开始验证；B6–B8平台适配/界面正在CI验证，真机验收待完成。
 
 ## 实现切片
 
@@ -24,9 +24,9 @@ B1–B5先实现业务逻辑，用合成记录驱动，不等待真实设备。�
 
 执行scripts/check.sh；Apple targets变化还需scripts/build-apple.sh。纯逻辑、模拟器编译、真机通过分开记录。走PR和required checks，不绕过main规则。
 
-## 现有代码差距
+## 实现迁移说明
 
-旧DashboardSnapshot只有可选整数、来源和时间，缺模式/覆盖/基线/版本/解释，不等于正式协议。iOS只读7日最新SDNN；Watch仅本地demo，无同步和WidgetKit。新模型必须先完成B1–B5，再替换演示入口。
+旧DashboardSnapshot保留兼容测试；正式报告已采用HealthReport/MetricEstimate/DisplaySnapshot。原旧容器只有可选整数、来源和时间，缺模式/覆盖/基线/版本/解释，不等于正式协议。iOS只读7日最新SDNN；Watch仅本地demo，无同步和WidgetKit。以上是初始化状态；本轮以新报告管线替换入口，真实设备验收仍按各项证据单独维护。
 
 Xcode安装、签名和设备适配在B7/B8之前解决；原创视觉样式到B7再定。业务参数为明确实验起点，实际覆盖反馈可以促成版本调整，但不是有效性验证。
 

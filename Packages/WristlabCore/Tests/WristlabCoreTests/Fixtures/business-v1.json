@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "syntheticOnly": true,
+  "tolerance": 1e-06,
+  "modelVersions": [
+    "wristlab-physiology-v1",
+    "wristlab-sleep-v1",
+    "wristlab-activity-v1"
+  ],
+  "vectors": [
+    {
+      "id": "V-001",
+      "scenario": "SCN-002",
+      "operation": "readiness",
+      "input": {
+        "hrv": 60,
+        "rhr": 60,
+        "logHRVCenter": 4.0943445622221,
+        "logHRVScale": 0.1,
+        "rhrCenter": 60,
+        "rhrScale": 3,
+        "baselineDays": 14
+      },
+      "expected": {
+        "raw": 50,
+        "display": 50
+      }
+    },
+    {
+      "id": "V-002",
+      "scenario": "SCN-003",
+      "operation": "readiness",
+      "input": {
+        "hrv": 66.31025508453887,
+        "rhr": 57,
+        "logHRVCenter": 4.0943445622221,
+        "logHRVScale": 0.1,
+        "rhrCenter": 60,
+        "rhrScale": 3,
+        "baselineDays": 14
+      },
+      "expected": {
+        "raw": 65,
+        "display": 65
+      }
+    },
+    {
+      "id": "V-003",
+      "scenario": "SCN-001",
+      "operation": "readiness",
+      "input": {
+        "hrv": 60,
+        "rhr": 60,
+        "logHRVCenter": 4.0943445622221,
+        "logHRVScale": 0.1,
+        "rhrCenter": 60,
+        "rhrScale": 3,
+        "baselineDays": 13
+      },
+      "expected": {
+        "raw": null,
+        "availability": "calibrating"
+      }
+    },
+    {
+      "id": "V-004",
+      "scenario": "SCN-006",
+      "operation": "stress",
+      "input": {
+        "hr": 70,
+        "hrCenter": 60,
+        "hrScale": 5,
+        "hrv": 60,
+        "logHRVCenter": 4.0943445622221,
+        "logHRVScale": 0.1,
+        "mode": "awake"
+      },
+      "expected": {
+        "raw": 71,
+        "display": 71,
+        "dataQuality": "complete"
+      }
+    },
+    {
+      "id": "V-005",
+      "scenario": "SCN-006",
+      "operation": "stress",
+      "input": {
+        "hr": 70,
+        "hrCenter": 60,
+        "hrScale": 5,
+        "hrv": null,
+        "logHRVCenter": 4.0943445622221,
+        "logHRVScale": 0.1,
+        "mode": "awake"
+      },
+      "expected": {
+        "raw": 80,
+        "display": 80,
+        "dataQuality": "partial"
+      }
+    },
+    {
+      "id": "V-006",
+      "scenario": "SCN-009",
+      "operation": "batteryStep",
+      "input": {
+        "energy": 50,
+        "context": "asleep",
+        "durationSeconds": 60
+      },
+      "expected": {
+        "raw": 50.06666666666667,
+        "display": 50
+      }
+    },
+    {
+      "id": "V-007",
+      "scenario": "SCN-010",
+      "operation": "batteryStep",
+      "input": {
+        "energy": 50,
+        "context": "workout",
+        "durationSeconds": 60
+      },
+      "expected": {
+        "raw": 49.9,
+        "display": 50
+      }
+    },
+    {
+      "id": "V-008",
+      "scenario": "SCN-021",
+      "operation": "exertion",
+      "input": {
+        "observedLoad": 60
+      },
+      "expected": {
+        "raw": 32.96799539643607,
+        "display": 33
+      }
+    },
+    {
+      "id": "V-009",
+      "scenario": "SCN-025",
+      "operation": "targetRange",
+      "input": {
+        "last7CompleteLoads": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "readinessDisplay": 50,
+        "trainingMode": "maintain"
+      },
+      "expected": {
+        "lower": 80,
+        "upper": 110
+      }
+    },
+    {
+      "id": "V-010",
+      "scenario": "SCN-018",
+      "operation": "sleepDebt",
+      "input": {
+        "targetMinutes": 480,
+        "sleepMinutes": [
+          420,
+          420,
+          420,
+          420,
+          420,
+          420,
+          420
+        ]
+      },
+      "expected": {
+        "minutes": 420
+      }
+    },
+    {
+      "id": "V-011",
+      "scenario": "SCN-018",
+      "operation": "sleepDebt",
+      "input": {
+        "targetMinutes": 480,
+        "sleepMinutes": [
+          420,
+          420,
+          null,
+          420,
+          420,
+          420,
+          420
+        ]
+      },
+      "expected": {
+        "minutes": null,
+        "availability": "insufficientData"
+      }
+    },
+    {
+      "id": "V-012",
+      "scenario": "SCN-019",
+      "operation": "regularity",
+      "input": {
+        "startClockMinutes": [
+          1430,
+          1430,
+          1430,
+          10,
+          10,
+          10,
+          0
+        ]
+      },
+      "expected": {
+        "deviationMinutes": 10
+      }
+    }
+  ]
+}
