@@ -2,7 +2,7 @@
 
 ## 当前环境
 
-初始化时只有 macOS Command Line Tools 与 Swift 6.4，没有完整 Xcode，也没有已配置的付费开发者账号。共享模型可以本地测试；Apple targets 交由 CI 编译。未验证真机安装。
+初始化时只有 macOS Command Line Tools 与 Swift 6.4，没有完整 Xcode，也没有已配置的付费开发者账号。共享模型可独立编译；初始化时本机 `swift test` 因当前 Command Line Tools 缺少可用的 Swift Testing 插件而失败（默认构建模式找不到 TestingMacros，native 模式找不到 Testing）。完整测试和 Apple targets 编译使用 CI 的完整 Xcode 环境。未验证真机安装。
 
 ## Xcode 就绪后
 
