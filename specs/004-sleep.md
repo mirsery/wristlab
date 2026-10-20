@@ -29,10 +29,12 @@ D日14:00前provisional，此后settled仍可修订。跨中午episode会被窗�
 | 阶段比例 | 各类/actualSleep，含unspecified和为100% | unspecified存在标partial |
 | 深睡+REM | 已识别两类之和 | 无具体阶段为空 |
 | 卧床 | inBed并集 | 无inBed为空 |
-| 效率 | 主episode内(asleep∩inBed)/inBed | 只有episode span内inBed>0，且其中≥80%有asleep/awake分类才给 |
+| 效率 | 与主episode相交的完整inBed并集为分母，asleep与该并集交集为分子 | inBed裁剪报告窗口但不裁成episode；分类覆盖≥80%才给，有unknown则partial |
 | 入睡潜伏 | 覆盖首次asleep起点的同段inBed起点至首次asleep起点 | 该前缀需全部明确awake，无边界/分类则为空 |
 | 清醒 | resolved awake时长，相邻awake合并计次数 | 称已记录清醒，未知不当awake，边界可能缺失 |
 | 睡眠HR/HRV | 已选数量来源中落在asleep内样本中位数、列数量 | 分别缺失，不借清醒记录 |
+
+若完全没有具体阶段，具体阶段时长/占比和深睡+REM为空，unspecified可显示；不能把未测得阶段显示成0。已有具体阶段时，未出现的具体阶段为0，unspecified仍单列，四项占比和为100%。
 
 总睡眠/债务含全部completed合格episode，准备度仅主睡眠，ongoing不进总量。v1无综合睡眠分，不猜测原版公式。
 

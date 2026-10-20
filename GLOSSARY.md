@@ -5,7 +5,7 @@
 ## Language
 
 **训练准备度（Readiness）**：相对于个人历史基线的每日恢复估计。
-_Avoid_：剩余电量；旧代码 recovery 字段待迁移。
+_Avoid_：剩余电量。
 
 **生理压力（Physiological Stress）**：心率与 HRV 相对个体基线所反映的生理负荷估计，包含活动情境。
 _Avoid_：心理压力、焦虑诊断。
