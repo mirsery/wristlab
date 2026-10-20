@@ -17,11 +17,13 @@
 
 ## 界面预览
 
-<div align="center">
-<img src="docs/screenshots/iphone.png" width="300" alt="iPhone 应用合成演示数据截图" />
-&nbsp;&nbsp;
-<img src="docs/screenshots/watch.png" width="180" alt="Apple Watch 应用合成演示数据截图" />
-</div>
+<table align="center">
+<tr><th>iPhone · 今日报告</th><th>Apple Watch · 抬腕查看</th></tr>
+<tr>
+<td valign="top"><img src="docs/screenshots/iphone.png" width="300" alt="iPhone · synthetic demo data" /></td>
+<td valign="top"><img src="docs/screenshots/watch.png" width="180" alt="Apple Watch · synthetic demo data" /></td>
+</tr>
+</table>
 
 截图由 CI 在实际运行的 SwiftUI 应用中通过 `--demo` 生成，使用合成健康记录，与真实模式共用业务引擎。不是概念图，也不包含真实健康数据。设备与生成来源见 [截图说明](docs/screenshots/README.md)。
 

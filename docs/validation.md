@@ -2,7 +2,7 @@
 
 ## 已执行的逻辑验证
 
-本地最新运行：27个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。CI最终revision的运行链接在PR中记录。
+本地最新运行：30个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。CI最终revision的运行链接在PR中记录。
 
 `Packages/WristlabCore/Tests/WristlabCoreTests/BusinessTests.swift`通过公共API覆盖：
 

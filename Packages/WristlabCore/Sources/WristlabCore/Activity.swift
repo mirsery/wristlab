@@ -45,7 +45,7 @@ public enum ActivityCalculator {
         guard values.count == count, values.allSatisfy({ $0.map { $0.isFinite && $0 >= 0 } == true }) else { return nil }
         return values.compactMap { $0 }.reduce(0, +) / Double(count)
     }
-    public static func deduplicatedWorkouts(_ records: [HealthRecord]) -> [HealthRecord] {
+    public static func deduplicatedWorkouts(_ records: [HealthRecord], preferredSources: [String] = []) -> [HealthRecord] {
         let workouts = records.filter { $0.kind == .workout }.sorted { $0.start < $1.start }
         var parent = Array(workouts.indices)
         func root(_ index: Int) -> Int { var x = index; while parent[x] != x { x = parent[x] }; return x }
@@ -60,6 +60,9 @@ public enum ActivityCalculator {
         let groups = Dictionary(grouping: workouts.indices, by: { root($0) })
         return groups.values.compactMap { indices in
             indices.map { workouts[$0] }.sorted {
+                let left = preferredSources.firstIndex(of: $0.source.group) ?? Int.max
+                let right = preferredSources.firstIndex(of: $1.source.group) ?? Int.max
+                if left != right { return left < right }
                 if $0.source.rank != $1.source.rank { return $0.source.rank < $1.source.rank }
                 if $0.start != $1.start { return $0.start < $1.start }; return $0.id < $1.id
             }.first

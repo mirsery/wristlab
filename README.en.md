@@ -17,11 +17,13 @@ A local-first health trends lab for iPhone and Apple Watch.
 
 ## Preview
 
-<div align="center">
-<img src="docs/screenshots/iphone.png" width="300" alt="iPhone app running with synthetic demo data" />
-&nbsp;&nbsp;
-<img src="docs/screenshots/watch.png" width="180" alt="Apple Watch app running with synthetic demo data" />
-</div>
+<table align="center">
+<tr><th>iPhone · Today</th><th>Apple Watch · At a glance</th></tr>
+<tr>
+<td valign="top"><img src="docs/screenshots/iphone.png" width="300" alt="iPhone · synthetic demo data" /></td>
+<td valign="top"><img src="docs/screenshots/watch.png" width="180" alt="Apple Watch · synthetic demo data" /></td>
+</tr>
+</table>
 
 CI captures the running SwiftUI apps with `--demo`. Synthetic health records pass through the same business engine as real records. These are application screenshots, not mockups, and contain no personal health data. The current app interface is in Chinese. See [capture provenance](docs/screenshots/README.md).
 

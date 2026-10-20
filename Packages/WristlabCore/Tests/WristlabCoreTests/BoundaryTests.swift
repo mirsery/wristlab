@@ -164,3 +164,27 @@ import Testing
     metric.rawValue = .infinity
     #expect(metric.value == nil)
 }
+
+@Test func preferredWorkoutSourceWinsDuplicateResolution() {
+    let at = date("2026-10-20T09:00:00Z")
+    let watch = HealthRecord(id: "watch", kind: .workout, start: at, end: at.addingTimeInterval(1800), workoutType: "run", source: testSource)
+    var preferred = watch; preferred.id = "preferred"; preferred.source = SampleSource(bundle: "preferred.app", family: "Other", rank: 1)
+    let chosen = ActivityCalculator.deduplicatedWorkouts([watch,preferred], preferredSources: [preferred.source.group])
+    #expect(chosen.first?.id == "preferred")
+}
+
+@Test func metricDecodingRejectsOutOfRangeScore() throws {
+    var malformed = MetricEstimate(50); malformed.rawValue = 151
+    let data = try JSONEncoder().encode(malformed)
+    #expect(throws: (any Error).self) { try JSONDecoder().decode(MetricEstimate.self, from: data) }
+}
+
+@Test func previousDayHRIsNotCarriedAcrossMidnight_SCN007_TR007() throws {
+    let now = date("2026-10-20T00:01:00Z"), clock = try AnalysisClock(timeZoneID: "UTC")
+    let start = clock.day(containing: now).start
+    var records = try DemoData.records(asOf: now).filter { !($0.kind == .heartRate && $0.end >= start) }
+    let prior = start.addingTimeInterval(-30)
+    records.append(HealthRecord(id: "last-day", kind: .heartRate, start: prior, end: prior, value: 138, source: SampleSource(bundle: "wristlab.synthetic", family: "Watch", rank: 0)))
+    let report = try HealthEngine.evaluate(records: records, profile: HealthProfile(timeZoneID: "UTC", maximumHeartRate: 180), asOf: now, inputRevision: 1)
+    #expect(report.activity.day.load == nil)
+}

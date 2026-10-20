@@ -27,6 +27,20 @@ public struct MetricEstimate: Codable, Equatable, Sendable {
         self.mode = mode; self.contributions = contributions; self.effectiveAt = effectiveAt
         self.validUntil = validUntil; self.coverage = coverage
     }
+    public init(from decoder: any Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        rawValue = try values.decodeIfPresent(Double.self, forKey: .rawValue)
+        availability = try values.decode(Availability.self, forKey: .availability)
+        quality = try values.decode(DataQuality.self, forKey: .quality)
+        reasons = try values.decode([String].self, forKey: .reasons)
+        baselineDays = try values.decode(Int.self, forKey: .baselineDays)
+        mode = try values.decode(String.self, forKey: .mode)
+        contributions = try values.decode([String: Double].self, forKey: .contributions)
+        effectiveAt = try values.decodeIfPresent(Date.self, forKey: .effectiveAt)
+        validUntil = try values.decodeIfPresent(Date.self, forKey: .validUntil)
+        coverage = try values.decodeIfPresent(Double.self, forKey: .coverage)
+        guard isValid else { throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Invalid metric estimate")) }
+    }
     public func isStale(at now: Date) -> Bool {
         if let effectiveAt, effectiveAt > now { return true }
         return validUntil.map { now > $0 } ?? false

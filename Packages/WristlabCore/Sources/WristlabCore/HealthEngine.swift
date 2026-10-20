@@ -47,7 +47,7 @@ public enum HealthEngine {
         let hr = RecordNormalizer.selected(records, kind: .heartRate, profile: profile)
         let rhr = RecordNormalizer.selected(records, kind: .restingHeartRate, profile: profile)
         let hrv = RecordNormalizer.selected(records, kind: .hrv, profile: profile)
-        let workouts = ActivityCalculator.deduplicatedWorkouts(records)
+        let workouts = ActivityCalculator.deduplicatedWorkouts(records, preferredSources: profile.preferredSources[.workout] ?? [])
         let excluded = union(workouts.map { DateInterval(start: $0.start.addingTimeInterval(-1800), end: $0.end.addingTimeInterval(1800)) })
         let usableHRV = hrv.filter { record in !excluded.contains { interval in
             contains(interval, record.end) || intersection(interval, record.interval) != nil
@@ -156,7 +156,7 @@ public enum HealthEngine {
             }
             // Completeness is based on the sleep timeline overlapping this civil day.
             let hasSleep = sleeps.values.contains { $0.settled && $0.totalMinutes != nil && $0.asleepIntervals.contains { intersection($0, window) != nil } }
-            loads[row.day] = ActivityCalculator.load(hr: hr.filter { $0.end >= window.start.addingTimeInterval(-60) && $0.end < window.end }, windows: awakeWindows, maximum: profile.maximumHeartRate, resting: resting,
+            loads[row.day] = ActivityCalculator.load(hr: hr.filter { $0.end >= window.start && $0.end < window.end }, windows: awakeWindows, maximum: profile.maximumHeartRate, resting: resting,
                                                      asOf: min(asOf, window.end), settled: asOf >= window.end && hasSleep)
         }
         let todayRow = basis.last!, todayLoad = loads[today]!, currentReadiness = readiness(todayRow)
@@ -166,7 +166,7 @@ public enum HealthEngine {
         let resting = restingReference(day: today, rhr: rhr, clock: clock)
         var workoutLoads: [String: LoadSummary] = [:]
         for workout in workouts where intersection(workout.interval, clock.day(containing: today)) != nil {
-            workoutLoads[workout.id] = ActivityCalculator.load(hr: hr, windows: [workout.interval], maximum: profile.maximumHeartRate, resting: resting, asOf: asOf, settled: true)
+            workoutLoads[workout.id] = ActivityCalculator.load(hr: hr.filter { $0.end >= today && $0.end < clock.day(containing: today).end }, windows: [intersection(workout.interval, clock.day(containing: today))!], maximum: profile.maximumHeartRate, resting: resting, asOf: asOf, settled: true)
         }
         let exertion = MetricEstimate(todayLoad.load.flatMap(ActivityCalculator.exertion), quality: todayLoad.complete ? .complete : .partial,
                                       reasons: todayLoad.coverage < 0.8 ? ["lowCoverage"] : [], mode: "exertion", effectiveAt: hr.last?.end, coverage: todayLoad.coverage)
