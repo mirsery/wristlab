@@ -1,0 +1,21 @@
+# Generated build and project state
+.build/
+.swiftpm/
+*.xcodeproj/
+DerivedData/
+work/
+.DS_Store
+xcuserdata/
+*.xcuserstate
+# Local signing and credentials
+*.p12
+*.mobileprovision
+*.provisionprofile
+*.cer
+.env
+.env.*
+*.local.xcconfig
+# Personal health exports
+export.xml
+export_cda.xml
+apple_health_export/
