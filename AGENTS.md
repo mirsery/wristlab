@@ -18,6 +18,9 @@
 - Use original branding and assets. PeakWatch is a functional reference, not a source of proprietary code, artwork, or scoring claims.
 
 ## Context pointers
+- Business vocabulary and reference parity: `GLOSSARY.md` and `specs/000-reference-behavior.md`.
+- Sleep aggregation changes: `specs/004-sleep.md`; activity/load changes: `specs/005-activity.md`.
+- Business test scenarios and implementation order: `specs/006-acceptance.md` and `specs/007-implementation-plan.md`.
 - Product scope and feature acceptance: `specs/001-product.md`.
 - Health access, lifecycle, and sync changes: `specs/003-health-and-sync.md`.
 - Module boundaries and technical decisions: `docs/architecture.md`.

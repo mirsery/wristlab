@@ -1,30 +1,82 @@
-# 003 健康数据与同步
+# 003 数据、报告与同步生命周期
 
-状态：HRV 读取入口已搭建；持续汇总、缓存与同步待实现。
+规格状态：已定义v1；运行状态：仅手动HRV读取入口。同步schema `snapshot-v1`。
 
-## 数据范围
+## 读取与授权
 
-S0 仅请求读取 HRV SDNN，最近 7 天取最新样本，显示样本时间。
-S1 按功能最小化请求心率 bpm、静息心率 bpm、HRV SDNN ms、睡眠时间/分期、运动与活动能量；逐类说明用途，不请求写权限。
+用户主动操作后只读HR、RHR、HRV SDNN、sleepAnalysis、workout；不请求写权限。活动能量后续只显示原始值，不参与v1公式。先判断HealthKit支持情况；请求完成再查询，空结果用中性文案，不推断denied。
 
-## 数据质量
+初次读取D之前60个完整分析日至asOf，sleep额外前取一天作边界缓冲。查询包括相交interval；保留原始时间；end>asOf的未结束原始sample不用于数值，未来完整sample隔离。合成测试与实际记录分开存储。
 
-授权流程成功只表示授权请求完成；应用无法据此判断单项读取权限。空结果同时可能是无记录、未授权或同步延迟，提供中性提示和设置指引。
-汇总需按样本标识去重、保留来源设备与时间、处理重叠睡眠及多来源，按日期所处时区建立日窗口。持久化格式必须版本化，可清除派生缓存但不改动原始健康记录。
+## 规范样本与来源
 
-## 同步与生命周期
+规范记录包含sampleID、类型、UTC start/end、标准值/单位、source bundle、device family及本地设备ID、手工标记、导入revision、同步版本（存在时）。HR/HRV/RHR允许start=end；sleep/workout要求start<end。技术有效范围为有限数HR/RHR `(0,300] bpm`、HRV `(0,5000] ms`；仅为异常输入护栏，不是正常医学范围。
 
-iPhone 负责聚合并生成权威展示快照。WatchConnectivity 发送版本化最小快照，包含序号、源设备时间、模型版本、来源和数据质量；旧快照不得覆盖新快照。未配对、未安装、不可达、后台传输失败与离线分别处理。
-Watch 先显示缓存；WidgetKit 使用共享本地快照。系统决定刷新时机，展示更新时间和过期状态，不承诺固定周期。初步过期阈值 60 分钟（配置可调整）；时钟倒退也标记过期。
-不通过假训练会话维持后台采样。第一版由用户主动刷新与合规的后台交付驱动；后者实现时再增加相应 capability。
+同ID幂等upsert，删除按ID；更新有同步版本则高版本胜，无版本冲突重新查询。不同ID但同类型/source/device/start/end/标准值视为重复，取ID字典序最小代表。跨设备近似数值不是同一原始样本。
+
+数量来源按类型分开：用户选定顺序 > Apple Watch > 支持该类型的第三方 > iPhone；手工数量不参与v1估算，可在本地原始记录中另行展示。首次在历史里选最高可用优先级来源组，同级sourceID升序；组为bundle+device family。一次revision内固定组，不逐缺口填入低优先级来源；用户改源才重建。HR/HRV/RHR可分别选择，组成sourceSignature。
+
+睡眠按[004](004-sleep.md)每报告窗口选源。准备度night和sleep压力的sourceSignature必须包含睡眠来源；dayFallback/awake不混入其他模式。设备同family更换仍可同组，原始去重仍保留deviceID。来源签名改变不能接旧基线/电量检查点。
+
+## 时间规则
+
+- 区间统一 `[start,end)`；HR/HRV按end归属桶。RHR按start所在分析日归属，再按end选最新。
+- analysisTimeZone首次默认设备时区并持久化；旅行不自动改。用户改时区使日摘要/睡眠/基线/趋势/电量重算，升配置版本。
+- 分析日用Calendar本地午夜到下一午夜，可能23/24/25小时；时长用UTC秒差。桶按Unix epoch对齐5分钟，不等于本地日边界。
+- 全部函数显式接收asOf，只用已结束样本。历史修订用明确数据集revision回放；迟到数据可改变历史，但不伪装为原先已知。
+- 压力/电量15分钟有效期、准备度归属日、传输快照60分钟是不同层次；界面采用更严格状态。
+
+## 报告契约
+
+正式DailyReport/MetricEstimate应替代旧演示DashboardSnapshot的有限字段；旧容器不是已实现的同步schema。
+
+| 字段组 | 约定 |
+| --- | --- |
+| identity | schemaVersion、modelVersion、configurationVersion、inputRevision、analysisDay、analysisTimeZone |
+| evaluation | asOf=评估截止时刻；computedAt=执行时刻；重复执行不改变值和原样本年龄 |
+| provenance | demo/healthKit、sourceSignature、latestSampleAt、输入数量；原始sampleID仅本地解释 |
+| metric | value?、rawValue本地、availability、dataQuality?、reasonCodes、mode、窗口、validUntil、baselineDays、coverage?、分项贡献 |
+| sleep/activity | 模块独立可用/缺失，不因一项不足把整份报告判失败 |
+| revision | 内容原子提交成功后递增；仅computedAt变化不无端发同步 |
+
+reason codes固定集合：noReadableSamples、missingCurrentHRV、missingCurrentRHR、missingPrimarySleep、baselineNotReady、hrOnly、missingHR、lowCoverage、observationGap、recalibrationRequired、missingMaximumHR、missingHistory、sourceConflict、aboveConfiguredMaximum、awaitingSync、stale、unsupportedSchema。首要提示依次为不支持/必要输入缺失/校准/低覆盖/部分质量/过期；允许多原因。
+
+## 增量、事务、失效传播
+
+1. 手动刷新、前台恢复、HealthKit观察更新触发读取；观察只表示可能变化，后台执行机会由系统决定。
+2. 每类型持久化anchored增量及deleted IDs；初次、anchor失效、配置切换走受限全量重建。
+3. 串行协调器为一个批次分配inputRevision，顺序为睡眠→基线→准备度/压力/活动→电量→报告；取消旧任务不能覆盖新revision。
+4. 规范记录、摘要、检查点、报告、anchor原子提交；失败整体回滚，不提前推进anchor。
+5. 插入/更新/删除使受影响日、随后60日的基线结果、最早受影响步骤之后的电量链失效；源/模型变更可重建保留窗口，不能只改今日。
+6. 初次60日窗口不保证立即拥有90日报告；后续积累形成历史。源/时区/模型切换若需重算最近90日报告，允许按需重新读取至D之前150日（90+60）及睡眠边界缓冲；权限/历史不足处明确缺失，不混用旧profile摘要。保留最近90个分析日的原始规范记录和派生报告；另保留前60日的基线日摘要以及最早保留点的兼容电量检查点。重算90日需相应历史均可用；不足处标缺失。超过窗口的删除/修订若无法验证检查点，废弃它并重新seed，不承诺恢复任意历史。
+
+## Watch协议
+
+iPhone是真实评分权威，Watch不独立建立基线。以已激活WCSession的updateApplicationContext发送最新完整展示快照；允许被更新值替换，因为它不是必须完整送达的事件流。可达时可请求一次刷新，不可达保留缓存并显示awaitingSync。
+
+envelope≤32KiB，包含schema、source、producerID、epoch、sequence、asOf/computedAt、模型/配置版本、日期时区、各指标值/质量/时效/必要解释、sleep/activity概要、clearData。无原始HR序列、sampleID或真实设备标识。producerID是应用本地随机ID。
+
+同producer按(epoch,sequence)词典序只接受较新；重复幂等。epoch为持久化递增整数，模型/源/时区全量切换和清数据时递增；epoch内sequence递增。完成schema和值校验后原子换缓存，未知schema/非法payload保留旧值并提示。
+
+首次producer只从已配对已激活会话建立信任；变化时Watch要求用户确认连接新手机，不能只凭更晚时间覆盖。卸载重装走新producer确认；时钟回退不能使旧sequence胜出。
+
+清数据先持久化递增epoch及clearData空快照tombstone，删除展示缓存后发送。Watch收到后原子清App和组件缓存，拒绝旧epoch，避免延迟旧报告复活。保留必要同步控制元数据；离线无法立即清远端，显示等待手表同步。
+
+快照computedAt距当前>60分钟或处于未来为过期；单指标更严格有效期仍生效。WidgetKit从Watch本地App Group读同一快照，按系统预算请求更新，不承诺固定刷新间隔。
+
+## 清除和撤销
+
+清派生缓存：保留规范记录和设置，发送清除快照，再全量重算。停止读取并清应用数据：停观察、取消任务，删规范记录/派生结果/anchor，仅保留同步控制元数据；不删除Apple健康原始记录。
+
+系统撤销读权限不能可靠检测为一个denied事件；后续为空显示中性缺失和最后记录时间。提供显式清除操作，不因推测撤销就声称本地/离线Watch已全部清空。
 
 ## 验收标准
 
-- H-001：只在用户操作后请求所需权限，设备不支持、请求失败、无数据和成功分别有 UI；无真实数据日志。入口已搭建，真机待验收。
-- H-002：展示 HRV 单位和采样时间，不把过期样本标成当前值；无数据不生成分数。入口已搭建，真机待验收。
-- H-003：合成多来源、重复样本、睡眠重叠和日期边界得到确定结果。待实现。
-- H-004：断连重连与乱序传输保持最新有效快照；解码失败保留旧快照并报告状态。待实现。
-- H-005：手机/Watch/组件对相同快照展示一致，缓存清除生效；真机记录后台刷新观察结果。待实现。
-- H-006：共享模型识别超过 60 分钟以及未来时间的快照为过期。骨架覆盖。
-
-参考：[Apple HealthKit 授权](https://developer.apple.com/documentation/healthkit/authorizing-access-to-health-data)。
+- H-001：支持性、授权请求错误、空/部分类型记录分别验收，无真实健康日志。
+- H-002：单位、时间保真，未来/非法/未知单位不进估算。
+- H-003：去重、选源、删除、时间边界/时区有确定结果。
+- H-004：同数据全量与增量一致；旧任务不覆盖新；崩溃不提前推进anchor。
+- H-005：断连、乱序、重复、旧epoch、新producer、未知schema与离线清除均保持协议约束。
+- H-006：快照60分钟或未来过期，指标时效独立；旧容器只覆盖基础判断。
+- H-007：手机/Watch/组件同revision同值；后台调度需真机观察，不能用固定分钟验收。
+- H-008：晚到、删除、配置变化传播失效；旧模型检查点不得接续。
