@@ -14,7 +14,7 @@
 
 `main` 保持可编译，功能通过短期分支和 PR 合并；合并前两个 CI 检查必须通过，处理所有未解决 review。
 建议仓库 ruleset：禁止 force push 和删除 main，要求 PR、两个 required checks、会话已解决；单人自用仓库不强制他人审批。
-**本文件是协作政策，只有 GitHub ruleset 配置成功后才属于服务器强制门禁。**
+规则配置源文件为 `.github/rulesets/main.json`。初始化完成后通过 GitHub API 创建并验证其 active 状态；后续规则变化同时更新文件与远端 ruleset。仓库只允许 squash merge，合并后自动删除分支。
 
 ## Review
 
