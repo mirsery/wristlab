@@ -25,10 +25,12 @@ struct Complication: View {
     private var stale: Bool { entry.snapshot.map { $0.isStale(at: entry.date) || $0.energy.isStale(at: entry.date) } ?? false }
     var body: some View {
         Group {
-            if family == .accessoryCircular {
+            if family == .accessoryInline {
+                Label(stale ? "电量已过期" : value.map { "电量 \($0)" } ?? "等待手机", systemImage: stale ? "clock" : "battery.75percent")
+            } else if family == .accessoryCircular {
                 Gauge(value: Double(value ?? 0), in: 0...100) {
                     Image(systemName: "battery.75percent")
-                } currentValueLabel: { Text(value.map(String.init) ?? "—") }
+                } currentValueLabel: { Text(stale ? "—" : value.map(String.init) ?? "—") }
                     .gaugeStyle(.accessoryCircular).tint(.mint)
             } else {
                 VStack(alignment: .leading, spacing: 2) {

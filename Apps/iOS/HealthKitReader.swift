@@ -17,9 +17,13 @@ final class HealthKitReader {
         try await store.requestAuthorization(toShare: [], read: Set(Self.types.map { $0.1 }))
     }
     func readBatch(state: RepositoryState, asOf: Date) async throws -> RecordBatch {
+        defer { queries.removeAll() }
         guard HKHealthStore.isHealthDataAvailable() else { throw ReadError.unavailable }
         let clock = try AnalysisClock(timeZoneID: state.profile.timeZoneID)
-        let fullReload = state.queryStart == nil || state.anchors.count != Self.types.count
+        let invalidAnchor = state.anchors.values.contains { data in
+            (try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: data)) == nil
+        }
+        let fullReload = state.queryStart == nil || state.anchors.count != Self.types.count || invalidAnchor
         let start = state.queryStart ?? clock.shiftedDay(asOf, by: state.records.isEmpty ? -61 : -151)
         let predicate = HKQuery.predicateForSamples(withStart: start, end: nil)
         var additions: [HealthRecord] = [], deletions = Set<String>(), anchors: [String: Data] = [:]
@@ -48,7 +52,8 @@ final class HealthKitReader {
         for (_, type) in Self.types {
             let query = HKObserverQuery(sampleType: type, predicate: nil) { _, completion, error in
                 guard error == nil else { completion(); return }
-                Task { await onChange(); completion() }
+                let token = ObserverCompletion(completion)
+                Task { await onChange(); token.finish() }
             }
             observers.append(query); store.execute(query)
             store.enableBackgroundDelivery(for: type, frequency: .hourly) { _, _ in }
@@ -83,5 +88,17 @@ final class HealthKitReader {
             }
         } else if let workout = sample as? HKWorkout { record.workoutType = String(workout.workoutActivityType.rawValue) }
         return record
+    }
+}
+
+// HealthKit permits completion on any queue. This box transfers the SDK callback
+// across concurrency domains and guarantees that it is invoked at most once.
+private final class ObserverCompletion: @unchecked Sendable {
+    private let lock = NSLock()
+    private var completion: (() -> Void)?
+    init(_ completion: @escaping () -> Void) { self.completion = completion }
+    func finish() {
+        lock.lock(); let callback = completion; completion = nil; lock.unlock()
+        callback?()
     }
 }

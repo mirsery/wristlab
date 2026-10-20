@@ -42,6 +42,7 @@ struct PhoneDashboardView: View {
             .sheet(isPresented: $settings) { SettingsView(model: model) }
         }
         .tint(wristMint)
+        .environment(\.timeZone, TimeZone(identifier: report?.timeZoneID ?? model.profile.timeZoneID) ?? .current)
     }
     private var header: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -111,14 +112,18 @@ struct PhoneDashboardView: View {
             HStack { Label("昨晚睡眠", systemImage: "moon.stars.fill").foregroundStyle(.purple); Spacer(); Text(report.sleep.settled ? "已汇总" : "暂定").foregroundStyle(.secondary) }.font(.subheadline)
             Text(report.sleep.totalMinutes.map { "\(Int($0) / 60) 小时 \(Int($0) % 60) 分钟" } ?? "暂无睡眠记录").font(.system(.title2, design: .rounded, weight: .semibold))
             if !report.sleep.stages.isEmpty {
-                HStack(spacing: 4) {
-                    ForEach([SleepStage.core, .deep, .rem, .unspecified], id: \.self) { phase in
-                        if let duration = report.sleep.stages[phase], duration > 0 {
-                            RoundedRectangle(cornerRadius: 3).fill(phase == .deep ? Color.purple : phase == .rem ? Color.pink : Color.indigo.opacity(0.8)).frame(maxWidth: .infinity).frame(height: 8)
-                                .accessibilityLabel("\(phase.rawValue) \(Int(duration)) 分钟")
+                GeometryReader { geometry in
+                    HStack(spacing: 3) {
+                        ForEach([SleepStage.core, .deep, .rem, .unspecified], id: \.self) { phase in
+                            if let duration = report.sleep.stages[phase], duration > 0 {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(phase == .deep ? Color.purple : phase == .rem ? Color.pink : Color.indigo.opacity(0.8))
+                                    .frame(width: max(0, (geometry.size.width - 9) * duration / max(report.sleep.totalMinutes ?? 1, 1)))
+                                    .accessibilityLabel("\(phase.rawValue) \(Int(duration)) 分钟")
+                            }
                         }
                     }
-                }
+                }.frame(height: 8)
             }
             HStack { Text("7 日睡眠债"); Spacer(); Text(report.sleepDebtMinutes.map { "\(Int($0)) 分钟" } ?? "记录不足") }.font(.caption).foregroundStyle(.secondary)
             HStack { Text("入睡时间偏差"); Spacer(); Text(report.regularityMinutes.map { "\(Int($0)) 分钟" } ?? "记录不足") }.font(.caption).foregroundStyle(.secondary)
