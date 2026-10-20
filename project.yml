@@ -31,6 +31,8 @@ targets:
       path: work/Generated/iOS-Info.plist
       properties:
         CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         NSHealthShareUsageDescription: 读取心率、心率变异性、睡眠和运动，仅在本机计算个人状态趋势。
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
@@ -57,6 +59,8 @@ targets:
       path: work/Generated/watchOS-Info.plist
       properties:
         CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.mirsery.wristlab
     entitlements:
@@ -82,6 +86,8 @@ targets:
       path: work/Generated/widget-Info.plist
       properties:
         CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
