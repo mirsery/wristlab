@@ -1,1 +1,33 @@
-IyBXcmlzdGxhYgoK6Ieq55So44CB5byA5rqQ55qEIGlQaG9uZSArIEFwcGxlIFdhdGNoIOWBpeW6t+S7quihqOebmOWunumqjOmhueebruOAguWPguiAgyBQZWFrV2F0Y2gg55qE5Lqn5ZOB5pa55ZCR77yM5L2/55So5Y6f5Yib55WM6Z2i5ZKM5YWs5byA6K+05piO55qE5a6e6aqM5oCn6K+E5YiG5qih5Z6L44CC5LiOIFBlYWtXYXRjaCDml6DlhbPogZTjgIIKCiMjIOW9k+WJjeeKtuaAgQoK6L+Z5piv6aG555uu6aqo5p6277ya5YyF5ZCrIGlPUy93YXRjaE9TIFN3aWZ0VUkg5ryU56S66aG144CB5YWx5LqrIFN3aWZ0IFBhY2thZ2XjgIHlj6ror7sgSGVhbHRoS2l0IEhSViDor7vlj5blhaXlj6PjgIFzcGVjIOS4jiBDSeOAgua8lOekuuaVsOaNruWni+e7iOagh+iusOS4uuKAnOa8lOekuuaVsOaNruKAneOAgioq5Y6L5Yqb44CB5oGi5aSN44CB6Lqr5L2T55S16YeP566X5rOV44CB5omL5py65omL6KGo5ZCM5q2l5ZKM6KGo55uY57uE5Lu25bCa5pyq5a6e546w44CCKiog5LiN55So5LqO5Yy755aX5Yik5pat44CCCgojIyDlvIDlp4sKCmBgYHNoCiMgQ29tbWFuZCBMaW5lIFRvb2xzIOi2s+S7pei/kOihjOWFseS6q+aooeWdl+a1i+ivlQouL3NjcmlwdHMvY2hlY2suc2gKIyDlronoo4XlrozmlbQgWGNvZGUg5ZKMIFhjb2RlR2VuIOWQjueUn+aIkOW5tue8luivkemhueebrgpicmV3IGluc3RhbGwgeGNvZGVnZW4KeGNvZGVnZW4gZ2VuZXJhdGUKLi9zY3JpcHRzL2J1aWxkLWFwcGxlLnNoCm9wZW4gV3Jpc3RsYWIueGNvZGVwcm9qCmBgYAoK6aG555uu6buY6K6kIGlPUyAxNyAvIHdhdGNoT1MgMTAgLyBTd2lmdCA244CC55Sf5oiQ55qEIFhjb2RlIOmhueebruS4jeaPkOS6pO+8jOS7pSBgcHJvamVjdC55bWxgIOS4uua6kOaWh+S7tuOAgkNJIOS9v+eUqCBtYWNPUyAxNSDkuIrnmoQgWGNvZGUgMTYuNOOAggoK55yf5py65a6J6KOF6L+Y6ZyAIFhjb2Rl44CB6YWN5a+555qEIGlQaG9uZS9XYXRjaOOAgeebuOW6lOW8gOWPkeiAheaooeW8j+WSjOWPr+eUqOetvuWQjemFjee9ruOAguW9k+WJjeayoeaciemqjOivgeecn+acuuWuieijhe+8m+WPguingSBb5byA5Y+R5oyH5Y2XXShkb2NzL2RldmVsb3BtZW50Lm1kKeOAggoKIyMg5paH5qGjCgotIFvku6PnkIbop4TliJldKEFHRU5UUy5tZCkKLSBbU3BlYyDnm67lvZXkuI7kuqTku5jnirbmgIFdKHNwZWNzL1JFQURNRS5tZCkKLSBb5p625p6EXShkb2NzL2FyY2hpdGVjdHVyZS5tZCkKLSBb5Y2P5L2c5ZKMIENJIOinhOWImV0oQ09OVFJJQlVUSU5HLm1kKQotIFvpmpDnp4HovrnnlYxdKFBSSVZBQ1kubWQpCgpNSVQgTGljZW5zZeOAguivt+WLv+S4iuS8oOecn+WunuWBpeW6t+aVsOaNruaIluetvuWQjeadkOaWmeOAggo=
+# Wristlab
+
+自用、开源的 iPhone + Apple Watch 健康仪表盘实验项目。参考 PeakWatch 的产品方向，使用原创界面和公开说明的实验性评分模型。与 PeakWatch 无关联。
+
+## 当前状态
+
+这是项目骨架：包含 iOS/watchOS SwiftUI 演示页、共享 Swift Package、只读 HealthKit HRV 读取入口、spec 与 CI。演示数据始终标记为“演示数据”。**压力、恢复、身体电量算法、手机手表同步和表盘组件尚未实现。** 不用于医疗判断。
+
+## 开始
+
+```sh
+# Command Line Tools 足以运行共享模块测试
+./scripts/check.sh
+# 安装完整 Xcode 和 XcodeGen 后生成并编译项目
+brew install xcodegen
+xcodegen generate
+./scripts/build-apple.sh
+open Wristlab.xcodeproj
+```
+
+项目默认 iOS 17 / watchOS 10 / Swift 6。生成的 Xcode 项目不提交，以 `project.yml` 为源文件。CI 使用 macOS 15 上的 Xcode 16.4。
+
+真机安装还需 Xcode、配对的 iPhone/Watch、相应开发者模式和可用签名配置。当前没有验证真机安装；参见 [开发指南](docs/development.md)。
+
+## 文档
+
+- [代理规则](AGENTS.md)
+- [Spec 目录与交付状态](specs/README.md)
+- [架构](docs/architecture.md)
+- [协作和 CI 规则](CONTRIBUTING.md)
+- [隐私边界](PRIVACY.md)
+
+MIT License。请勿上传真实健康数据或签名材料。
