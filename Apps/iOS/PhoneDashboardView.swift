@@ -8,6 +8,12 @@ struct PhoneDashboardView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     private var report: HealthReport? { model.displayed }
     private var now: Date { model.demoEnabled ? (report?.asOf ?? DemoData.previewDate) : Date() }
+    private var dateLabel: String {
+        var format = Date.FormatStyle.dateTime.month(.wide).day().weekday(.wide)
+        format.locale = Locale(identifier: "zh_CN")
+        format.timeZone = TimeZone(identifier: report?.timeZoneID ?? model.profile.timeZoneID) ?? .current
+        return now.formatted(format)
+    }
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -54,7 +60,7 @@ struct PhoneDashboardView: View {
             HStack(alignment: .bottom) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("把状态看清楚。").font(.system(.title, design: .rounded, weight: .bold))
-                    Text(now.formatted(.dateTime.month(.wide).day().weekday(.wide))).font(.caption).foregroundStyle(.secondary)
+                    Text(dateLabel).font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 if model.busy { ProgressView() }

@@ -13,7 +13,10 @@ public struct MetricEstimate: Codable, Equatable, Sendable {
     public var effectiveAt: Date?
     public var validUntil: Date?
     public var coverage: Double?
-    public var value: Int? { rawValue.map { Int($0.rounded(.toNearestOrAwayFromZero)) } }
+    public var value: Int? {
+        guard let rawValue, rawValue.isFinite, (0...100).contains(rawValue) else { return nil }
+        return Int(rawValue.rounded(.toNearestOrAwayFromZero))
+    }
     public init(_ rawValue: Double? = nil, availability: Availability = .insufficientData,
                 quality: DataQuality = .complete, reasons: [String] = [], baselineDays: Int = 0,
                 mode: String = "", contributions: [String: Double] = [:], effectiveAt: Date? = nil,

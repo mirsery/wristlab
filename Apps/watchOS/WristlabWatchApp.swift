@@ -12,19 +12,21 @@ struct WristlabWatchApp: App {
             NavigationStack {
                 ScrollView {
                     let current = demoEnabled ? demo : bridge.snapshot
-                    VStack(spacing: 10) {
-                        Text("WRISTLAB").font(.system(size: 10, weight: .bold, design: .rounded)).tracking(2).foregroundStyle(wristMint)
-                        if demoEnabled { Text("合成演示数据").font(.system(size: 9)).foregroundStyle(.secondary) }
+                    VStack(spacing: 6) {
+                        HStack(spacing: 6) {
+                            Text("WRISTLAB").font(.system(size: 8, weight: .bold, design: .rounded)).tracking(1).foregroundStyle(wristMint)
+                            if demoEnabled { Text("合成演示数据").font(.system(size: 8)).foregroundStyle(.secondary) }
+                        }
                         if let current, !current.clearData {
-                            Text("训练准备度").font(.caption2).foregroundStyle(.secondary)
-                            ScoreRing(value: current.readiness.value, size: 84)
+                            Text("训练准备度").font(.system(size: 10)).foregroundStyle(.secondary)
+                            ScoreRing(value: current.readiness.value, size: 64)
                             HStack {
                                 watchMetric("电量", current.energy, .cyan, at: demoEnabled ? current.asOf : Date())
                                 Spacer()
                                 watchMetric("压力", current.stress, .orange, at: demoEnabled ? current.asOf : Date())
                             }.padding(.horizontal, 12)
-                            Text(metricStatus(current.readiness, at: demoEnabled ? current.asOf : Date())).font(.system(size: 9)).foregroundStyle(.secondary)
-                            Text(current.computedAt, style: .time).font(.system(size: 9)).foregroundStyle(.secondary)
+                            if !demoEnabled { Text(metricStatus(current.readiness, at: Date())).font(.system(size: 8)).foregroundStyle(.secondary).lineLimit(2) }
+                            Text(current.computedAt, style: .time).font(.system(size: 8)).foregroundStyle(.secondary)
                             if current.isStale(at: Date()), !demoEnabled { Text("快照已过期").font(.caption2).foregroundStyle(.orange) }
                         } else {
                             Image(systemName: "iphone.and.arrow.forward").font(.title).foregroundStyle(wristMint).padding(.vertical, 18)
@@ -35,7 +37,7 @@ struct WristlabWatchApp: App {
                     }.padding(.vertical, 8)
                 }
                 .background(wristBackground)
-                .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { menu = true } label: { Image(systemName: "ellipsis") }.accessibilityLabel("更多") } }
+                .toolbar { ToolbarItem(placement: .topBarTrailing) { Button { menu = true } label: { Image(systemName: "ellipsis").foregroundStyle(.white) }.tint(.gray).accessibilityLabel("更多") } }
                 .sheet(isPresented: $menu) {
                     List {
                         Button("请求手机刷新") { bridge.requestRefresh(); menu = false }
@@ -59,8 +61,8 @@ struct WristlabWatchApp: App {
     }
     private func watchMetric(_ title: String, _ metric: MetricEstimate, _ color: Color, at now: Date) -> some View {
         VStack(spacing: 2) {
-            Text(title).font(.system(size: 10)).foregroundStyle(color)
-            Text(metric.value.map(String.init) ?? "—").font(.system(.title3, design: .rounded, weight: .semibold)).monospacedDigit()
+            Text(title).font(.system(size: 9)).foregroundStyle(color)
+            Text(metric.value.map(String.init) ?? "—").font(.system(size: 20, weight: .semibold, design: .rounded)).monospacedDigit()
             if metric.isStale(at: now) { Text("过期").font(.system(size: 8)).foregroundStyle(.secondary) }
         }.accessibilityElement(children: .combine)
     }

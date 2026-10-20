@@ -156,3 +156,11 @@ import Testing
     let second = try await store.apply(RecordBatch(additions: []), asOf: now.addingTimeInterval(1))
     #expect(first.snapshot == second.snapshot)
 }
+
+@Test func malformedCachedMetricCannotBecomeADisplayScore() {
+    var metric = MetricEstimate(50)
+    metric.rawValue = 151
+    #expect(metric.value == nil)
+    metric.rawValue = .infinity
+    #expect(metric.value == nil)
+}

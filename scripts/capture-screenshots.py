@@ -1,5 +1,6 @@
 """Capture the running apps with synthetic --demo input on CI simulators."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import time
@@ -38,6 +39,6 @@ for device, product, bundle, name in [
     run('xcrun', 'simctl', 'launch', device['udid'], bundle, '--demo', '-AppleLanguages', '(zh-Hans)', '-AppleLocale', 'zh_CN')
     time.sleep(15)
     run('xcrun', 'simctl', 'io', device['udid'], 'screenshot', str(out / f'{name}.png'))
-    manifest.append({'file': f'{name}.png', 'device': device['name'], 'data': 'synthetic --demo', 'source': 'running SwiftUI app'})
+    manifest.append({'file': f'{name}.png', 'device': device['name'], 'data': 'synthetic --demo', 'source': 'running SwiftUI app', 'commit': os.environ.get('GITHUB_SHA'), 'run': f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'mirsery/wristlab')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', 'local')}"})
 (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
 print('Screenshots saved to', out)
