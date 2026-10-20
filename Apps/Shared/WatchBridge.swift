@@ -54,6 +54,9 @@ final class WatchBridge: NSObject, ObservableObject, WCSessionDelegate {
             try next.accept(value, confirmProducer: confirm || receiver.snapshot == nil)
             let data = try JSONEncoder().encode(next)
             try FileManager.default.createDirectory(at: Self.cacheURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            var folder = Self.cacheURL.deletingLastPathComponent()
+            var policy = URLResourceValues(); policy.isExcludedFromBackup = true
+            try folder.setResourceValues(policy)
             try data.write(to: Self.cacheURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
             receiver = next; snapshot = next.snapshot; pendingProducer = nil
             status = value.clearData ? "手机数据已清除" : "已收到手机数据"

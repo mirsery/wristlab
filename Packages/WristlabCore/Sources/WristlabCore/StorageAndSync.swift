@@ -100,6 +100,9 @@ public actor HealthRepository {
         let data = try JSONEncoder().encode(next)
         try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
         #if os(iOS) || os(watchOS)
+        var folder = file.deletingLastPathComponent()
+        var policy = URLResourceValues(); policy.isExcludedFromBackup = true
+        try folder.setResourceValues(policy)
         try data.write(to: file, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
         #else
         try data.write(to: file, options: .atomic)
