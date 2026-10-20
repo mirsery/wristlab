@@ -28,8 +28,8 @@ struct Complication: View {
             if family == .accessoryInline {
                 Label(stale ? "电量已过期" : value.map { "电量 \($0)" } ?? "等待手机", systemImage: stale ? "clock" : "battery.75percent")
             } else if family == .accessoryCircular {
-                Gauge(value: Double(value ?? 0), in: 0...100) {
-                    Image(systemName: "battery.75percent")
+                Gauge(value: Double(stale ? 0 : value ?? 0), in: 0...100) {
+                    Image(systemName: stale ? "clock" : "battery.75percent")
                 } currentValueLabel: { Text(stale ? "—" : value.map(String.init) ?? "—") }
                     .gaugeStyle(.accessoryCircular).tint(.mint)
             } else {

@@ -1,6 +1,6 @@
 # 005 运动负荷、输出与参考目标
 
-规格状态：可实现；运行状态：待实现。模型 `wristlab-activity-v1`。公式是实验约定，不等于PeakWatch/TRIMP，也不预测受伤。
+规格状态：可实现；运行状态：领域已实现，验证见[记录](../docs/validation.md)。模型 `wristlab-activity-v1`。公式是实验约定，不等于PeakWatch/TRIMP，也不预测受伤。
 
 ## 输入与分区
 

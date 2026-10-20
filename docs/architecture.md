@@ -22,3 +22,11 @@
 骨架不生成伪装为健康测量的分数。实验模型经 spec、合成测试、真机数据覆盖检查后逐项上线；模型版本与更新时间进入最终持久化快照。当前快照仅供搭建序列化边界，不代表最终同步协议。
 
 业务规则依赖和正式报告契约分别见 [007](../specs/007-implementation-plan.md) 与 [003](../specs/003-health-and-sync.md)。本轮只定义目标契约，未迁移旧演示容器。
+
+## 当前实现
+
+HealthEngine统一编排SleepCalculator、Physiology、ActivityCalculator和EnergyCalculator；全部显式接收asOf和配置。HealthRepository以actor串行提交规范数据/anchor/报告，原子落盘；当前用全量确定性重放代替复杂增量电量检查点。
+
+HealthKitReader将系统对象在回调边界转为Sendable记录；WatchBridge传输DisplaySnapshot。SnapshotReceiver校验schema、数值、producer及epoch/sequence，写同一App Group缓存供WidgetKit读取。DemoData生成合成记录进入同一计算管线，真实同步拒收demo来源。
+
+手机使用Charts展示日内电量与7日准备度；Watch只消费手机结果。状态、解释和数据时间是正式报告的一部分，UI不补默认分数。

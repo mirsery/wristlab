@@ -38,6 +38,7 @@ func sleepRecord(_ id: String, _ start: String, _ end: String, _ stage: SleepSta
     let bedOnly = SleepCalculator.report(day: date("2026-10-20T14:00:00Z"), records: [records[0]],
                                          profile: HealthProfile(timeZoneID: "UTC"), clock: clock, asOf: date("2026-10-20T14:00:00Z"))
     #expect(bedOnly.totalMinutes == nil)
+    #expect(bedOnly.stages.isEmpty)
     #expect(bedOnly.primary == nil)
 }
 

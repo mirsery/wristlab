@@ -72,7 +72,7 @@ public enum SleepCalculator {
         let completedSegments = completed.flatMap(\.segments)
         let specificExists = completedSegments.contains { [.core, .deep, .rem].contains($0.stage) }
         var stages: [SleepStage: Double] = [:]
-        for phase in [SleepStage.core, .deep, .rem, .unspecified] where specificExists || phase == .unspecified {
+        for phase in [SleepStage.core, .deep, .rem, .unspecified] where !completedSegments.isEmpty && (specificExists || phase == .unspecified) {
             stages[phase] = completedSegments.filter { $0.stage == phase }.reduce(0) { $0 + $1.interval.duration / 60 }
         }
         var efficiency: Double?, latency: Double?

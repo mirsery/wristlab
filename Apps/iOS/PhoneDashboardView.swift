@@ -161,6 +161,9 @@ struct MetricDetailView: View {
     let metric: MetricEstimate
     let report: HealthReport?
     let now: Date
+    private func contributionLabel(_ key: String) -> String {
+        ["hrv":"HRV SDNN（ms）", "rhr":"静息心率（bpm）", "hr":"心率（bpm）", "baselineHRV":"个人 HRV 基线（ms）", "baselineRHR":"静息心率基线（bpm）", "baselineHR":"个人心率基线（bpm）"][key] ?? key
+    }
     var body: some View {
         List {
             Section { HStack { Spacer(); ScoreRing(value: metric.value); Spacer() }.padding(); Text(metricStatus(metric, at: now)) }
@@ -168,12 +171,13 @@ struct MetricDetailView: View {
                 LabeledContent("模式", value: metric.mode == "night" ? "夜间数据" : metric.mode == "dayFallback" ? "日间回退估算" : metric.mode)
                 LabeledContent("有效基线", value: "\(metric.baselineDays) 天")
                 if let coverage = metric.coverage { LabeledContent("观测覆盖", value: "\(Int(coverage * 100))%") }
-                ForEach(metric.contributions.keys.sorted(), id: \.self) { key in
-                    LabeledContent(key, value: metric.contributions[key]!.formatted(.number.precision(.fractionLength(2))))
+                ForEach(metric.contributions.keys.filter { !$0.hasPrefix("z") }.sorted(), id: \.self) { key in
+                    LabeledContent(contributionLabel(key), value: metric.contributions[key]!.formatted(.number.precision(.fractionLength(2))))
                 }
             }
             if !metric.reasons.isEmpty { Section("数据说明") { ForEach(metric.reasons, id: \.self) { Text(reasonText($0)) } } }
             Section("估算模型") {
+                LabeledContent("来源", value: report?.source == .demo ? "合成演示记录" : "Apple 健康（已选来源）")
                 Text("这是根据个人记录计算的实验估算，不是直接测量，也不是医疗或训练处方。")
                 Text(report?.modelVersion ?? Physiology.version).font(.caption)
                 if let at = metric.effectiveAt { LabeledContent("数据时间", value: at.formatted()) }

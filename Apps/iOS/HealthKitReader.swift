@@ -17,6 +17,14 @@ final class HealthKitReader {
         try await store.requestAuthorization(toShare: [], read: Set(Self.types.map { $0.1 }))
     }
     func readBatch(state: RepositoryState, asOf: Date) async throws -> RecordBatch {
+        do { return try await queryBatch(state: state, asOf: asOf) }
+        catch {
+            guard !state.anchors.isEmpty else { throw error }
+            var reset = state; reset.anchors = [:]
+            return try await queryBatch(state: reset, asOf: asOf)
+        }
+    }
+    private func queryBatch(state: RepositoryState, asOf: Date) async throws -> RecordBatch {
         defer { queries.removeAll() }
         guard HKHealthStore.isHealthDataAvailable() else { throw ReadError.unavailable }
         let clock = try AnalysisClock(timeZoneID: state.profile.timeZoneID)

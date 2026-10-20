@@ -126,7 +126,10 @@ public actor HealthRepository {
         next.report = try HealthEngine.evaluate(records: next.records, profile: next.profile, asOf: asOf, inputRevision: next.revision)
         if batch.replaceAll { next.anchors = [:] }
         next.anchors.merge(batch.anchors) { _, new in new }; next.queryStart = batch.queryStart ?? next.queryStart
-        next.sequence += 1; next.readingEnabled = true
+        if let old = state.report, old.sourceSignature != next.report?.sourceSignature {
+            next.epoch += 1; next.sequence = 0
+        } else { next.sequence += 1 }
+        next.readingEnabled = true
         next.snapshot = DisplaySnapshot(report: next.report!, producerID: next.producerID, epoch: next.epoch, sequence: next.sequence)
         if let old = state.snapshot, var candidate = next.snapshot {
             candidate.computedAt = old.computedAt; candidate.asOf = old.asOf; candidate.sequence = old.sequence

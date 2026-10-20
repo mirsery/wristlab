@@ -9,7 +9,13 @@ out = root / 'work/screenshots'
 out.mkdir(parents=True, exist_ok=True)
 
 def run(*args, check=True, timeout=300):
-    return subprocess.run(args, check=check, capture_output=True, text=True, timeout=timeout)
+    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+    with (out / 'capture.log').open('a') as log:
+        log.write(' '.join(args) + '\n' + result.stdout + result.stderr + '\n')
+    if check and result.returncode:
+        print(result.stdout, result.stderr, flush=True)
+        raise RuntimeError(f'Simulator command failed ({result.returncode}): {args}')
+    return result
 
 devices = json.loads(run('xcrun', 'simctl', 'list', 'devices', 'available', '--json').stdout)['devices']
 ios = [d for runtime, items in devices.items() if 'iOS-' in runtime for d in items if 'iPhone' in d['name']]

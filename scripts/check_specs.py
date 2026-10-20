@@ -66,6 +66,10 @@ for vector in fixture['vectors']:
     require(isinstance(vector['input'], dict) and isinstance(vector['expected'], dict)
             and vector['expected'], f'Incomplete vector: {vector["id"]}')
 
+require((root / 'specs/fixtures/business-v1.json').read_bytes() ==
+        (root / 'Packages/WristlabCore/Tests/WristlabCoreTests/Fixtures/business-v1.json').read_bytes(),
+        'Swift test fixtures differ from the specification source')
+
 print(f'Spec structure, local links, {len(ids)} acceptance IDs, '
       f'{len(scenarios)} scenarios, and {len(seen)} fixture structures passed')
 print('Algorithm correctness and device behavior are not validated by this check.')

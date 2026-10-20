@@ -64,8 +64,11 @@ final class DashboardModel: ObservableObject {
             report = result.report; profile = result.profile; updateSources(result)
             if let snapshot = result.snapshot { bridge.publish(snapshot) }
             status = result.records.isEmpty ? "暂无可读取记录；可能尚无记录或未允许读取，请检查健康 App。" : "已更新本地报告 · 估算仅供日常趋势参考"
-        } catch is CancellationError { status = "刷新已取消" }
-        catch { status = "刷新未完成，保留上次报告。请检查健康设置后重试。" }
+        } catch is CancellationError {
+            if token == generation { status = "刷新已取消" }
+        } catch {
+            if token == generation { status = "刷新未完成，保留上次报告。请检查健康设置后重试。" }
+        }
     }
     func enableDemo() async {
         demoEnabled = true
