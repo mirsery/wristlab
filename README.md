@@ -24,6 +24,8 @@ open Wristlab.xcodeproj
 
 ## 文档
 
+业务规格 business-v1 已定义：准备度、压力、电量、睡眠、运动负荷与建议区间；含31个验收场景和12组数值金例。当前应用仍为骨架，业务实现顺序见 [007](specs/007-implementation-plan.md)。
+
 - [代理规则](AGENTS.md)
 - [Spec 目录与交付状态](specs/README.md)
 - [架构](docs/architecture.md)
