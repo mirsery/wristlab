@@ -2,7 +2,7 @@
 
 ## 已执行的逻辑验证
 
-本地最新运行：30个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。CI最终revision的运行链接在PR中记录。
+本地最新运行：30个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。对应应用源码的[CI运行](https://github.com/mirsery/wristlab/actions/runs/39454777037)已通过。
 
 `Packages/WristlabCore/Tests/WristlabCoreTests/BusinessTests.swift`通过公共API覆盖：
 
@@ -19,7 +19,7 @@
 
 ## 平台验证
 
-CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch及Widget目标；截图来自运行的双端模拟器合成演示。最终run链接随PR提供。
+CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch及Widget目标；截图来自运行的双端模拟器合成演示。[已通过的构建与截图运行](https://github.com/mirsery/wristlab/actions/runs/39454777037)同时记录于截图manifest；后续仅文档更新可复用指纹一致的截图。
 
 本机只有Command Line Tools，但通过`scripts/swift-test.sh`显式发现已安装的TestingMacros插件，已能执行全部领域测试；没有绕过断言。
 
