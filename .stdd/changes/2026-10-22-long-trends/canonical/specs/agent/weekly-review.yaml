@@ -1,0 +1,20 @@
+meta:
+  task_id: weekly-review
+  change_id: 2026-10-22-long-trends
+  task_type: code
+  system: WeeklyReview
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-WEEK-001
+  description: 近7日与此前28日对比
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-WEEK-002
+  description: 近7日与此前28日对比
+  action: 模拟器合成截图人工检查
+  assertions:
+  - type: manual_review
+    expected: 截图与静态检查记录于test-report

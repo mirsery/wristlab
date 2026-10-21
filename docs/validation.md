@@ -67,3 +67,7 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 只改iPhone展示与Core纯展示模型，公式、门槛、模型版本、HealthKit读取类型、Watch同步schema不变。新增14个Swift Testing函数：贡献方向/±0.5展示分段/差值、规格分段边界、电量驱动区间（与c515ff6的数值和顺序校验和一致）、时间线断线与裁剪、纽约25小时夏令时日、旧缓存解码、睡眠泳道（真实SleepCalculator含清醒与冲突段）与空值、7日趋势。64 Core + 5 workspace、双端模拟器构建与四Widget注册运行检查通过，[PR #7 CI](https://github.com/mirsery/wristlab/actions/runs/39632665463)通过并生成当前截图。
 
 模拟器视觉检查使用东八区设备显示UTC合成报告，发现并修正时间按设备时区格式化的问题。VoiceOver仅静态审阅标签；真实数据下的首页图表、详情贡献、睡眠详情与7日切换尚未在真机验证。完整TC对照见[测试报告](../.stdd/archive/2026-10-21-metric-insights/test-report.md)。
+
+### 长期趋势、个人基线区间与近7日回顾（long-trends，2026-10-22）
+
+不扩大读取窗口或类型，不改公式。history扩为35个分析日并带逐日夜间HRV与静息心率；个人基线区间仅在今天准备度为夜间模式时提供，与其同一基线；趋势支持7/30日与五项指标；近7日回顾对比此前28日。新增9个测试函数（含复审变异补测），74 Core + 5 workspace、双端构建与Widget注册运行检查通过；模拟器合成截图检查趋势卡片与回顾卡片。真机与VoiceOver待验，Gate 3待用户确认。

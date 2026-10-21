@@ -48,7 +48,8 @@ private let stressInputs = ["hr": 82.0, "baselineHR": 70.6, "zHR": 1.4, "zHRV": 
     let rounded = MetricContributions.rows(for: .readiness, estimate: fresh(72, contributions: ["hrv": 55.4, "baselineHRV": 48.6, "zHRV": 0.8]), at: insightNow)[0]
     #expect([rounded.valueText, rounded.baselineText, rounded.differenceText] == ["55 ms", "49 ms", "+6 ms"])
     let equal = fresh(50, contributions: ["rhr": 57.4, "baselineRHR": 57.2, "zRHR": 0.1])
-    #expect(MetricContributions.rows(for: .readiness, estimate: equal, at: insightNow).first?.differenceText == "±0 bpm")
+    // Zero carries no sign (long-trends ADJ: VoiceOver reads "±" as "plus minus").
+    #expect(MetricContributions.rows(for: .readiness, estimate: equal, at: insightNow).first?.differenceText == "0 bpm")
 }
 
 // TC-CONTRIB-002: stress shows heart rate values and HRV direction only.
@@ -396,5 +397,6 @@ private func sleepReport(stages: [SleepStage: Double] = [:], total: Double? = ni
     let yorkSeries = TrendSeries(history: yorkHistory, metric: .readiness, endingAt: yorkEnd.addingTimeInterval(14 * 3600), timeZoneID: "America/New_York")
     #expect(yorkSeries.days.map(\.day) == yorkDays)
     #expect(yorkSeries.validDays == 7)
-    #expect(TrendMetric.allCases.map(\.title) == ["准备度", "睡眠", "负荷"])
+    // long-trends adds the nightly inputs as trend metrics.
+    #expect(TrendMetric.allCases.map(\.title) == ["准备度", "睡眠", "负荷", "夜间HRV", "静息心率"])
 }

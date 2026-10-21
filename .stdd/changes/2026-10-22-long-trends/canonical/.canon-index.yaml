@@ -1,0 +1,11 @@
+designs: {}
+proposals:
+  2026-10-22-long-trends: proposals/2026-10-22-long-trends.yaml
+specs:
+  agent:
+    long-trends: specs/agent/long-trends.yaml
+    weekly-review: specs/agent/weekly-review.yaml
+  code:
+    long-trends: specs/code/long-trends.yaml
+    weekly-review: specs/code/weekly-review.yaml
+version: '2.9'
