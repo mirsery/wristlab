@@ -66,8 +66,14 @@ Watch系统编辑器可打开，但当前选择的全屏表盘没有复杂功能
 
 ## 当前结论
 
-实现与本地逻辑/构建检查完成，可进行开发签名安装与用户验收；尚不宣称所有17 TC或真机能力通过。iPhone真机安装与启动已完成；Gate3未批准，未合并或归档。实际Watch安装/表盘添加与点击、跨设备同步清除、后台刷新与HealthKit真数据仍需要补完。
+实现与本地逻辑/构建检查完成，可进行开发签名安装与用户验收；尚不宣称所有17 TC或真机能力通过。iPhone真机安装与启动已完成；Gate3未批准，未合并或归档。实际表盘添加与点击、跨设备同步清除、后台刷新与HealthKit真数据仍需要补完。
 
 ## 真机安装补验
 
 首次generic签名产物的profile未包含当前手机，安装被系统以0xe8008012拒绝；改用明确的设备destination并允许Xcode注册设备后修复。用户手动完成开发者模式及开发签名信任，devicectl install返回App installed，launch返回Launched application，随后进程查询确认运行。未读取真实健康记录、未截取手机健康界面。安装/启动仅证明应用能在该手机运行，不证明Watch或HealthKit授权通过。
+
+## Watch 真机安装补验
+
+2026-10-21，AppleWatchSeries9/watchOS27.0.1。用户开启开发者模式并完成开发配对后，Mac设备列表识别到真实Watch。明确指定该设备destination，Xcode自动签名/注册，WristlabWatch与内嵌Widget构建成功；devicectl install返回App installed，launch返回Launched application，随后进程查询确认WristlabWatch运行。安装的是普通真实模式，未添加--demo。
+
+因此双端真机安装和启动通过。表盘四kind实际选择、点击冷/热启动、数据送达/清除、App Group实际读取与后台刷新仍未由安装证明，保留待验；未采集或提交真实健康数据、设备唯一标识及签名材料。

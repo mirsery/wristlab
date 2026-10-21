@@ -9,3 +9,5 @@ Gate1用户原文：确认。Gate2用户原文：确认 ，连续实施。均由
 工具限制：experience缺requests，extract-proposal不完整，structure delta及ci scanner使用旧路径/测试类型，Canonical/Swift实际检查替代并保留原失败日志。无上游工具修改、无自动批准Gate3、无合并/归档。准备草稿PR并观察CI。
 
 草稿PR #5已创建，Core/spec CI已通过，Apple构建与截图job仍运行；Gate3未批准。
+
+Watch后续补验：Series9/watchOS27.0.1真实设备已识别，定向签名构建、devicectl安装与启动成功，进程查询确认运行。未开启演示。数据同步/清除和四组件实际选择与点击仍未验收。
