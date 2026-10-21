@@ -1,0 +1,33 @@
+change_id: 2026-10-22-phone-widgets
+complexity_score: null
+current_phase: understand
+design_adjustments:
+  count: 0
+mode: standard
+phases:
+  build:
+    status: pending
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T02:26:55'
+    confirmed_by: dialog
+    confirmed_evidence: 用户选择本批#6四轮（长期趋势与周回顾、心情记录与压力对照、iPhone小组件、晨报本地通知）；Gate 1/2：按推荐方案连续实施；Gate
+      3明早真机验收；CI通过按顺序合并
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T02:26:25'
+    confirmed_by: dialog
+    confirmed_evidence: 用户选择本批#6四轮（长期趋势与周回顾、心情记录与压力对照、iPhone小组件、晨报本地通知）；Gate 1/2：按推荐方案连续实施；Gate
+      3明早真机验收；CI通过按顺序合并
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

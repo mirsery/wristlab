@@ -122,3 +122,28 @@ public enum ComplicationDestination: String, CaseIterable, Hashable, Sendable, I
         self = route
     }
 }
+
+// MARK: - iPhone widgets
+
+/// The phone writes its own latest snapshot; the widget accepts only a valid real one or a clear marker.
+public enum PhoneWidgetCache {
+    public static let fileName = "phone-snapshot.json"
+    public static func snapshot(from data: Data?) -> DisplaySnapshot? {
+        guard let data, data.count <= 65536, let snapshot = try? DisplaySnapshot.decode(data), snapshot.source == .healthKit else { return nil }
+        return snapshot
+    }
+}
+
+/// Readiness, energy and stress for the phone widget, under the same rules as the Watch complications.
+public struct PhoneWidgetSummary: Equatable, Sendable {
+    public let metrics: [ComplicationPresentation]
+    public let updatedAt: Date?
+    private let snapshot: DisplaySnapshot?
+
+    public init(snapshot: DisplaySnapshot?, at now: Date) {
+        self.snapshot = snapshot
+        metrics = [ComplicationMetric.readiness, .energy, .stress].map { ComplicationPresentation(snapshot: snapshot, metric: $0, at: now) }
+        updatedAt = metrics.compactMap(\.updatedAt).first
+    }
+    public func dates(now: Date) -> [Date] { ComplicationTimeline.dates(snapshot: snapshot, now: now) }
+}

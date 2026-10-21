@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-phone-widgets: proposals/2026-10-22-phone-widgets.yaml
+specs:
+  agent:
+    phone-widgets: specs/agent/phone-widgets.yaml
+  code:
+    phone-widgets: specs/code/phone-widgets.yaml
+version: '2.9'

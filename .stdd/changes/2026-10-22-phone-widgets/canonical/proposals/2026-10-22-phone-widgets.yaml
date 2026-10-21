@@ -1,0 +1,59 @@
+meta:
+  change_id: 2026-10-22-phone-widgets
+  title: iPhone主屏与锁屏小组件
+  created: '2026-10-22'
+  status: draft
+why:
+  problem: iPhone上只能打开应用才能看到准备度、电量与压力；同类产品普遍提供主屏/锁屏小组件。
+  motivation: 'issue #6候选#6。手机已在每次刷新生成DisplaySnapshot（给Watch用），可复用同一快照与ComplicationPresentation的过期/缺失/清除状态，不新增计算。'
+what_changes:
+- id: C1
+  description: iPhone应用每次得到真实（非演示）快照后，原子写入iPhone App Group中的phone-snapshot.json并请求重载小组件；清除数据写入清除标记。
+  type: new
+- id: C2
+  description: 新增iPhone小组件扩展：一个“Wristlab状态”配置，支持主屏小/中尺寸与锁屏圆形（准备度）、矩形（三项）、行内；缺失/过期/等待/已清除状态沿用ComplicationPresentation；固定本地化名称。
+  type: new
+- id: C3
+  description: Core新增从快照文件解码的校验入口（演示、损坏、超限、未知schema拒绝；清除标记保留）；组件时间线在各指标失效时刻刷新。
+  type: new
+- id: C4
+  description: 组件注册运行检查扩展到iPhone小组件配置；CI超时上限按新增步骤调整。
+  type: modified
+capabilities:
+  new:
+  - name: phone-widgets
+    description: iPhone快照缓存、小组件配置与显示（C1–C4）
+  modified: []
+constraints:
+- 不新增计算或读取；演示数据不写入缓存；隐私敏感视图在锁屏可被系统遮盖（privacySensitive）。
+- 不承诺固定刷新频率；过期状态必须可见。
+- Watch组件、Watch同步与App Group（watch）不变；iPhone新增独立App Group。
+- 新增签名能力需在真机安装时由Xcode重新生成配置，不提交团队签名设置。
+stakeholders:
+- 自用iPhone用户
+risk_areas:
+- capability: phone-widgets
+  risk: 配置名称插值导致WidgetKit注册时崩溃（EXP-20261021-002）。
+  mitigation: 固定字符串；注册运行检查覆盖iPhone配置。
+- capability: phone-widgets
+  risk: 旧快照显示为当前值。
+  mitigation: 按指标失效时刻生成时间线，过期隐藏数值并标注。
+non_goals:
+- 可配置小组件、Live Activity、Smart Stack推荐、点击深链到具体页面。
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  reference_changes:
+  - 2026-10-21-watch-face-complications
+  anchor_implementations:
+  - Apps/Widgets/WristlabWidget.swift
+  - Packages/WristlabCore/Sources/WristlabCore/ComplicationPresentation.swift
+success_criteria:
+- 快照文件解码拒绝演示/损坏/超限/未知schema并保留清除标记，有单测。
+- iPhone小组件配置在注册运行检查中逐个执行成功。
+- check.sh与build-apple.sh通过；模拟器小组件渲染截图检查；真机添加与刷新由用户验收。
