@@ -74,13 +74,13 @@ struct PhoneDashboardView: View {
             HStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 10) {
                     Label("训练准备度", systemImage: "leaf.fill").font(.subheadline).foregroundStyle(wristMint)
-                    Text(metric.value.map { $0 >= 67 ? "恢复得不错" : $0 >= 33 ? "接近个人常态" : "给自己一点休息" } ?? "从了解自己开始")
+                    Text(MetricExplanation(metric, at: now).displayValue.map { $0 >= 67 ? "恢复得不错" : $0 >= 33 ? "接近个人常态" : "给自己一点休息" } ?? "从了解自己开始")
                         .font(.system(.title3, design: .rounded, weight: .semibold))
                     Text(metricStatus(metric, at: now)).font(.caption).foregroundStyle(.secondary)
                     Text("查看依据  ↗").font(.caption2).foregroundStyle(wristMint).padding(.top, 4)
                 }
                 Spacer(minLength: 0)
-                ScoreRing(value: metric.value)
+                ScoreRing(value: MetricExplanation(metric, at: now).displayValue)
             }
             .padding(22).frame(maxWidth: .infinity, alignment: .leading)
             .background(LinearGradient(colors: [Color(red: 0.10, green: 0.20, blue: 0.18), wristCard], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 28))
@@ -103,7 +103,7 @@ struct PhoneDashboardView: View {
                 .chartYScale(domain: 0...100).chartXAxis { AxisMarks(values: .stride(by: .hour, count: 3)) { _ in AxisValueLabel(format: .dateTime.hour()); AxisGridLine().foregroundStyle(.white.opacity(0.04)) } }
                 .chartYAxis { AxisMarks(values: [0, 50, 100]) { _ in AxisValueLabel(); AxisGridLine().foregroundStyle(.white.opacity(0.04)) } }
                 .frame(height: 100)
-            } else { Text("完整睡眠和连续观测就绪后，这里会显示电量变化。缺口不会被补成直线。").font(.caption).foregroundStyle(.secondary).frame(minHeight: 80) }
+            } else { Text(MetricExplanation(report.energy.estimate, at: now).detail).font(.caption).foregroundStyle(.secondary).frame(minHeight: 80) }
         }.padding(18).background(wristCard, in: RoundedRectangle(cornerRadius: 24))
     }
     private struct ChartPoint: Identifiable { let id: Int; let at: Date; let value: Double?; let group: Int }
@@ -172,7 +172,11 @@ struct MetricDetailView: View {
     }
     var body: some View {
         List {
-            Section { HStack { Spacer(); ScoreRing(value: metric.value); Spacer() }.padding(); Text(metricStatus(metric, at: now)) }
+            Section {
+                HStack { Spacer(); ScoreRing(value: MetricExplanation(metric, at: now).displayValue); Spacer() }.padding()
+                Text(metricStatus(metric, at: now))
+                Text(MetricExplanation(metric, at: now).detail).font(.subheadline).foregroundStyle(.secondary)
+            }
             Section("计算依据") {
                 LabeledContent("模式", value: metric.mode == "night" ? "夜间数据" : metric.mode == "dayFallback" ? "日间回退估算" : metric.mode)
                 LabeledContent("有效基线", value: "\(metric.baselineDays) 天")

@@ -14,7 +14,7 @@
 
 同ID幂等upsert，删除按ID；更新有同步版本则高版本胜，无版本冲突重新查询。不同ID但同类型/source/device/start/end/标准值视为重复，取ID字典序最小代表。跨设备近似数值不是同一原始样本。
 
-数量来源按类型分开：用户选定顺序 > Apple Watch > 支持该类型的第三方 > iPhone；手工数量不参与v1估算，可在本地原始记录中另行展示。首次在历史里选最高可用优先级来源组，同级sourceID升序；组为bundle+device family。一次revision内固定组，不逐缺口填入低优先级来源；用户改源才重建。HR/HRV/RHR可分别选择，组成sourceSignature。
+数量来源按类型分开：用户选定顺序 > Apple Watch > 支持该类型的第三方 > iPhone；手工数量不参与v1估算，可在本地原始记录中另行展示。自动候选来源须在评估日D之前60个分析日的本地午夜至asOf（按样本end，两端包含）有至少一条有效数量样本，再按既有优先级及同级sourceID升序选单组；保留窗口外数据不能单独让来源成为自动候选。显式preferredSources中仍有保留有效记录的组继续优先，不静默替用户改源；组为bundle+device family。选定后保留该组全部有效历史供回放，数量类型分别选组。一次revision内固定组，不逐缺口填入低优先级来源；用户偏好或自动候选资格变化导致sourceSignature改变时，按新组全量重建并推进同步epoch。HR/HRV/RHR可分别选择，组成sourceSignature。
 
 睡眠按[004](004-sleep.md)每报告窗口选源。准备度night和sleep压力的sourceSignature必须包含睡眠来源；dayFallback/awake不混入其他模式。设备同family更换仍可同组，原始去重仍保留deviceID。来源签名改变不能接旧基线/电量检查点。
 

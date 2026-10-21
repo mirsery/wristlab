@@ -26,11 +26,12 @@ struct WristlabWatchApp: App {
                         if let current, !current.clearData {
                             let readiness = ComplicationPresentation(snapshot: current, metric: .readiness, at: context.date)
                             Text("训练准备度").font(.system(size: 10)).foregroundStyle(.secondary)
-                            ScoreRing(value: demoEnabled ? current.readiness.value : readiness.value, size: 64)
+                            NavigationLink(value: WatchPage.metric(.readiness)) {
+                                ScoreRing(value: demoEnabled ? current.readiness.value : readiness.value, size: 64)
+                            }.buttonStyle(.plain)
                             HStack {
-                                watchMetric(.energy, snapshot: current, color: .cyan, at: context.date)
-                                Spacer()
-                                watchMetric(.stress, snapshot: current, color: .orange, at: context.date)
+                                NavigationLink(value: WatchPage.metric(.energy)) { watchMetric(.energy, snapshot: current, color: .cyan, at: context.date) }.buttonStyle(.plain)
+                                NavigationLink(value: WatchPage.metric(.stress)) { watchMetric(.stress, snapshot: current, color: .orange, at: context.date) }.buttonStyle(.plain)
                             }.padding(.horizontal, 12)
                             if !demoEnabled { Text(readiness.statusText).font(.system(size: 8)).foregroundStyle(.secondary).lineLimit(2) }
                             Text(current.computedAt, style: .time).font(.system(size: 8)).foregroundStyle(.secondary)
@@ -97,8 +98,10 @@ struct WristlabWatchApp: App {
         return VStack(spacing: 2) {
             Text(metric.shortTitle).font(.system(size: 9)).foregroundStyle(color)
             Text(value.map(String.init) ?? "—").font(.system(size: 20, weight: .semibold, design: .rounded)).monospacedDigit()
-            if !demoEnabled, display.state != .current { Text(display.statusText).font(.system(size: 8)).foregroundStyle(.secondary) }
-        }.accessibilityElement(children: .combine)
+            if !demoEnabled, display.state != .current {
+                Text(display.statusText).font(.system(size: 8)).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+            }
+        }.frame(maxWidth: .infinity).accessibilityElement(children: .combine)
     }
 }
 
@@ -117,6 +120,9 @@ private struct WatchMetricDetail: View {
                     Label(metric.title, systemImage: metric.symbol).font(.headline)
                     ScoreRing(value: demoEstimate?.value ?? display.value, size: 90).padding(.vertical, 8)
                     Text(demo.map { metricStatus(metric.estimate(in: $0), at: $0.asOf) } ?? display.statusText).font(.caption2).foregroundStyle(.secondary)
+                    if demo == nil {
+                        Text(display.detailText).font(.caption2).foregroundStyle(.secondary)
+                    }
                     if let date = demo?.computedAt ?? display.updatedAt {
                         Text("最近更新").font(.caption2).foregroundStyle(.secondary)
                         Text(date, style: .time).font(.caption2)

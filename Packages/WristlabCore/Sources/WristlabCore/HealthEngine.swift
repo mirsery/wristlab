@@ -44,9 +44,10 @@ public enum HealthEngine {
         let clock = try AnalysisClock(timeZoneID: profile.timeZoneID)
         let today = clock.day(containing: asOf).start
         let records = RecordNormalizer.normalize(input, asOf: asOf)
-        let hr = RecordNormalizer.selected(records, kind: .heartRate, profile: profile)
-        let rhr = RecordNormalizer.selected(records, kind: .restingHeartRate, profile: profile)
-        let hrv = RecordNormalizer.selected(records, kind: .hrv, profile: profile)
+        let sourceWindow = DateInterval(start: clock.shiftedDay(today, by: -60), end: asOf)
+        let hr = RecordNormalizer.selected(records, kind: .heartRate, profile: profile, sourceWindow: sourceWindow)
+        let rhr = RecordNormalizer.selected(records, kind: .restingHeartRate, profile: profile, sourceWindow: sourceWindow)
+        let hrv = RecordNormalizer.selected(records, kind: .hrv, profile: profile, sourceWindow: sourceWindow)
         let workouts = ActivityCalculator.deduplicatedWorkouts(records, preferredSources: profile.preferredSources[.workout] ?? [])
         let excluded = union(workouts.map { DateInterval(start: $0.start.addingTimeInterval(-1800), end: $0.end.addingTimeInterval(1800)) })
         let usableHRV = hrv.filter { record in !excluded.contains { interval in
@@ -120,11 +121,22 @@ public enum HealthEngine {
             timeline.append(StressBucket(interval: interval, estimate: metric))
         }
         var seeds: [EnergySeed] = []
+        var lastSeedFailure: MetricEstimate?
         for row in basis {
             guard let primary = row.sleep.primary else { continue }
+            // Diagnose each completed night independently so an older calibration
+            // failure cannot hide the latest night's missing inputs.
+            lastSeedFailure = MetricEstimate(reasons: ["recalibrationRequired"], mode: "energy")
             let nightHRV = usableHRV.filter { record in primary.segments.contains { contains($0.interval, record.end) } }
-            guard nightHRV.count >= 2 else { continue }
+            guard nightHRV.count >= 2 else {
+                lastSeedFailure = MetricEstimate(reasons: ["missingCurrentHRV"], mode: "energy")
+                continue
+            }
             let dayRHR = rhr.filter { contains(clock.day(containing: row.day), $0.start) }.sorted { $0.end < $1.end }
+            guard !dayRHR.isEmpty else {
+                lastSeedFailure = MetricEstimate(reasons: ["missingCurrentRHR"], mode: "energy")
+                continue
+            }
             for candidate in dayRHR {
                 let earliest = max(primary.interval.end.addingTimeInterval(5400), candidate.end)
                 let tick = Date(timeIntervalSince1970: ceil(earliest.timeIntervalSince1970 / 60) * 60)
@@ -137,9 +149,18 @@ public enum HealthEngine {
                 }
                 let score = Physiology.readiness(hrv: median(nightHRV.filter { $0.end <= tick }.compactMap(\.value)), rhr: candidate.value, history: history)
                 if let raw = score.rawValue { seeds.append(EnergySeed(at: tick, value: raw)); break }
+                lastSeedFailure = score
             }
         }
         var energy = EnergyCalculator.replay(seeds: seeds, asleep: asleep, workouts: workouts.map(\.interval), stress: timeline, asOf: asOf)
+        if seeds.isEmpty {
+            if var failure = lastSeedFailure {
+                failure.mode = "energy"
+                energy.estimate = failure
+            } else {
+                energy.estimate = MetricEstimate(reasons: ["missingPrimarySleep"], mode: "energy")
+            }
+        }
         energy.points = energy.points.filter { $0.at >= today }
         var loads: [Date: LoadSummary] = [:]
         for row in basis {

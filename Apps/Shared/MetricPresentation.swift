@@ -6,13 +6,10 @@ let wristBackground = Color(red: 0.035, green: 0.055, blue: 0.075)
 let wristCard = Color(red: 0.075, green: 0.10, blue: 0.13)
 
 func metricStatus(_ metric: MetricEstimate, at now: Date) -> String {
-    if metric.isStale(at: now), metric.value != nil { return "数据已过期" }
-    if metric.availability == .calibrating { return "校准中 · \(metric.baselineDays)/14 天" }
-    if metric.value == nil { return reasonText(metric.reasons.first ?? "noReadableSamples") }
-    return metric.quality == .partial ? "部分数据估算" : "基于个人历史"
+    MetricExplanation(metric, at: now).summary
 }
 func reasonText(_ code: String) -> String {
-    ["noReadableSamples": "暂无可读取记录", "missingCurrentHRV": "等待 HRV 记录", "missingCurrentRHR": "等待今日静息心率", "missingPrimarySleep": "等待完整主睡眠", "baselineNotReady": "个人基线校准中", "hrOnly": "仅依据心率估算", "missingHR": "等待心率记录", "lowCoverage": "数据覆盖不足", "observationGap": "存在未观测时段", "recalibrationRequired": "等待重新校准", "missingMaximumHR": "请先设置最大心率", "missingHistory": "历史记录不足", "sourceConflict": "部分记录存在冲突", "awaitingSync": "等待手机同步", "stale": "数据已过期", "aboveConfiguredMaximum": "心率超过已设最大值"][code] ?? "等待更多记录"
+    MetricExplanation.reasonText(code)
 }
 struct ScoreRing: View {
     let value: Int?
@@ -43,10 +40,13 @@ struct SmallMetricCard: View {
         VStack(alignment: .leading, spacing: 10) {
             Label(title, systemImage: symbol).font(.subheadline).foregroundStyle(color)
             HStack(alignment: .firstTextBaseline, spacing: 5) {
-                Text(metric.value.map(String.init) ?? "—").font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
+                Text(MetricExplanation(metric, at: now).displayValue.map(String.init) ?? "—").font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
                 Text("/100").font(.caption).foregroundStyle(.secondary)
             }
             Text(metricStatus(metric, at: now)).font(.caption2).foregroundStyle(.secondary)
+            if MetricExplanation(metric, at: now).displayValue == nil {
+                Text("查看原因与建议 ↗").font(.caption2).foregroundStyle(color)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading).padding(18)
         .background(wristCard, in: RoundedRectangle(cornerRadius: 24))

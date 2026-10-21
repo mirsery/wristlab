@@ -1,0 +1,71 @@
+meta:
+  task_id: active-health-sources
+  change_id: 2026-10-21-active-health-sources
+  task_type: code
+  system: WristlabCore选源及HealthRepository
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-SOURCE-001
+  description: 历史失活来源
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SOURCE-002
+  description: 保留既有优先级
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SOURCE-003
+  description: 明确偏好优先
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SOURCE-004
+  description: 边界及完整历史
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SOURCE-005
+  description: 确实缺失与校准
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SOURCE-006
+  description: 来源切换一致重建
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-EXPLAIN-001
+  description: 夜间基线不足
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-EXPLAIN-002
+  description: 必要夜间输入缺失
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-EXPLAIN-003
+  description: 双端可见且同一解释
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-EXPLAIN-004
+  description: 状态优先与未知回退
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+rollback:
+  steps:
+  - 回退本次代码，保留用户原始健康记录与配置；按旧实现重算时仍可能复现选源故障。

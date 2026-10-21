@@ -31,14 +31,23 @@ public struct ComplicationPresentation: Equatable, Sendable {
     public let state: ComplicationState
     public let updatedAt: Date?
     public let baselineDays: Int
+    private let explanation: MetricExplanation?
+    public var detailText: String {
+        switch state {
+        case .awaitingSync: "尚未收到可用手机快照。请在手机打开Wristlab，连接健康数据并刷新，再保持两端连接。"
+        case .cleared: "手机已清除应用数据。请在手机重新读取后同步；清除不会删除Apple健康原始记录。"
+        case .stale: "快照或指标已超过有效时间。请在手机刷新并保持两端连接；旧记录不会因刷新变成新记录。"
+        default: explanation?.detail ?? "等待更多有效记录。"
+        }
+    }
     public var statusText: String {
         switch state {
         case .current: "基于个人历史"
         case .partial: "部分估算"
         case .awaitingSync: "等待手机"
         case .cleared: "数据已清除"
-        case .calibrating: "校准中 · \(baselineDays)/14天"
-        case .insufficientData: "数据不足"
+        case .calibrating: explanation?.summary ?? "校准中 · \(baselineDays)/14天"
+        case .insufficientData: explanation?.summary ?? "数据不足"
         case .unsupported: "暂不支持"
         case .failed: "读取失败"
         case .stale: "已过期"
@@ -47,12 +56,13 @@ public struct ComplicationPresentation: Equatable, Sendable {
     public init(snapshot: DisplaySnapshot?, metric: ComplicationMetric, at now: Date) {
         self.metric = metric
         guard let snapshot, (try? snapshot.validate()) != nil, snapshot.source == .healthKit else {
-            value = nil; state = .awaitingSync; updatedAt = nil; baselineDays = 0
+            value = nil; state = .awaitingSync; updatedAt = nil; baselineDays = 0; explanation = nil
             return
         }
         updatedAt = snapshot.computedAt
         let estimate = metric.estimate(in: snapshot)
         baselineDays = estimate.baselineDays
+        explanation = MetricExplanation(estimate, at: now)
         if snapshot.clearData {
             value = nil; state = .cleared
         } else if snapshot.isStale(at: now) || estimate.isStale(at: now) {

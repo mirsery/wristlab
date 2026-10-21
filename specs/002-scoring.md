@@ -111,3 +111,7 @@ zHRV=clamp((baselineLogHRV-ln(HRV_recent))/scaleLogHRV,-3,3)
 - A-007：HR-only部分质量，sleep/awake隔离，无HR不算，15分钟时效和右边界正确。
 - A-008：seed、30分钟缺口、超30分钟断链、低覆盖与重新校准有明确结果。
 - A-009：[006](006-acceptance.md)金例全部通过；公式变更同步版本/夹具/解释。
+
+## 无电量起点的解释
+
+无合法seed不等于缺少所有睡眠。若完成主睡眠对应夜间准备度因历史不足无法建立seed，电量 SHALL 保留calibrating、baselineNotReady及实际baselineDays；若已有主睡眠但夜间HRV或对应RHR缺失，分别给出必要输入缺失原因。只有没有已完成主睡眠才使用missingPrimarySleep。数值种子、14个有效日、覆盖和断链规则保持原定义。
