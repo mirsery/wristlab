@@ -1,0 +1,29 @@
+adjustments:
+- id: ADJ-001
+  type: major
+  slice: C1复审
+  design_ref: 决策1；SC-BRIEF-001/002
+  change: 只在分析时区05:00–14:00发送；时长改为主睡眠（primary.asleepMinutes，不含小睡），文案“主睡眠”；日间回退与部分估算另标。
+  reason: 无时刻约束会深夜推送并占用当天名额；totalMinutes含小睡且“昨晚睡眠”与GLOSSARY冲突；部分/日间估算缺标注。
+  impact: 晨报判定与文案；001与GLOSSARY同步。
+- id: ADJ-002
+  type: major
+  slice: C1复审
+  design_ref: 决策3
+  change: AppDelegate作为通知代理在前台显示；await后核对generation；先记当天再投递、失败回滚；清除数据撤回已送达与待发晨报。
+  reason: 无代理时前台通知被静音却已记为已发；清除期间可能用旧数据推送，旧数值留在通知中心。
+  impact: DashboardModel/AppDelegate；003新增本地通知说明。
+- id: ADJ-003
+  type: minor
+  slice: C1复审
+  design_ref: 决策2
+  change: 晨报单独的设置页提示（授权拒绝、系统事后关闭）；开关乐观更新；开关名改为“推送晨报”。
+  reason: 原提示写在首页状态行且会被覆盖；开关在授权弹窗期间回弹。
+  impact: SettingsView。
+- id: ADJ-004
+  type: minor
+  slice: C1复审
+  design_ref: SC-BRIEF-003
+  change: 设置与投递的验收方式改为真机（演示从不投递，模拟器只能看到设置页）。
+  reason: 原写模拟器截图做不到。
+  impact: test-plan与agent CP。

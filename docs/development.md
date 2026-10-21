@@ -19,7 +19,7 @@ brew install xcodegen
 3. `xcodegen generate`后打开Wristlab.xcodeproj；为Wristlab、WristlabWatch、WristlabWidget、WristlabPhoneWidget四个target选择可用签名team。
 4. 按账号实际可用性配置HealthKit、HealthKit Background Delivery和Watch/Widget App Groups。应用组为`group.com.mirsery.wristlab.watch`（Watch与表盘组件）和`group.com.mirsery.wristlab.phone`（iPhone应用与iPhone小组件，需让Xcode自动注册）；双端真机签名及安装已通过；HealthKit实际授权、App Group数据读取和后台行为仍待验证。
 5. 若改bundleID，同步修改project.yml中的Watch companion、Widget前缀，以及WatchBridge/Widget、PhoneWidgetStore/iPhone小组件中的App Group常量和entitlements。保持一致；个人证书/配置不提交。
-6. 配对iPhone与Watch，按Xcode引导开启开发者模式，分别运行两个scheme。Widget构建为Watch app内嵌扩展；长按系统表盘→编辑→复杂功能，选择Wristlab的电量/准备度/压力，或在矩形槽位选择状态总览。也可从iPhone系统Watch App编辑。iPhone小组件：长按主屏空白处→编辑→添加小组件，搜索Wristlab选择小或中尺寸；锁屏长按→自定→添加小组件选择圆形、矩形或行内。手机刷新一次后组件才有数据。
+6. 配对iPhone与Watch，按Xcode引导开启开发者模式，分别运行两个scheme。Widget构建为Watch app内嵌扩展；长按系统表盘→编辑→复杂功能，选择Wristlab的电量/准备度/压力，或在矩形槽位选择状态总览。也可从iPhone系统Watch App编辑。iPhone小组件：长按主屏空白处→编辑→添加小组件，搜索Wristlab选择小或中尺寸；锁屏长按→自定→添加小组件选择圆形、矩形或行内。手机刷新一次后组件才有数据。晨报：设置→晨报通知→打开“推送晨报”并允许通知；次日主睡眠完成后、5:00–14:00内的首次刷新（打开应用或系统后台送达）时收到一条，送达时间不固定。真机验收请分别覆盖“前台打开应用”和“后台送达”两条路径。
 7. 手机点“连接Apple健康”后按需授权只读类型；无记录不能当成拒绝授权。已有历史不足14个有效日时显示校准，不造分数。
 
 ## 本地演示

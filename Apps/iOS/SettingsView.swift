@@ -48,6 +48,16 @@ struct SettingsView: View {
                     Button("刷新数据") { Task { await model.refresh() } }
                     Button("打开合成演示") { dismiss(); Task { await model.enableDemo() } }
                 }
+                Section {
+                    Toggle("推送晨报", isOn: Binding(get: { model.morningBriefEnabled }, set: { value in Task { await model.setMorningBrief(enabled: value) } }))
+                    Toggle("通知中隐藏数值", isOn: Binding(get: { !model.morningBriefShowsValues }, set: { model.setMorningBrief(showValues: !$0) }))
+                        .disabled(!model.morningBriefEnabled)
+                } header: { Text("晨报通知") } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let notice = model.morningBriefNotice { Text(notice).foregroundStyle(.orange) }
+                        Text("每天5:00–14:00之间（分析时区），刷新得到今天已完成的主睡眠后发送一次。送达时间取决于系统后台机会和打开应用的时间，不固定。显示数值时，数值会出现在锁屏和通知中心，系统也可能转发到配对的Apple Watch；隐藏数值时只提示主睡眠已汇总。清除数据会撤回已送达的晨报。")
+                    }
+                }
                 Section("Apple Watch") {
                     NavigationLink("表盘组件") { WatchFaceGuideView() }
                 }
@@ -59,6 +69,7 @@ struct SettingsView: View {
                 Section { Text(model.status).font(.footnote).foregroundStyle(.secondary) }
             }
             .navigationTitle("设置")
+            .task { await model.checkMorningBriefPermission() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) { Button("保存") { Task { await model.save(candidate); dismiss() } }.disabled(model.busy || (try? candidate.validate()) == nil) }
