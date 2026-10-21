@@ -5,13 +5,16 @@ Compilation alone misses WidgetKit runtime metadata preconditions. The host uses
 synthetic UI only, never invokes a provider, and never opens a health container.
 """
 import argparse
+from datetime import datetime
 import json
 import os
 from pathlib import Path
 import subprocess
+import time
 
 ROOT = Path(__file__).resolve().parent.parent
 WORK = ROOT / "work" / "widget-registration-test"
+EXECUTABLE = "WidgetRegistrationTest"
 
 
 def run(args, *, capture=False, timeout=180):
@@ -20,6 +23,40 @@ def run(args, *, capture=False, timeout=180):
         stdout=subprocess.PIPE if capture else None,
         stderr=subprocess.STDOUT if capture else None, timeout=timeout,
     ).stdout
+
+
+def diagnose(udid, since):
+    """Print what the simulator recorded about the probe after a failed launch.
+
+    A probe can exit without any marker or fatal message; the crash report and
+    the simulator log are the only evidence left. Best effort: it only runs on a
+    failure path, so a collection error can never turn a failure into a pass.
+    """
+    try:
+        log = subprocess.run([
+            "xcrun", "simctl", "spawn", udid, "log", "show", "--style", "compact",
+            "--start", since.strftime("%Y-%m-%d %H:%M:%S"),
+            "--predicate", f'process == "{EXECUTABLE}" OR eventMessage CONTAINS "{EXECUTABLE}"',
+        ], text=True, capture_output=True, timeout=120)
+        lines = (log.stdout + log.stderr).splitlines()[-200:]
+        log_section = "--- simulator log (last 200 lines)\n" + "\n".join(lines)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        log_section = f"--- simulator log unavailable: {error}"
+    # ReportCrash writes asynchronously, seconds after the process is gone.
+    deadline = time.monotonic() + 10
+    while True:
+        reports = sorted(
+            p for p in (Path.home() / "Library/Logs/DiagnosticReports").glob(f"{EXECUTABLE}*")
+            if p.stat().st_mtime >= since.timestamp()
+        )
+        if reports or time.monotonic() >= deadline:
+            break
+        time.sleep(1)
+    sections = [f"--- crash report {p.name}\n{p.read_text(errors='replace')[:20000]}" for p in reports]
+    sections = (sections or ["--- crash report: none written within 10 seconds"]) + [log_section]
+    text = "\n".join(sections)
+    (WORK / "diagnostics.log").write_text(text)
+    print(text)
 
 
 def main():
@@ -111,9 +148,10 @@ targets:
             "-destination", f"id={udid}", "-derivedDataPath", str(WORK / "DerivedData"),
             "CODE_SIGNING_ALLOWED=NO", "build",
         ], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=240)
-    app = WORK / "DerivedData/Build/Products/Debug-watchsimulator/WidgetRegistrationTest.app"
+    app = WORK / f"DerivedData/Build/Products/Debug-watchsimulator/{EXECUTABLE}.app"
     bundle = "com.mirsery.wristlab.registrationtest"
     run(["xcrun", "simctl", "install", udid, str(app)])
+    since = datetime.now()
     try:
         output = run(["xcrun", "simctl", "launch", "--console", "--terminate-running-process", udid, bundle], capture=True, timeout=45)
         (WORK / "runtime.log").write_text(output)
@@ -121,12 +159,14 @@ targets:
         # simctl can return zero even when the child traps: require every marker.
         markers = [f"REGISTRATION: {kind} OK" for kind in ["energy", "readiness", "stress", "overview"]] + ["REGISTRATION: PASS"]
         if not all(marker in output for marker in markers) or "Fatal error:" in output:
+            diagnose(udid, since)
             raise SystemExit("FAIL: production Widget configuration trapped or did not finish.")
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         output = error.stdout or ""
         if isinstance(output, bytes):
             output = output.decode(errors="replace")
         (WORK / "runtime.log").write_text(output + "\n" + str(error))
+        diagnose(udid, since)
         raise
     finally:
         run(["xcrun", "simctl", "uninstall", udid, bundle])

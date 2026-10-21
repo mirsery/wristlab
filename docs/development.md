@@ -40,4 +40,4 @@ brew install xcodegen
 
 ## Widget运行注册回归
 
-`build-apple.sh`现在还调用`python3 scripts/test-widget-registration.py`，要求可用的watchOS模拟器运行时。测试在隔离宿主中执行四个生产Widget配置，不读取健康缓存；注册时的文本前置条件只能在运行时发现。可用`--device <模拟器UDID>`指定设备，日志保存在忽略提交的work/widget-registration-test目录。
+`build-apple.sh`现在还调用`python3 scripts/test-widget-registration.py`，要求可用的watchOS模拟器运行时。测试在隔离宿主中执行四个生产Widget配置，不读取健康缓存；注册时的文本前置条件只能在运行时发现。可用`--device <模拟器UDID>`指定设备，日志保存在忽略提交的work/widget-registration-test目录。失败时脚本会打印本次启动后写出的崩溃报告和模拟器日志（最近200行），并保存为同目录的diagnostics.log；不重试，偶发失败也保留现场。

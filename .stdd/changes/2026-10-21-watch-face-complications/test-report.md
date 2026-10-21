@@ -115,3 +115,9 @@ RED：`./scripts/swift-test.sh --filter snapshotPolicyFailureLeavesPreviousFile`
 普通版本回装：两端 install 均成功，iPhone 和 Watch 均返回 Launched application；安装保留原数据。普通二进制及生产 Apps/Packages/Tests 已检查无临时诊断标签。最终真机布局/显示仍待用户反馈，不将进程启动等同数值或全部验收完成。
 
 用户随后确认普通版本：“已显示指标区域，布局正常”。据此关闭本次 Watch 空白首页与首页未铺满报障；指标为缺失值的手机输入问题另行排查，仍不代表全部表盘/后台场景通过。
+
+## CI 偶发失败与注册检查诊断
+
+2026-10-21，f82aedb首次CI的iOS and watchOS build失败：探针仅输出进程号，没有四个OK/PASS标记，也没有`Fatal error`，simctl正常返回，说明进程无输出退出而非已知的注册崩溃。同一commit重跑（attempt 2）四配置均OK并PASS；上一次通过的a113b4c与该commit的Widget源码相同。原日志未留崩溃报告或系统日志，偶发原因未知，不归因于模拟器启动或代码改动。
+
+用户同意后，注册检查在失败路径打印本次启动后的崩溃报告（ReportCrash异步写入，最多等10秒）及模拟器日志最近200行，并保存work/widget-registration-test/diagnostics.log；不加重试，不放宽判定。本地三场景验证：当前源码PASS且不产生诊断；修复前插值源码退出1，诊断含EXC_BREAKPOINT崩溃报告及同一fatal日志；临时让Energy配置静默exit(0)的源码复现CI特征（仅进程号），退出1并输出进程生命周期日志、注明无崩溃报告。后两种源码只放临时目录，未提交。
