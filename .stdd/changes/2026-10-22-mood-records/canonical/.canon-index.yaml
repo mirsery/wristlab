@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-mood-records: proposals/2026-10-22-mood-records.yaml
+specs:
+  agent:
+    mood-records: specs/agent/mood-records.yaml
+  code:
+    mood-records: specs/code/mood-records.yaml
+version: '2.9'

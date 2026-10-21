@@ -1,0 +1,49 @@
+change_id: 2026-10-22-mood-records
+complexity_score: null
+current_phase: build
+design_adjustments:
+  count: 4
+mode: standard
+phases:
+  build:
+    status: in_progress
+    slices_completed:
+      '1':
+        status: done
+        tc_coverage: 3/3 Core
+        new_tests: 9
+        verified_at: '2026-10-22T02:25:27+0800'
+      '2':
+        status: done
+        tc_coverage: 1/1 模拟器截图+静态
+        new_tests: 0
+        verified_at: '2026-10-22T02:25:27+0800'
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T02:14:30'
+    confirmed_by: dialog
+    confirmed_evidence: 用户选择本批#6四轮（长期趋势与周回顾、心情记录与压力对照、iPhone小组件、晨报本地通知）；Gate 1/2：按推荐方案连续实施；Gate
+      3明早真机验收；CI通过按顺序合并
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T02:13:40'
+    confirmed_by: dialog
+    confirmed_evidence: 用户选择本批#6四轮（长期趋势与周回顾、心情记录与压力对照、iPhone小组件、晨报本地通知）；Gate 1/2：按推荐方案连续实施；Gate
+      3明早真机验收；CI通过按顺序合并
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 4
+  tc_cases: 4
+  test_functions: 9
+version: '3.0'
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+  evidence: 用户选择本批四轮，Gate 1/2按推荐方案连续实施，Gate 3明早真机验收，CI通过按顺序合并

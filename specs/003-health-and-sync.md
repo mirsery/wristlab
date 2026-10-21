@@ -4,7 +4,7 @@
 
 ## 读取与授权
 
-用户主动操作后只读HR、RHR、HRV SDNN、sleepAnalysis、workout；不请求写权限。活动能量后续只显示原始值，不参与v1公式。先判断HealthKit支持情况；请求完成再查询，空结果用中性文案，不推断denied。
+用户主动操作后只读HR、RHR、HRV SDNN、sleepAnalysis、workout；不请求写权限。iOS 18及以上，用户在心情卡片另行主动连接后只读State of Mind：单独授权、单独查询，不进入评分读取类型、锚点、规范记录仓库或Watch快照，只在内存中用于并列显示（见001“心情记录与压力对照”）；空结果不推断denied。活动能量后续只显示原始值，不参与v1公式。先判断HealthKit支持情况；请求完成再查询，空结果用中性文案，不推断denied。
 
 初次读取D之前60个完整分析日至asOf，sleep额外前取一天作边界缓冲。查询包括相交interval；保留原始时间；end>asOf的未结束原始sample不用于数值，未来完整sample隔离。合成测试与实际记录分开存储。
 
@@ -36,6 +36,7 @@
 | evaluation | asOf=评估截止时刻；computedAt=执行时刻；重复执行不改变值和原样本年龄 |
 | provenance | demo/healthKit、sourceSignature、latestSampleAt、输入数量；原始sampleID仅本地解释 |
 | metric | value?、rawValue本地、availability、dataQuality?、reasonCodes、mode、窗口、validUntil、baselineDays、coverage?、分项贡献 |
+| 报告附带（iPhone本地） | stressTimeline为D-6前15分钟至asOf的5分钟压力桶；history为35个分析日；energy驱动区间与personalRanges为可选展示字段；均不进入Watch快照 |
 | sleep/activity | 模块独立可用/缺失，不因一项不足把整份报告判失败 |
 | revision | 内容原子提交成功后递增；仅computedAt变化不无端发同步 |
 
@@ -66,7 +67,7 @@ envelope≤32KiB，包含schema、source、producerID、epoch、sequence、asOf/
 
 ## 清除和撤销
 
-清派生缓存：保留规范记录和设置，发送清除快照，再全量重算。停止读取并清应用数据：停观察、取消任务，删规范记录/派生结果/anchor，仅保留同步控制元数据；不删除Apple健康原始记录。
+清派生缓存：保留规范记录和设置，发送清除快照，再全量重算。停止读取并清应用数据：停观察、取消任务，删规范记录/派生结果/anchor，仅保留同步控制元数据；同时清空内存中的心情记录并忘记心情连接请求，重新连接需在心情卡片再次主动发起。不删除Apple健康原始记录。
 
 系统撤销读权限不能可靠检测为一个denied事件；后续为空显示中性缺失和最后记录时间。提供显式清除操作，不因推测撤销就声称本地/离线Watch已全部清空。
 

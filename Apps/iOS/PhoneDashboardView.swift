@@ -34,7 +34,11 @@ struct PhoneDashboardView: View {
                         metricLink(.energy, "身体电量", "battery.75percent", report?.energy.estimate ?? MetricEstimate(), .cyan)
                         metricLink(.stress, "生理压力", "waveform.path.ecg", report?.stress ?? MetricEstimate(), .orange)
                     }
-                    if let report { dayRhythm(report); sleepCard(report); weeklyChart(report); weeklyReview(report); activityCard(report) }
+                    if let report {
+                        dayRhythm(report); sleepCard(report); weeklyChart(report); weeklyReview(report)
+                        if model.moodSupported { moodCard(report) }
+                        activityCard(report)
+                    }
                     else { emptyState }
                     Text(model.demoEnabled ? "所有数值由合成记录和同一业务引擎生成。" : model.status)
                         .font(.footnote).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
@@ -99,6 +103,8 @@ struct PhoneDashboardView: View {
         let asOf = report.asOf.formatted(reportStyle(.dateTime.hour(.twoDigits(amPM: .omitted)).minute(.twoDigits), report.timeZoneID))
         let isolatedEnergy = Set(Dictionary(grouping: timeline.energy, by: \.segment).filter { $0.value.count == 1 }.keys)
         let isolatedStress = Set(Dictionary(grouping: timeline.stress, by: \.segment).filter { $0.value.count == 1 }.keys)
+        let moodMarks = model.moodSupported ? MoodOverview(entries: model.displayedMoods, stressTimeline: report.stressTimeline,
+                                                           timeZoneID: report.timeZoneID, now: now).todayMarkers.filter { $0 >= timeline.day.start && $0 < timeline.day.end } : []
         return VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .firstTextBaseline) {
                 Text("一天的节奏").font(.headline)
@@ -135,12 +141,17 @@ struct PhoneDashboardView: View {
             if timeline.stress.isEmpty {
                 Text(MetricExplanation(report.stress, at: now).detail).font(.caption).foregroundStyle(.secondary).frame(minHeight: 40)
             } else {
-                Chart(Array(timeline.stress.enumerated()), id: \.offset) { _, point in
-                    LineMark(x: .value("时间", point.at), y: .value("压力", point.value), series: .value("连续段", "s\(point.segment)"))
-                        .foregroundStyle(.orange).lineStyle(StrokeStyle(lineWidth: 1.8)).interpolationMethod(.linear)
-                    if point.activity || isolatedStress.contains(point.segment) {
-                        PointMark(x: .value("时间", point.at), y: .value("压力", point.value))
-                            .symbol(point.activity ? .square : .circle).symbolSize(point.activity ? 18 : 10).foregroundStyle(point.activity ? Color.yellow : Color.orange)
+                Chart {
+                    ForEach(Array(timeline.stress.enumerated()), id: \.offset) { _, point in
+                        LineMark(x: .value("时间", point.at), y: .value("压力", point.value), series: .value("连续段", "s\(point.segment)"))
+                            .foregroundStyle(.orange).lineStyle(StrokeStyle(lineWidth: 1.8)).interpolationMethod(.linear)
+                        if point.activity || isolatedStress.contains(point.segment) {
+                            PointMark(x: .value("时间", point.at), y: .value("压力", point.value))
+                                .symbol(point.activity ? .square : .circle).symbolSize(point.activity ? 18 : 10).foregroundStyle(point.activity ? Color.yellow : Color.orange)
+                        }
+                    }
+                    ForEach(Array(moodMarks.enumerated()), id: \.offset) { _, mark in
+                        RuleMark(x: .value("心情记录", mark)).foregroundStyle(.purple.opacity(0.8)).lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
                     }
                 }
                 .chartXScale(domain: timeline.day.start ... timeline.day.end).chartYScale(domain: 0...100).chartLegend(.hidden)
@@ -148,7 +159,7 @@ struct PhoneDashboardView: View {
                 .chartYAxis { AxisMarks(values: [0, 50, 100]) { _ in AxisValueLabel(); AxisGridLine().foregroundStyle(.white.opacity(0.04)) } }
                 .frame(height: 70)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("生理压力曲线，截至\(asOf)，\(Set(timeline.stress.map(\.segment)).count)段已观测，最近\(Int(timeline.stress.last!.value))")
+                .accessibilityLabel("生理压力曲线，截至\(asOf)，\(Set(timeline.stress.map(\.segment)).count)段已观测，最近\(Int(timeline.stress.last!.value))" + (moodMarks.isEmpty ? "" : "，今天有\(moodMarks.count)条心情记录"))
             }
             if !timeline.energy.isEmpty || !timeline.stress.isEmpty {
                 HStack(spacing: 12) {
@@ -157,6 +168,7 @@ struct PhoneDashboardView: View {
                         legend(Color.yellow.opacity(0.6), "运动")
                     }
                     if timeline.stress.contains(where: \.activity) { Label("运动中压力", systemImage: "square.fill").foregroundStyle(.yellow) }
+                    if !moodMarks.isEmpty { Label("心情记录", systemImage: "line.diagonal").foregroundStyle(.purple) }
                 }.font(.caption2).foregroundStyle(.secondary)
                 Text("曲线只连接已观测时段，空白处没有记录，不代表休息或数值为0。").font(.caption2).foregroundStyle(.secondary)
             }
@@ -288,6 +300,50 @@ struct PhoneDashboardView: View {
             }
             Text("近7日含今天。近7日至少3天、此前28日至少10天有效记录才计算均值；差值按显示的均值相减，只陈述差别，不说明原因。").font(.caption2).foregroundStyle(.secondary)
         }.padding(18).background(wristCard, in: RoundedRectangle(cornerRadius: 24))
+    }
+    private func moodCard(_ report: HealthReport) -> some View {
+        let overview = MoodOverview(entries: model.displayedMoods, stressTimeline: report.stressTimeline, timeZoneID: report.timeZoneID, now: now, reportAsOf: report.asOf)
+        let time = reportStyle(.dateTime.month(.defaultDigits).day().hour(.twoDigits(amPM: .omitted)).minute(.twoDigits), report.timeZoneID)
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("心情记录", systemImage: "face.smiling").font(.headline).foregroundStyle(.purple)
+                Spacer()
+                if model.demoEnabled { Text("合成演示").font(.caption2).foregroundStyle(wristMint) }
+            }
+            if !model.demoEnabled && !model.moodConnected {
+                Text("读取你在健康或正念App里记录的心情，与同时段压力并列显示。只读，只在本机使用。").font(.caption).foregroundStyle(.secondary)
+                Button { Task { await model.connectMoods() } } label: { Text("连接心情记录").frame(maxWidth: .infinity).padding(.vertical, 6) }
+                    .buttonStyle(.bordered)
+            } else if overview.rows.isEmpty {
+                Text("最近7天没有心情记录。可以在健康App或Apple Watch的正念App记录；没有记录不代表读取被拒绝。").font(.caption).foregroundStyle(.secondary)
+            } else {
+                ForEach(overview.rows.prefix(8), id: \.entry.id) { row in
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            Text(row.classificationText).font(.subheadline)
+                            Spacer()
+                            Text("\(row.entry.at.formatted(time)) · \(row.entry.kind.title)").font(.caption2).foregroundStyle(.secondary).monospacedDigit()
+                        }
+                        if let detail = moodDetail(row) { Text(detail).font(.caption).foregroundStyle(.secondary) }
+                        Text(moodStress(row)).font(.caption).foregroundStyle(row.stress == nil ? Color.secondary : Color.orange)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+            if let message = model.moodStatus { Text(message).font(.caption2).foregroundStyle(.orange) }
+            Text("心情来自你的自报，Wristlab不从心率或压力推算心情；并列显示不表示两者有因果关系。").font(.caption2).foregroundStyle(.secondary)
+        }.padding(18).background(wristCard, in: RoundedRectangle(cornerRadius: 24))
+    }
+    private func moodDetail(_ row: MoodRow) -> String? {
+        let associations = row.associationsText.map { "关于" + $0 }
+        let parts = [row.labelsText, associations].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+    private func moodStress(_ row: MoodRow) -> String {
+        if row.afterReport { return "晚于本次报告，刷新后配对" }
+        guard let stress = row.stress else { return "同时段无生理压力估算" }
+        let prefix = row.entry.kind == .dailyMood ? (row.dayInProgress ? "当天截至目前的生理压力中位数" : "当天生理压力中位数") : "同时段生理压力"
+        return "\(prefix) \(stress) · \(row.stressTier ?? "")" + (row.duringActivity ? "（运动中）" : "")
     }
     private func activityCard(_ report: HealthReport) -> some View {
         VStack(alignment: .leading, spacing: 12) {

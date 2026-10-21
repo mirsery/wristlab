@@ -11,6 +11,12 @@ final class DashboardModel: ObservableObject {
     @Published var busy = false
     @Published var demoEnabled = false
     @Published var sources: [HealthKind: [String]] = [:]
+    @Published var moods: [MoodEntry] = []
+    @Published var demoMoods: [MoodEntry] = []
+    @Published var moodConnected = UserDefaults.standard.bool(forKey: "moodReadingRequested")
+    @Published var moodStatus: String?
+    var displayedMoods: [MoodEntry] { demoEnabled ? demoMoods : moods }
+    var moodSupported: Bool { if #available(iOS 18.0, *) { true } else { false } }
     let bridge = WatchBridge()
     private let reader = HealthKitReader()
     private var repository: HealthRepository?
@@ -73,6 +79,8 @@ final class DashboardModel: ObservableObject {
             guard token == generation else { return }
             report = result.report; profile = result.profile; updateSources(result)
             if let snapshot = result.snapshot { bridge.publish(snapshot) }
+            await loadMoods(asOf: now)
+            guard token == generation else { return }
             status = result.records.isEmpty ? "暂无可读取记录；可能尚无记录或未允许读取，请检查健康 App。" : "已更新本地报告 · 估算仅供日常趋势参考"
         } catch is CancellationError {
             if token == generation { status = "刷新已取消" }
@@ -86,6 +94,29 @@ final class DashboardModel: ObservableObject {
             do { demo = try await Task.detached { try DemoData.report() }.value }
             catch { status = "演示加载失败" }
         }
+        demoMoods = DemoData.moods(asOf: demo?.asOf ?? DemoData.previewDate)
+    }
+    /// Asked only when the user taps connect; an empty read never implies denial.
+    func connectMoods() async {
+        do {
+            try await reader.authorizeMoods()
+            moodConnected = true
+            UserDefaults.standard.set(true, forKey: "moodReadingRequested")
+            // Recompute so moods logged after the last report can be paired; without health reading just list them.
+            await refresh()
+            await loadMoods(asOf: Date())
+        } catch { moodStatus = "无法完成心情读取请求，请检查系统健康设置。" }
+    }
+    private func loadMoods(asOf now: Date) async {
+        guard moodConnected, let clock = try? AnalysisClock(timeZoneID: profile.timeZoneID) else { return }
+        let token = generation
+        do {
+            let read = try await reader.readMoods(from: clock.shiftedDay(clock.day(containing: now).start, by: -6))
+            // A clear or stop during the read wins; drop the stale result.
+            guard token == generation, moodConnected else { return }
+            moods = read
+            moodStatus = nil
+        } catch { if token == generation { moodStatus = "心情记录读取未完成，保留上次结果。" } }
     }
     func save(_ updated: HealthProfile) async {
         guard !busy, let repository else { return }
@@ -105,7 +136,12 @@ final class DashboardModel: ObservableObject {
         if stop { reader.stop() }
         do {
             let state = try await repository.clear(stopReading: stop, asOf: Date())
-            report = nil
+            report = nil; moods = []; moodStatus = nil
+            if stop {
+                // Stopping reading also forgets the mood request; reconnecting asks again on the mood card.
+                moodConnected = false
+                UserDefaults.standard.removeObject(forKey: "moodReadingRequested")
+            }
             if let snapshot = state.snapshot { bridge.publish(snapshot) }
             status = "本地数据已清除 · 等待手表同步"
             if !stop, state.readingEnabled { await refresh() }
