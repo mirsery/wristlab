@@ -225,7 +225,7 @@ public enum HealthEngine {
         let signature = [hr.first?.source.group, rhr.first?.source.group, hrv.first?.source.group, todayRow.sleep.sourceGroup].compactMap { $0 }.joined(separator: "|")
         return HealthReport(configurationVersion: profile.version, inputRevision: inputRevision, day: today, timeZoneID: profile.timeZoneID, asOf: asOf, source: source, sourceSignature: signature,
                             readiness: currentReadiness, stress: timeline.last?.estimate ?? MetricEstimate(reasons: ["missingHR"]),
-                            stressTimeline: timeline.filter { $0.interval.start >= today }, energy: energy, sleep: todayRow.sleep,
+                            stressTimeline: timeline.filter { $0.interval.start >= clock.shiftedDay(today, by: -6).addingTimeInterval(-MoodStressPairing.window) }, energy: energy, sleep: todayRow.sleep,
                             sleepDebtMinutes: SleepCalculator.debt(minutes: debtReports.map(\.totalMinutes), target: Double(profile.sleepTargetMinutes)),
                             regularityMinutes: SleepCalculator.regularity(startClockMinutes: regularStarts), activity: activity, history: history,
                             personalRanges: ranges)

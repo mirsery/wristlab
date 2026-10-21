@@ -35,7 +35,7 @@ targets:
         CFBundleDisplayName: Wristlab
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleShortVersionString: $(MARKETING_VERSION)
-        NSHealthShareUsageDescription: 读取心率、心率变异性、睡眠和运动，仅在本机计算个人状态趋势。
+        NSHealthShareUsageDescription: 读取心率、心率变异性、睡眠和运动，仅在本机计算个人状态趋势；如你主动连接，也读取你记录的心情，只用于本机并列显示。
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:

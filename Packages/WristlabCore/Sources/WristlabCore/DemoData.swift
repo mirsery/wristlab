@@ -31,6 +31,15 @@ public enum DemoData {
         }
         return records.filter { $0.end <= asOf }
     }
+    /// Synthetic mood logs for the demo; never written anywhere.
+    public static func moods(asOf: Date = previewDate) -> [MoodEntry] {
+        let day = Date(timeIntervalSince1970: floor(asOf.timeIntervalSince1970 / 86400) * 86400)
+        return [
+            MoodEntry(id: "demo-mood-daily", at: day.addingTimeInterval(-3 * 3600), kind: .dailyMood, valence: 0.5, classification: 6, labels: [8, 24], associations: [5]),
+            MoodEntry(id: "demo-mood-run", at: day.addingTimeInterval(9.6 * 3600), kind: .momentaryEmotion, valence: 0.6, classification: 6, labels: [13], associations: [6]),
+            MoodEntry(id: "demo-mood-work", at: day.addingTimeInterval(12.7 * 3600), kind: .momentaryEmotion, valence: -0.3, classification: 3, labels: [29, 34], associations: [17]),
+        ].filter { $0.at <= asOf }
+    }
     public static func report(asOf: Date = previewDate) throws -> HealthReport {
         try HealthEngine.evaluate(records: records(asOf: asOf), profile: HealthProfile(timeZoneID: "UTC", maximumHeartRate: 190), asOf: asOf, inputRevision: 1, source: .demo)
     }

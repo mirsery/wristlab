@@ -162,7 +162,8 @@ private func checksums(_ points: [EnergyPoint]) -> (weighted: Double, times: Dou
     #expect(plain.energy.points.count == 841)
     #expect(abs(checksums(plain.energy.points).weighted - 23129995.642887626) < 1e-4)
     #expect(checksums(plain.energy.points).times == 11896449600)
-    #expect(plain.stressTimeline.count == 108)
+    // mood-records keeps seven analysis days of buckets; today's still number 108.
+    #expect(plain.stressTimeline.filter { $0.interval.start >= plain.day }.count == 108)
 
     let source = SampleSource(bundle: "wristlab.synthetic", family: "Watch", rank: 0)
     let napStart = hour(12.5, of: plain), napEnd = hour(12.5 + 0.75, of: plain)

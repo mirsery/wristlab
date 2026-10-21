@@ -1,0 +1,60 @@
+meta:
+  change_id: 2026-10-22-mood-records
+  title: 心情记录与压力对照
+  created: '2026-10-22'
+  status: draft
+why:
+  problem: 用户希望把心情与压力并列查看；生理压力只反映唤醒程度，不能推算心情的好坏，现有界面也读不到用户自报的心情。
+  motivation: 'issue #6候选#13。HealthKit自iOS 18提供State of Mind（HKStateOfMind），记录用户在健康或正念App自报的即时情绪与每日心情；只读并与同时段压力并列，不做推断。'
+what_changes:
+- id: C1
+  description: iPhone在iOS 18及以上由用户在心情卡片主动连接后，只读最近7个分析日的State of Mind；不写入评分仓库、不持久化、不同步Watch，每次刷新重新读取；停止读取时清空并忘记连接请求。
+  type: new
+- id: C2
+  description: Core新增MoodEntry与展示模型：七档分类、38个标签与18个关联项中文名；即时情绪配对包含记录时刻的有值压力桶，否则记录前15分钟内结束的最近有值桶，标注运动中；每日心情配对当天有值压力桶的中位数；找不到时为空。
+  type: new
+- id: C3
+  description: 首页新增心情记录卡片（最近7天，按时间倒序）；一天的节奏的压力图标出当天即时情绪记录时刻；文案声明心情为自报、只并列显示、不表示因果。
+  type: new
+- id: C4
+  description: 报告stressTimeline由当天扩为D-6前15分钟至asOf，供心情配对；一天的节奏仍只画当天；评分与当前压力取值不变。
+  type: modified
+capabilities:
+  new:
+  - name: mood-records
+    description: State of Mind只读、中文映射、与压力配对及展示（C1–C3）
+  modified: []
+constraints:
+- 不从压力、心率或HRV推算心情；不做相关性统计或因果判断（002 A-006）。
+- 只读；iOS 17运行时判断不显示该功能入口；授权由用户在卡片上主动发起，未连接或无记录时显示原因，空读取不推断拒绝。
+- 评分公式、读取锚点集合、仓库schema与Watch同步不变；心情数据只在内存中。
+- 测试与截图只用合成心情记录。
+stakeholders:
+- 自用iPhone用户
+risk_areas:
+- capability: mood-records
+  risk: 并列展示被理解为压力导致心情。
+  mitigation: 卡片与图例声明自报与非因果；不计算相关系数。
+- capability: mood-records
+  risk: 新增类型触发既有锚点全量重读。
+  mitigation: 心情不加入评分读取类型列表，单独查询，不改anchors。
+non_goals:
+- 写入心情、相关性分析、Watch端心情、标签筛选趋势。
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  reference_changes:
+  - 2026-10-21-metric-insights
+  anchor_implementations:
+  - Apps/iOS/HealthKitReader.swift
+  - Packages/WristlabCore/Sources/WristlabCore/InsightPresentation.swift
+success_criteria:
+- 七档分类、38个标签与18个关联项均有中文名，未知值有中性回退。
+- 即时情绪与每日心情的压力配对规则、窗口边界与缺失有单测。
+- 最近7天筛选按分析时区，倒序；时间线标记只含当天即时情绪。
+- check.sh与build-apple.sh通过；iOS 17不出现入口（运行时#available，静态检查）；模拟器合成截图检查有记录状态；未连接与无记录两态以静态检查与真机验收为准。

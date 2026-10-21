@@ -1,0 +1,29 @@
+adjustments:
+- id: ADJ-001
+  type: major
+  slice: C1复审
+  design_ref: 决策3；SC-MOOD-002
+  change: 每日心情的当天桶改用半开区间（Domain.contains）。
+  reason: Foundation DateInterval.contains包含end，次日00:00的桶混入当天中位数（30+90→60）。
+  impact: 每日心情配对值；新增跨午夜回归。
+- id: ADJ-002
+  type: minor
+  slice: C1复审
+  design_ref: 决策1
+  change: 刷新中的loadMoods按generation丢弃过期结果；停止读取清空心情并忘记连接请求；连接后先刷新报告再配对。
+  reason: 清除期间读取返回会把心情填回；停止读取后重新连接健康会跳过心情卡片的主动连接。
+  impact: DashboardModel；003同步更新。
+- id: ADJ-003
+  type: minor
+  slice: C1复审
+  design_ref: 决策3/5
+  change: 行带出运动中、当天截至目前、晚于报告三种标注；文案“同时段压力”改为“同时段生理压力”；卡片演示标记；未知kind丢弃。
+  reason: 运动桶高值易被读成情绪导致压力；自报“有压力”标签与生理压力易混。
+  impact: 心情卡片文案。
+- id: ADJ-004
+  type: minor
+  slice: C1复审
+  design_ref: 决策4
+  change: stressTimeline下界放宽到D-6前15分钟。
+  reason: D-6凌晨的即时情绪应能借用前一桶。
+  impact: 报告大小略增。

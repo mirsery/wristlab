@@ -1,0 +1,32 @@
+meta:
+  task_id: mood-records
+  change_id: 2026-10-22-mood-records
+  task_type: code
+  system: MoodEntry/MoodPresentation与HealthKitReader
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-MOOD-001
+  description: 中文映射
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-MOOD-002
+  description: 压力配对
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-MOOD-003
+  description: 最近记录与时间线标记
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-MOOD-004
+  description: 心情卡片与压力图标记
+  action: 模拟器合成截图人工检查
+  assertions:
+  - type: manual_review
+    expected: 截图与静态检查记录于test-report
