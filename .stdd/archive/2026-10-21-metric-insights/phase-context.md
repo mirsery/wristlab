@@ -11,3 +11,5 @@ S2完成：TIMELINE-001～005共5个新函数。RED为缺接口编译失败；�
 S3完成：SLEEPUI-001～003、TREND-001共4个新函数，RED为缺接口编译失败（work/insights-s3-red.log），GREEN后64 Core+5 workspace通过；iOS构建通过。新增SleepDetailView（时间轴、阶段、指标、小睡、演示标签），首页睡眠卡可进入详情，7日卡片加准备度/睡眠/负荷分段切换与有效天数、均值及VoiceOver摘要。首页睡眠阶段条的VoiceOver标签同时改为中文阶段名（小偏离，ADJ-002）。
 
 C阶段：三路复审与东八区模拟器截图发现9项调整（ADJ-001～009），已全部处置并同步规格；ADJ-005（Gate 2决策3依据错误）需Gate 3复核。最终64 Core+5 workspace、build-apple（含Widget注册运行）、diff check通过。test-report.md已写，Gate 3待用户确认。用户同期提出“心情监测”想法，建议作为issue #6候选#13单独一轮（读HKStateOfMind自报，不从压力推断心情），待用户确认。
+
+Gate 3：用户确认；ADJ-005保持压力HRV只显示方向；心情监测记为#6候选#13（读HKStateOfMind自报，不从压力推断）。Deliver：截图、validation、README更新，change已归档，规格合并到.stdd/specs/。经验仅本地保存，不上传社区（项目契约第6条）。

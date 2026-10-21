@@ -1,30 +1,40 @@
 change_id: 2026-10-21-metric-insights
 complexity_score: 8
-current_phase: build
+current_phase: deliver
 design_adjustments:
   count: 9
+long_range:
+  enabled: true
+  evidence: 用户选择“全自动长程 (Recommended)”；Gate 3仍须用户确认；不修改settings权限文件
+  mode: full_auto
+  pre_auth_completed: true
+  pre_auth_timestamp: '2026-10-21T23:59:00+08:00'
 mode: standard
 phases:
   build:
-    status: in_progress
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T00:37:02'
+    confirmed_by: dialog
+    confirmed_evidence: 用户确认Gate3：确认；ADJ-005：保持只显示方向；心情监测记为#6候选#13
     slices_completed:
       '1':
+        new_tests: 5
         status: done
         tc_coverage: 5/5 Core（CONTRIB-006静态通过，模拟器视觉在C阶段）
-        new_tests: 5
         verified_at: '2026-10-21T23:51:49.845673+08:00'
       '2':
+        new_tests: 5
         status: done
         tc_coverage: 5/5
-        new_tests: 5
         verified_at: '2026-10-21T23:54:20.394807+08:00'
       '3':
+        new_tests: 4
         status: done
         tc_coverage: 4/4 Core（SLEEPUI-004、TREND-002模拟器视觉在C阶段）
-        new_tests: 4
         verified_at: '2026-10-21T23:56:45.024949+08:00'
+    status: completed
   deliver:
-    status: pending
+    status: completed
   spec:
     confirmed_actor: ai
     confirmed_at: '2026-10-21T23:48:35'
@@ -38,16 +48,10 @@ phases:
     confirmed_evidence: 用户确认Gate1提案：确认；模式：按照你的推荐来（standard）
     status: completed
 score_confidence: preliminary
-status: active
+status: archived
 task_type: code
 traceability:
   spec_scenarios: 17
   tc_cases: 17
   test_functions: 14
 version: '3.0'
-long_range:
-  enabled: true
-  mode: full_auto
-  pre_auth_completed: true
-  pre_auth_timestamp: '2026-10-21T23:59:00+08:00'
-  evidence: 用户选择“全自动长程 (Recommended)”；Gate 3仍须用户确认；不修改settings权限文件
