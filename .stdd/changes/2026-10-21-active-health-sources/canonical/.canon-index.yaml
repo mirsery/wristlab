@@ -3,7 +3,7 @@ proposals:
   2026-10-21-active-health-sources: proposals/2026-10-21-active-health-sources.yaml
 specs:
   agent:
-    2026-10-21-active-health-sources: specs/agent/2026-10-21-active-health-sources.yaml
+    active-health-sources: specs/agent/active-health-sources.yaml
   code:
-    2026-10-21-active-health-sources: specs/code/2026-10-21-active-health-sources.yaml
+    active-health-sources: specs/code/active-health-sources.yaml
 version: '2.9'
