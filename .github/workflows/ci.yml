@@ -30,3 +30,12 @@ jobs:
       - name: Install project generator
         run: brew install xcodegen && xcodegen --version
       - run: ./scripts/build-apple.sh
+      - name: Capture synthetic app screenshots
+        run: python3 scripts/capture-screenshots.py
+      - name: Upload simulator screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: simulator-screenshots
+          path: work/screenshots/
+          if-no-files-found: warn

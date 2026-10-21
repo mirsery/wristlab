@@ -1,0 +1,22 @@
+[
+  {
+    "file": "iphone.png",
+    "device": "iPhone 16 Pro",
+    "data": "synthetic --demo",
+    "source": "running SwiftUI app",
+    "sourceFingerprint": "8c7b1d452cb80e4952fad4bc9f1cf854efdf4c1b791fab3807926c0606387b81",
+    "imageSHA256": "b051cc2b23528f722b28efda5520e65ae1aa22255e4ae5e474d652988d462993",
+    "commit": "235e68ce636ccdeaecdf22d80570166d6a611e11",
+    "run": "https://github.com/mirsery/wristlab/actions/runs/39454777037"
+  },
+  {
+    "file": "watch.png",
+    "device": "Apple Watch Series 10 (46mm)",
+    "data": "synthetic --demo",
+    "source": "running SwiftUI app",
+    "sourceFingerprint": "8c7b1d452cb80e4952fad4bc9f1cf854efdf4c1b791fab3807926c0606387b81",
+    "imageSHA256": "8f588797e87d52ce55a4ae291970476fc7b7f36837f5b1e75e8f2656973e14f4",
+    "commit": "235e68ce636ccdeaecdf22d80570166d6a611e11",
+    "run": "https://github.com/mirsery/wristlab/actions/runs/39454777037"
+  }
+]

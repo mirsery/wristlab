@@ -7,6 +7,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: "0.1.0"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
 packages:
@@ -29,13 +31,16 @@ targets:
       path: work/Generated/iOS-Info.plist
       properties:
         CFBundleDisplayName: Wristlab
-        NSHealthShareUsageDescription: 读取你的心率变异性，在本机展示健康趋势。
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        NSHealthShareUsageDescription: 读取心率、心率变异性、睡眠和运动，仅在本机计算个人状态趋势。
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     entitlements:
       path: Apps/iOS/Wristlab.entitlements
       properties:
         com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.background-delivery: true
     dependencies:
       - package: WristlabCore
       - target: WristlabWatch
@@ -54,8 +59,41 @@ targets:
       path: work/Generated/watchOS-Info.plist
       properties:
         CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.mirsery.wristlab
+    entitlements:
+      path: Apps/watchOS/WristlabWatch.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.mirsery.wristlab.watch]
+    dependencies:
+      - package: WristlabCore
+      - target: WristlabWidget
+        embed: true
+  WristlabWidget:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - Apps/Widgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mirsery.wristlab.watchkitapp.widget
+        GENERATE_INFOPLIST_FILE: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    info:
+      path: work/Generated/widget-Info.plist
+      properties:
+        CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Apps/Widgets/WristlabWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.mirsery.wristlab.watch]
     dependencies:
       - package: WristlabCore
 schemes:

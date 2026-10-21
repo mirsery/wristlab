@@ -1,24 +1,41 @@
 # 架构
 
-## 决策 ADR-001：原生双端，共享领域模型
+## 当前数据流
 
-状态：采用。原因：自用项目需要 HealthKit、watchOS 与系统表盘能力，原生框架可直接覆盖这些能力。
+```text
+HealthKitReader / DemoData
+  → RecordNormalizer（校验、去重、固定来源）
+  → SleepCalculator（区间、episode、报告）
+  → HealthEngine（个人基线、准备度、分时压力、活动）
+  → EnergyCalculator（种子、分钟积分、缺口与重放）
+  → HealthRepository（记录、anchor、报告原子提交）
+  → 手机报告/Charts/解释
+  → DisplaySnapshot → WatchBridge → SnapshotReceiver
+                                  → Watch / App Group / WidgetKit
+```
 
-- `Packages/WristlabCore`：Foundation 模型、数据质量、算法与序列化。纯 Swift；测试需要具备 Swift Testing 支持的工具链，当前使用 CI 的完整 Xcode。
-- `Apps/iOS`：SwiftUI 应用与 HealthKit adapter。当前仅有 HRV 读取验证，尚不生成评分。
-- `Apps/watchOS`：SwiftUI 手表应用，当前独立展示合成快照。
-- `Apps/Shared`：两端共享的轻量展示视图。
-- 后续 WatchConnectivity 与 WidgetKit adapter 随对应 spec 验收实现，不预先引入空服务。
+## 模块边界
 
-数据流目标：HealthKit → 标准化与去重 → 数据质量/个体基线 → 版本化估算 → 本地快照 → UI / WatchConnectivity / WidgetKit。
-当前数据流：合成快照 → 双端 UI；iPhone 用户主动授权 → 最近 7 天最新 SDNN 样本 → 独立文本。
+- WristlabCore只依赖Foundation，模型均可Codable/Sendable。日期、时区、配置和asOf显式输入；数据不足为状态，不给默认正常分。
+- iOS适配器在系统回调边界把HKSample转为规范值。HealthKit读取权限请求与可读记录分开处理，观察完成回调在刷新后执行。应用启动委托恢复已启用的观察，不依赖前台视图task；锁屏暂不可读时保留文件并在前台启动重试。
+- HealthRepository为actor，串行计算并原子写文件；失败不推进anchor、旧revision不能覆盖新任务。当前以确定性全量重放优先保证一致性，最多保留150日规范记录，不依赖不完整的增量电量检查点。
+- iPhone是评分权威。Watch和Widget只展示最小快照，校验schema、producer、epoch/sequence与数值。App Group缓存是Watch与组件的共同来源。
+- 演示通过相同业务引擎处理合成记录，界面有明确标识；真实同步拒收demo来源。
 
-## 决策 ADR-002：工程生成
+## ADR-001：原生双端，共享领域包
 
-`project.yml` 为工程唯一来源，由 XcodeGen 生成 `Wristlab.xcodeproj`；不提交生成文件。签名 team 在本地设置。CI 编译模拟器，不使用签名密钥。
+采用SwiftUI、HealthKit、WatchConnectivity与WidgetKit，直接覆盖手表系统能力。领域计算放入纯Swift包，可在不启动设备和UI的情况下验证。Apple API留在适配层。
 
-## 决策 ADR-003：评分后置
+## ADR-002：工程生成与本地签名
 
-骨架不生成伪装为健康测量的分数。实验模型经 spec、合成测试、真机数据覆盖检查后逐项上线；模型版本与更新时间进入最终持久化快照。当前快照仅供搭建序列化边界，不代表最终同步协议。
+project.yml是工程来源，XcodeGen生成文件不提交。CI关闭签名编译模拟器；个人team、证书与provisioning不进公开仓库。Watch和Widget的App Group需在真机签名阶段保持一致。
 
-业务规则依赖和正式报告契约分别见 [007](../specs/007-implementation-plan.md) 与 [003](../specs/003-health-and-sync.md)。本轮只定义目标契约，未迁移旧演示容器。
+## ADR-003：明确的实验模型与数据状态
+
+原版精确算法未公开，采用spec中版本化的原创实验映射。保留来源、时间、模式、基线天数、覆盖和原因；有公式不代表有效性验证。缺口不静默补值，真实模式不回退演示。
+
+## 测试与性能
+
+使用公共业务API、JSON数值金例和合成历史验证。当前几十日历史的端到端计算在本地测试中可执行；实际设备性能仍需观测。优化应保持全量/增量与乱序结果一致，不能以省时为由改变缺失策略。
+
+[业务依赖](../specs/007-implementation-plan.md) · [数据与协议](../specs/003-health-and-sync.md) · [验证状态](validation.md)

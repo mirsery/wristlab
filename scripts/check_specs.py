@@ -1,13 +1,15 @@
 """Validate specification structure and traceability, not algorithm correctness."""
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+import hashlib
 import json
 import math
 import re
 
 root = Path(__file__).resolve().parents[1]
 required = [
-    'AGENTS.md', 'GLOSSARY.md', 'specs/README.md',
+    'AGENTS.md', 'GLOSSARY.md', 'README.md', 'README.en.md', 'docs/validation.md',
+    'docs/screenshots/README.md', 'docs/screenshots/manifest.json', 'specs/README.md',
     'specs/000-reference-behavior.md', 'specs/001-product.md',
     'specs/002-scoring.md', 'specs/003-health-and-sync.md',
     'specs/004-sleep.md', 'specs/005-activity.md',
@@ -28,7 +30,9 @@ markdown = sorted(p for p in root.rglob('*.md')
 for path in markdown:
     content = path.read_text()
     require(content.strip(), f'Empty document: {path.relative_to(root)}')
-    for target in re.findall(r'\[[^\]]+\]\(([^)]+)\)', content):
+    targets = re.findall(r'\[[^\]]+\]\(([^)]+)\)', content)
+    targets += re.findall(r'<img[^>]+src="([^"]+)"', content)
+    for target in targets:
         parsed = urlsplit(target)
         if not parsed.scheme and parsed.path:
             require((path.parent / unquote(parsed.path)).is_file(),
@@ -66,6 +70,20 @@ for vector in fixture['vectors']:
     require(isinstance(vector['input'], dict) and isinstance(vector['expected'], dict)
             and vector['expected'], f'Incomplete vector: {vector["id"]}')
 
+require((root / 'specs/fixtures/business-v1.json').read_bytes() ==
+        (root / 'Packages/WristlabCore/Tests/WristlabCoreTests/Fixtures/business-v1.json').read_bytes(),
+        'Swift test fixtures differ from the specification source')
+
 print(f'Spec structure, local links, {len(ids)} acceptance IDs, '
       f'{len(scenarios)} scenarios, and {len(seen)} fixture structures passed')
 print('Algorithm correctness and device behavior are not validated by this check.')
+
+manifest = json.loads((root / 'docs/screenshots/manifest.json').read_text())
+require({item['file'] for item in manifest} == {'iphone.png', 'watch.png'}, 'Missing screenshot entries')
+for item in manifest:
+    picture = root / 'docs/screenshots' / item['file']
+    require(picture.is_file() and picture.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'), 'Invalid screenshot PNG')
+    require(hashlib.sha256(picture.read_bytes()).hexdigest() == item['imageSHA256'], 'Screenshot hash mismatch')
+    require(re.fullmatch(r'[0-9a-f]{64}', item['sourceFingerprint']) is not None, 'Missing app-source fingerprint')
+    require(re.fullmatch(r'[0-9a-f]{40}', item['commit']) is not None and '/actions/runs/' in item['run'], 'Missing capture provenance')
+print('Bilingual README image links, screenshot hashes and capture provenance passed')

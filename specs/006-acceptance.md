@@ -1,6 +1,6 @@
 # 006 业务验收与合成金例
 
-规格状态：已定义；运行状态：这些业务测试尚未实现。合成数值夹具见[business-v1.json](fixtures/business-v1.json)。所有数字均为构造输入，不含真实健康记录。
+规格状态：已定义；运行状态：已有领域与边界测试；平台场景待真机，见[记录](../docs/validation.md)。合成数值夹具见[business-v1.json](fixtures/business-v1.json)。所有数字均为构造输入，不含真实健康记录。
 
 ## 数值规则
 
