@@ -1,0 +1,44 @@
+meta:
+  task_id: metric-contributions
+  change_id: 2026-10-21-metric-insights
+  task_type: code
+  system: WristlabCore InsightPresentation与iPhone详情
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-CONTRIB-001
+  description: 准备度贡献分解
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-CONTRIB-002
+  description: 压力贡献分解
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-CONTRIB-003
+  description: 压力贡献分解
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-CONTRIB-004
+  description: 缺失与过期不输出
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-CONTRIB-005
+  description: 规格分段短句
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-CONTRIB-006
+  description: 规格分段短句
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0

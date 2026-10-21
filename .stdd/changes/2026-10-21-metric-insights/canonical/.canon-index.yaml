@@ -1,0 +1,13 @@
+designs: {}
+proposals:
+  2026-10-21-metric-insights: proposals/2026-10-21-metric-insights.yaml
+specs:
+  agent:
+    metric-contributions: specs/agent/metric-contributions.yaml
+    daily-timeline: specs/agent/daily-timeline.yaml
+    sleep-and-trend-detail: specs/agent/sleep-and-trend-detail.yaml
+  code:
+    metric-contributions: specs/code/metric-contributions.yaml
+    daily-timeline: specs/code/daily-timeline.yaml
+    sleep-and-trend-detail: specs/code/sleep-and-trend-detail.yaml
+version: '2.9'

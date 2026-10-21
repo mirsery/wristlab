@@ -18,6 +18,9 @@ public struct EnergyPoint: Codable, Equatable, Sendable {
 public struct EnergyReport: Codable, Equatable, Sendable {
     public var estimate: MetricEstimate
     public var points: [EnergyPoint]
+    /// Replay inputs on the analysis day up to asOf, for display only. nil in reports cached before they existed.
+    public var asleepIntervals: [DateInterval]? = nil
+    public var workoutIntervals: [DateInterval]? = nil
 }
 public enum EnergyCalculator {
     public static func step(energy: Double, context: EnergyContext, seconds: Double) -> Double? {

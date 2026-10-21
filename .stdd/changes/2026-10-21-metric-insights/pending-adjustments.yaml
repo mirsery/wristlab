@@ -1,0 +1,64 @@
+adjustments:
+- id: ADJ-001
+  type: minor
+  slice: S1
+  design_ref: specs/001-product.md 解释与日内展示（不显示内部键名）
+  change: 详情页“计算依据·模式”改为中文标签，未知值显示“—”。
+  reason: 原实现直接显示awake/energy/exertion等内部值。
+  impact: 仅iPhone详情文案。
+- id: ADJ-002
+  type: minor
+  slice: S3
+  design_ref: specs/001-product.md P-004
+  change: 首页睡眠阶段比例条的VoiceOver标签改为中文阶段名。
+  reason: 原标签读出内部枚举值。
+  impact: 仅VoiceOver文案。
+- id: ADJ-003
+  type: minor
+  slice: S2
+  design_ref: design.md 决策5（运动桶空心标记）
+  change: 运动桶用实心黄色方块，孤立的单桶压力与单点电量段用小圆点。
+  reason: 深色背景下空心标记难辨；单点段的LineMark不可见。
+  impact: 仅图表样式。
+- id: ADJ-004
+  type: major
+  slice: C1复审
+  design_ref: daily-timeline SC-TIMELINE-005；design.md 决策5
+  change: DayTimeline增加now；电量当前值不可显示时不输出电量曲线；分析日已结束时标为非今天并显示报告日期。
+  reason: 覆盖不足80%时重放仍积分，原实现会画出规格要求为空的值；缓存的昨日报告会被画在今天的日期下。
+  impact: 首页一天的节奏；规格SC-TIMELINE-005新增AND，001同步。
+- id: ADJ-005
+  type: major
+  slice: C1复审
+  design_ref: design.md 决策3；SC-CONTRIB-003
+  change: 压力HRV行判定由“quality complete且无hrOnly”改为“无hrOnly且mode非activity”；zHRV非有限时不列；决策3的依据更正为“本轮不改Physiology输出”。
+  reason: 跨睡眠边界的partial+sourceConflict桶用了HRV却被隐藏；Gate 2所述“补键会改Watch载荷”与DisplaySnapshot清空contributions的事实不符。
+  impact: 压力详情；Gate 3需用户复核此取舍。
+- id: ADJ-006
+  type: major
+  slice: C1复审
+  design_ref: SC-SLEEPUI-001
+  change: 泳道改取完整睡眠分段与主睡眠区间的交集。
+  reason: SleepEpisode只含asleep段，原实现在真实数据中清醒与未知泳道永远为空。
+  impact: 睡眠详情时间轴；新增真实SleepCalculator回归。
+- id: ADJ-007
+  type: minor
+  slice: C1复审
+  design_ref: SC-SLEEPUI-003；004空值规则
+  change: 无任何睡眠分段时已记录清醒时长与次数为nil，界面显示“—”。
+  reason: 原实现在无记录时显示“0分钟·0次”。
+  impact: 睡眠详情。
+- id: ADJ-008
+  type: minor
+  slice: C1复审
+  design_ref: SC-TREND-002；005部分观测规则
+  change: 7日负荷标为已观测负荷，不显示均值。
+  reason: 含未完成与部分观测日，均值会被误读为完整负荷或ATL。
+  impact: 首页7日卡片。
+- id: ADJ-009
+  type: minor
+  slice: 截图视觉检查
+  design_ref: design.md 决策5/6
+  change: 图表刻度与时间统一按报告固定分析时区格式化；7日横轴改为按分析时区生成的星期类别；差值改为显示整数相减。
+  reason: 模拟器（设备东八区）显示UTC演示报告时，横轴为08→05、星期为英文、主睡眠显示07:00–15:00；Text(format:)会套用环境时区。
+  impact: 首页两张图、7日卡片、睡眠详情。
