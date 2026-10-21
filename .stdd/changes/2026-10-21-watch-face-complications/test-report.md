@@ -56,7 +56,7 @@ C1三路独立评审：face_code_review、face_test_review、face_docs_review均
 
 Watch系统编辑器可打开，但当前选择的全屏表盘没有复杂功能槽，尚未完成Wristlab四组件选择。simctl openurl返回LSApplicationWorkspaceErrorDomain 115；因此未验证真实Widget点击，不能断言冷/热启动成功。补完方式：在配对Watch选含槽位表盘，分别选择四组件并点击；核对无缓存、过期、清除及系统着色。
 
-用户已接入iPhone并授权测试后安装。检测到设备开发者模式关闭，Xcode已有个人团队，经自动配置后证书与三个target的签名构建通过。初次Watch profile的App Group不匹配已由Xcode更新修复；尚未安装，手机仍需开启开发者模式并重启确认。不得为绕过签名删除HealthKit/App Groups能力；证书、设备标识和真实健康数据不提交。
+用户已接入iPhone并授权测试后安装。检测到设备开发者模式关闭，Xcode已有个人团队，经自动配置后证书与三个target的签名构建通过。初次Watch profile的App Group不匹配已由Xcode更新修复；用户随后开启开发者模式；针对已连接iPhone重新生成含该设备的profile后，devicectl安装成功。用户手动信任开发者后，普通真实模式启动成功，并通过进程列表确认Wristlab仍运行。版本0.1.0(1)，iPhone16ProMax/iOS27.2。不得为绕过签名删除HealthKit/App Groups能力；证书、设备标识和真实健康数据不提交。
 
 ## 失败模式与工具限制
 
@@ -66,4 +66,8 @@ Watch系统编辑器可打开，但当前选择的全屏表盘没有复杂功能
 
 ## 当前结论
 
-实现与本地逻辑/构建检查完成，可进行开发签名安装与用户验收；尚不宣称所有17 TC或真机能力通过。Gate3未批准，未合并或归档；实际表盘添加/点击、跨设备同步清除、后台刷新与HealthKit真数据需要补完。
+实现与本地逻辑/构建检查完成，可进行开发签名安装与用户验收；尚不宣称所有17 TC或真机能力通过。iPhone真机安装与启动已完成；Gate3未批准，未合并或归档。实际Watch安装/表盘添加与点击、跨设备同步清除、后台刷新与HealthKit真数据仍需要补完。
+
+## 真机安装补验
+
+首次generic签名产物的profile未包含当前手机，安装被系统以0xe8008012拒绝；改用明确的设备destination并允许Xcode注册设备后修复。用户手动完成开发者模式及开发签名信任，devicectl install返回App installed，launch返回Launched application，随后进程查询确认运行。未读取真实健康记录、未截取手机健康界面。安装/启动仅证明应用能在该手机运行，不证明Watch或HealthKit授权通过。

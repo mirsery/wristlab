@@ -25,7 +25,7 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 
 ## 真机待验收
 
-当前开发Mac已安装Xcode27.1，尚未配置真机签名，以下能力未验证：
+当前开发Mac已安装Xcode27.1，iPhone真机签名、安装与启动已通过；以下能力仍未验证：
 
 - Apple健康真实授权、历史与增量/删除送达。
 - 锁屏文件保护、系统后台执行机会和撤销读取后的可读变化。
@@ -40,4 +40,4 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 
 说明页已在双端模拟器观察并保存[实际截图](screenshots/watch-face/README.md)。当前watchOS27模拟器的simctl openurl返回LSApplicationWorkspaceErrorDomain 115；这不能当作路由成功证据，也不单凭该错误断言实际Widget点击失败。四组件实际安装、各family外观和冷/热点击仍待平台验收。完整17项TC对照见[本轮测试报告](../.stdd/changes/2026-10-21-watch-face-complications/test-report.md)。
 
-真实设备架构未签名构建也已通过。已接入iPhone；通过Xcode现有个人团队生成开发证书和匹配的App Group/HealthKit profiles后，三目标真机签名构建通过。手机检测时开发者模式关闭，安装仍未完成。
+真实设备架构未签名构建也已通过。已接入iPhone；通过Xcode现有个人团队生成开发证书和匹配的App Group/HealthKit profiles后，三目标真机签名构建通过。用户开启开发者模式并信任开发者后，针对设备更新profile，iPhone16ProMax/iOS27.2的安装、普通启动与进程运行查询通过（0.1.0/1）。Watch实际安装及HealthKit授权仍未验证。
