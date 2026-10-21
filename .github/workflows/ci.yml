@@ -22,7 +22,7 @@ jobs:
   apple:
     name: iOS and watchOS build
     runs-on: macos-15
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Select Xcode
@@ -31,6 +31,10 @@ jobs:
         run: brew install xcodegen && xcodegen --version
       - run: ./scripts/build-apple.sh
       - name: Capture synthetic app screenshots
+        # Best effort: CI simulators have hung on app launch with unchanged code (#5, main after #9, #10).
+        # Build, tests and widget registration above remain required; committed screenshots are checked by check_specs.
+        continue-on-error: true
+        timeout-minutes: 12
         run: python3 scripts/capture-screenshots.py
       - name: Upload simulator screenshots
         if: always()

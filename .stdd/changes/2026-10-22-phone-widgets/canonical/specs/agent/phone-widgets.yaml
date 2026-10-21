@@ -1,0 +1,32 @@
+meta:
+  task_id: phone-widgets
+  change_id: 2026-10-22-phone-widgets
+  task_type: code
+  system: PhoneWidgetCache/WristlabPhoneWidget
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-PHONEW-001
+  description: 快照缓存校验
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-PHONEW-002
+  description: 显示与时间线
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-PHONEW-003
+  description: 注册运行检查
+  action: ./scripts/build-apple.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-PHONEW-004
+  description: 外观与隐私
+  action: 模拟器合成截图人工检查
+  assertions:
+  - type: manual_review
+    expected: 截图与静态检查记录于test-report

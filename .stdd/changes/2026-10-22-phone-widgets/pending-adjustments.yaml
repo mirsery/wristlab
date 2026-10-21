@@ -1,0 +1,29 @@
+adjustments:
+- id: ADJ-001
+  type: major
+  slice: C1复审
+  design_ref: 决策3；SC-PHONEW-004
+  change: 小组件内容强制深色配色并按快照时区显示时间；圆形无数值时显示原因；矩形/行内标注部分估算，行内在准备度缺失时仍显示电量与压力；中尺寸更新时间移出覆盖层。
+  reason: 浅色模式下secondary文字在固定深色背景上不可见，过期/清除原因会隐形；部分估算与原因在小尺寸缺失。
+  impact: 小组件外观。
+- id: ADJ-002
+  type: minor
+  slice: C1复审
+  design_ref: 决策1
+  change: 清除标记写入失败时删除旧文件，组件回到等待；App Group常量移到Core；等待状态在手机上提示“打开Wristlab刷新”。
+  reason: 清除失败会留下旧数值；手机组件显示“等待手机”语义不对。
+  impact: PhoneWidgetStore与文案。
+- id: ADJ-003
+  type: minor
+  slice: C1复审
+  design_ref: 决策2
+  change: 缓存上限改为与DisplaySnapshot一致的32KB并以有效JSON补齐测试32768/32769边界；补无效清除标记、schema正对照、单项过期、部分估算、显式时间线。
+  reason: 原64KB上限永不生效，原超限测试用非法JSON不能证明上限。
+  impact: 测试与规格。
+- id: ADJ-004
+  type: minor
+  slice: C1复审
+  design_ref: 决策4
+  change: 注册检查按最新运行时选择模拟器。
+  reason: 安装了低于部署版本的旧运行时时可能选错。
+  impact: 脚本。

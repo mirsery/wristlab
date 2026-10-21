@@ -63,7 +63,7 @@ envelope≤32KiB，包含schema、source、producerID、epoch、sequence、asOf/
 
 清数据先持久化递增epoch及clearData空快照tombstone，删除展示缓存后发送。Watch收到后原子清App和组件缓存，拒绝旧epoch，避免延迟旧报告复活。保留必要同步控制元数据；离线无法立即清远端，显示等待手表同步。
 
-快照computedAt距当前>60分钟或处于未来为过期；单指标更严格有效期仍生效。WidgetKit从Watch本地App Group读同一快照，按系统预算请求更新，不承诺固定刷新间隔。
+快照computedAt距当前>60分钟或处于未来为过期；单指标更严格有效期仍生效。WidgetKit从Watch本地App Group读同一快照，按系统预算请求更新，不承诺固定刷新间隔。iPhone小组件从iPhone App Group读取手机每次发布的同一份真实快照（演示不写入；清除写入标记，写失败时删除文件回到等待），显示规则与表盘组件相同。
 
 ## 清除和撤销
 

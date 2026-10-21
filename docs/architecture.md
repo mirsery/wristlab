@@ -19,7 +19,7 @@ HealthKitReader / DemoData
 - WristlabCore只依赖Foundation，模型均可Codable/Sendable。日期、时区、配置和asOf显式输入；数据不足为状态，不给默认正常分。
 - iOS适配器在系统回调边界把HKSample转为规范值。HealthKit读取权限请求与可读记录分开处理，观察完成回调在刷新后执行。应用启动委托恢复已启用的观察，不依赖前台视图task；锁屏暂不可读时保留文件并在前台启动重试。
 - HealthRepository为actor，串行计算并原子写文件；失败不推进anchor、旧revision不能覆盖新任务。当前以确定性全量重放优先保证一致性，最多保留150日规范记录，不依赖不完整的增量电量检查点。
-- iPhone是评分权威。Watch和Widget只展示最小快照，校验schema、producer、epoch/sequence与数值。App Group缓存是Watch与组件的共同来源。
+- iPhone是评分权威。Watch和表盘组件只展示最小快照，校验schema、producer、epoch/sequence与数值；Watch的App Group缓存是Watch与表盘组件的共同来源。iPhone小组件读取手机自己写入iPhone App Group的最近一次真实快照，只校验schema、大小、来源与数值（手机是生产者，不需要epoch确认）。
 - 演示通过相同业务引擎处理合成记录，界面有明确标识；真实同步拒收demo来源。
 
 ## ADR-001：原生双端，共享领域包
@@ -28,7 +28,7 @@ HealthKitReader / DemoData
 
 ## ADR-002：工程生成与本地签名
 
-project.yml是工程来源，XcodeGen生成文件不提交。CI关闭签名编译模拟器；个人team、证书与provisioning不进公开仓库。Watch和Widget的App Group需在真机签名阶段保持一致。
+project.yml是工程来源，XcodeGen生成文件不提交。CI关闭签名编译模拟器；个人team、证书与provisioning不进公开仓库。Watch与表盘组件、iPhone与iPhone小组件各自的App Group需在真机签名阶段保持一致。
 
 ## ADR-003：明确的实验模型与数据状态
 

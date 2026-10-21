@@ -43,9 +43,12 @@ targets:
       properties:
         com.apple.developer.healthkit: true
         com.apple.developer.healthkit.background-delivery: true
+        com.apple.security.application-groups: [group.com.mirsery.wristlab.phone]
     dependencies:
       - package: WristlabCore
       - target: WristlabWatch
+        embed: true
+      - target: WristlabPhoneWidget
         embed: true
   WristlabWatch:
     type: application
@@ -101,6 +104,32 @@ targets:
       path: Apps/Widgets/WristlabWidget.entitlements
       properties:
         com.apple.security.application-groups: [group.com.mirsery.wristlab.watch]
+    dependencies:
+      - package: WristlabCore
+  WristlabPhoneWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Apps/PhoneWidgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mirsery.wristlab.widget
+        GENERATE_INFOPLIST_FILE: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+        TARGETED_DEVICE_FAMILY: "1"
+    info:
+      path: work/Generated/phone-widget-Info.plist
+      properties:
+        CFBundleDisplayName: Wristlab
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Apps/PhoneWidgets/WristlabPhoneWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.mirsery.wristlab.phone]
     dependencies:
       - package: WristlabCore
 schemes:

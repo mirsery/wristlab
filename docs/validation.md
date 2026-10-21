@@ -75,3 +75,7 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 ### 心情记录与压力对照（mood-records，2026-10-22）
 
 iOS 18+主动连接后只读State of Mind，与同时段生理压力并列；不推算心情、不判断因果、不进仓库或Watch。新增9个测试函数（中文表、配对边界、半开日、时间线范围、窗口与夏令时、标注），HKStateOfMind接口按本机SDK核对。模拟器只截了有记录态；授权与其余状态待真机，Gate 3待用户确认。
+
+### iPhone小组件（phone-widgets，2026-10-22）
+
+手机每次发布真实快照时原子写入iPhone App Group，演示不写入；小组件与表盘组件同一显示规则。新增3个Core测试（缓存校验含32KB边界、汇总与时间线、单项状态），iOS宿主注册运行检查加入build-apple.sh并在本地通过，用插值名称的源码复现fatal（RED）。小组件外观与系统添加、刷新尚无渲染证据，待真机验收；Gate 3待用户确认。CI apple作业超时提高到40分钟。

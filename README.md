@@ -40,6 +40,7 @@
 | 运动 | 只读已有训练，HRR心率分区、已观测负荷、体能输出与历史参考区间 |
 | 数据解释 | 与个人基线比较（推高/拉低及差值）、规格分段短句、缺失原因、基线数量、部分质量、覆盖度、版本和更新时间 |
 | 双端体验 | 手机报告、一天的节奏（电量+压力，标出睡眠/运动）、睡眠详情、7/30日趋势（准备度/睡眠/负荷/夜间HRV/静息心率，含个人基线区间）与近7日回顾；手表快照；电量/准备度/压力及总览表盘组件 |
+| iPhone小组件 | 主屏小/中与锁屏圆形/矩形/行内显示最近一次准备度、电量与压力；过期、等待、清除与真实0沿用表盘组件规则，演示不写入 |
 | 心情记录 | iOS 18+主动连接后只读自报心情，与同时段生理压力并列；不推算心情、不判断因果，不同步Watch |
 | 本地控制 | 选源、固定分析时区、目标设置、清缓存/停止读取、离线清除标记 |
 
@@ -58,7 +59,7 @@ brew install xcodegen
 open Wristlab.xcodeproj
 ```
 
-在Xcode为iPhone、Watch及Widget三个target选择自己的签名team。真机需配对设备、开发者模式，以及支持HealthKit、App Groups和相关entitlements的签名配置。修改bundle ID时同步修改Watch companion ID及App Group标识；详见[真机指南](docs/development.md)。
+在Xcode为iPhone、Watch、表盘组件及iPhone小组件四个target选择自己的签名team。真机需配对设备、开发者模式，以及支持HealthKit、App Groups和相关entitlements的签名配置。修改bundle ID时同步修改Watch companion ID及App Group标识；详见[真机指南](docs/development.md)。
 
 模拟器想直接看演示，可在scheme的启动参数加入 `--demo`。普通启动不会自动创建健康分数。
 
@@ -81,7 +82,8 @@ HealthKit增量 → 规范记录/来源 → 睡眠与个人基线
 - `Packages/WristlabCore`：纯Swift领域计算、报告、事务存储与同步协议。
 - `Apps/iOS`：只读HealthKit适配、设置、报告、图表和解释。
 - `Apps/watchOS`：快照显示、刷新请求、新手机确认和演示。
-- `Apps/Widgets`：WidgetKit三指标与总览组件。
+- `Apps/Widgets`：WidgetKit三指标与总览表盘组件。
+- `Apps/PhoneWidgets`：iPhone主屏/锁屏小组件。
 - `project.yml`：工程源配置；生成的Xcode工程不提交。
 
 CI验证规格结构、领域测试及双端模拟器构建，并生成截图。12组数值金例来自spec；更多边界和端到端用例见[验证记录](docs/validation.md)。**模拟器构建与截图不等于真机HealthKit、后台调度、签名或组件安装通过。**
