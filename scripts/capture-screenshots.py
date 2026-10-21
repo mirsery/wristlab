@@ -60,7 +60,18 @@ for device, product, bundle, name in [
     run('xcrun', 'simctl', 'ui', device['udid'], 'appearance', 'dark', check=False)
     run('xcrun', 'simctl', 'status_bar', device['udid'], 'override', '--time', '9:41', '--batteryState', 'charged', '--batteryLevel', '100', check=False)
     run('xcrun', 'simctl', 'install', device['udid'], str(root / product))
-    run('xcrun', 'simctl', 'launch', device['udid'], bundle, '--demo', '-AppleLanguages', '(zh-Hans)', '-AppleLocale', 'zh_CN')
+    launch = ('xcrun', 'simctl', 'launch', device['udid'], bundle, '--demo', '-AppleLanguages', '(zh-Hans)', '-AppleLocale', 'zh_CN')
+    try:
+        run(*launch, timeout=150)
+    except subprocess.TimeoutExpired:
+        # CI simulators sometimes hang the first launch after boot (seen on #5 and on main after #9).
+        # Screenshots are not a correctness gate, so restart the simulator once and retry.
+        print('Launch timed out; restarting', device['name'], 'once', flush=True)
+        run('xcrun', 'simctl', 'shutdown', device['udid'], check=False)
+        run('xcrun', 'simctl', 'boot', device['udid'], check=False)
+        run('xcrun', 'simctl', 'bootstatus', device['udid'], '-b')
+        run('xcrun', 'simctl', 'install', device['udid'], str(root / product))
+        run(*launch)
     time.sleep(15)
     run('xcrun', 'simctl', 'io', device['udid'], 'screenshot', str(out / f'{name}.png'))
     manifest.append({'file': f'{name}.png', 'device': device['name'], 'data': 'synthetic --demo', 'source': 'running SwiftUI app', 'sourceFingerprint': fingerprint, 'imageSHA256': hashlib.sha256((out / f'{name}.png').read_bytes()).hexdigest(), 'commit': os.environ.get('GITHUB_SHA'), 'run': f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'mirsery/wristlab')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', 'local')}"})
