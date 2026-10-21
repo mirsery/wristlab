@@ -1,0 +1,36 @@
+adjustments:
+- id: ADJ-001
+  type: major
+  slice: C1复审
+  design_ref: design.md 决策2；SC-LONG-002
+  change: personalRanges只在今天准备度为夜间模式时产生，history与readiness(todayRow)完全相同；共享常量Physiology.nearBaselineZ。
+  reason: 今天无睡眠时sleepSource为nil会混入所有来源；日间回退时准备度不用夜间基线，“同一把尺子”不成立（135例合成差分中55例出现）。
+  impact: 今天日间回退时不显示区间带并说明原因。
+- id: ADJ-002
+  type: minor
+  slice: C1复审
+  design_ref: GLOSSARY；002准备度分段
+  change: “个人常态范围”改名“个人基线区间”，GLOSSARY新增词条，002加交叉引用。
+  reason: 与准备度33–66“接近个人常态”同名异义。
+  impact: 文案与文档。
+- id: ADJ-003
+  type: minor
+  slice: C1复审
+  design_ref: 决策4
+  change: “本周/前4周”改为“近7日/此前28日”；差值按显示精度先取整再相减，零不带符号（同时把上一轮贡献分解的“±0”改为“0”）。
+  reason: 滚动7日易被读成自然周；先判符号后取整会出现“+0”“−0”；VoiceOver会把“±”读成“正负”。
+  impact: 近7日回顾与详情贡献差值文案；TC-CONTRIB-001断言随之更新。
+- id: ADJ-004
+  type: minor
+  slice: C1复审
+  design_ref: 001长期趋势
+  change: 30日准备度说明各日按当前61日数据重算、早期基线较短；区间带说明按今天基线画出并显示有效夜晚数；无区间时说明三种原因。
+  reason: 历史日窗口与当日所见可能不同；原无区间文案只说“不足14日”。
+  impact: 趋势卡片文案与001。
+- id: ADJ-005
+  type: minor
+  slice: 截图视觉检查
+  design_ref: 决策3
+  change: 指标选择改为单独一行的菜单，7/30分段在其下；30日横轴在AxisMarks闭包内隔5日显示标签并保留网格线。
+  reason: 菜单文字折行；AxisMarks(values:)在类别轴上实测全部标签重叠。
+  impact: 仅布局。

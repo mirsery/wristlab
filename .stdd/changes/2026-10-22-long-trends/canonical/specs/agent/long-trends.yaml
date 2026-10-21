@@ -1,0 +1,38 @@
+meta:
+  task_id: long-trends
+  change_id: 2026-10-22-long-trends
+  task_type: code
+  system: HealthEngine历史/个人范围与TrendSeries
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-LONG-001
+  description: 35日逐日历史
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-LONG-002
+  description: 个人基线区间
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-LONG-003
+  description: 7/30日趋势
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-LONG-004
+  description: 7/30日趋势
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-LONG-005
+  description: 7/30日趋势
+  action: 模拟器合成截图人工检查
+  assertions:
+  - type: manual_review
+    expected: 截图与静态检查记录于test-report

@@ -5,6 +5,9 @@ public struct DayOverview: Codable, Equatable, Sendable, Identifiable {
     public var readiness: Int?
     public var sleepMinutes: Double?
     public var load: Double?
+    /// Median HRV inside the main sleep when it has at least two valid samples, as in the night pair.
+    public var nightHRV: Double? = nil
+    public var restingHeartRate: Double? = nil
     public var id: Date { day }
 }
 public struct HealthReport: Codable, Equatable, Sendable {
@@ -26,6 +29,8 @@ public struct HealthReport: Codable, Equatable, Sendable {
     public var regularityMinutes: Double?
     public var activity: ActivityReport
     public var history: [DayOverview]
+    /// nil in reports cached before it existed, or with fewer than 14 valid nights.
+    public var personalRanges: PersonalRanges? = nil
 }
 
 public enum HealthEngine {
@@ -36,6 +41,8 @@ public enum HealthEngine {
         var fallback: PhysiologyPair?
         var awake: PhysiologyPair?
         var sleeping: PhysiologyPair?
+        var nightHRV: Double?
+        var restingHeartRate: Double?
     }
     public static func evaluate(records input: [HealthRecord], profile: HealthProfile, asOf: Date,
                                 inputRevision: Int, source: DataSource = .healthKit) throws -> HealthReport {
@@ -78,18 +85,25 @@ public enum HealthEngine {
             basis.append(Basis(day: day, sleep: sleep,
                                night: nightHRV.count >= 2 ? pair(hrv: nightHRV, heart: dayRHR) : nil,
                                fallback: pair(hrv: dayHRV, heart: dayRHR), awake: awakePair,
-                               sleeping: sleepGroups.count >= 12 && nightHRV.count >= 2 ? pair(hrv: nightHRV, heart: median(sleepGroups.values.compactMap { median($0.compactMap(\.value)) })) : nil))
+                               sleeping: sleepGroups.count >= 12 && nightHRV.count >= 2 ? pair(hrv: nightHRV, heart: median(sleepGroups.values.compactMap { median($0.compactMap(\.value)) })) : nil,
+                               nightHRV: nightHRV.count >= 2 ? median(nightHRV.compactMap(\.value)) : nil, restingHeartRate: dayRHR))
         }
         func previous(_ day: Date, sleepSource: String? = nil) -> [Basis] {
             let start = clock.shiftedDay(day, by: -60)
             return basis.filter { $0.day >= start && $0.day < day && (sleepSource == nil || $0.sleep.sourceGroup == sleepSource) }
         }
-        func readiness(_ row: Basis) -> MetricEstimate {
-            let nightMode = row.sleep.primary.map { primary in
+        func isNightMode(_ row: Basis) -> Bool {
+            row.sleep.primary.map { primary in
                 usableHRV.filter { r in primary.segments.contains { contains($0.interval, r.end) } }.count >= 2
             } ?? false
+        }
+        func readinessHistory(_ row: Basis, nightMode: Bool) -> [PhysiologyPair] {
+            previous(row.day, sleepSource: nightMode ? row.sleep.sourceGroup : nil).compactMap { nightMode ? $0.night : $0.fallback }
+        }
+        func readiness(_ row: Basis) -> MetricEstimate {
+            let nightMode = isNightMode(row)
             let value = nightMode ? row.night : row.fallback
-            let history = previous(row.day, sleepSource: nightMode ? row.sleep.sourceGroup : nil).compactMap { nightMode ? $0.night : $0.fallback }
+            let history = readinessHistory(row, nightMode: nightMode)
             var metric = Physiology.readiness(hrv: value?.hrv, rhr: value?.heartRate, history: history, mode: nightMode ? "night" : "dayFallback")
             if value == nil {
                 let currentRHR = rhr.contains { contains(clock.day(containing: row.day), $0.start) }
@@ -202,13 +216,19 @@ public enum HealthEngine {
         let regularStarts = debtReports.compactMap { $0.primary?.interval.start }.map {
             Double(clock.calendar.component(.hour, from: $0) * 60 + clock.calendar.component(.minute, from: $0))
         }
-        let history = basis.suffix(7).map { row in DayOverview(day: row.day, readiness: readiness(row).value, sleepMinutes: row.sleep.totalMinutes, load: loads[row.day]?.load) }
+        let history = basis.suffix(35).map { row in
+            DayOverview(day: row.day, readiness: readiness(row).value, sleepMinutes: row.sleep.totalMinutes, load: loads[row.day]?.load,
+                        nightHRV: row.nightHRV, restingHeartRate: row.restingHeartRate)
+        }
+        // Only when today's readiness uses the night baseline, so the band is exactly that baseline.
+        let ranges = isNightMode(todayRow) ? Physiology.personalRanges(history: readinessHistory(todayRow, nightMode: true)) : nil
         let signature = [hr.first?.source.group, rhr.first?.source.group, hrv.first?.source.group, todayRow.sleep.sourceGroup].compactMap { $0 }.joined(separator: "|")
         return HealthReport(configurationVersion: profile.version, inputRevision: inputRevision, day: today, timeZoneID: profile.timeZoneID, asOf: asOf, source: source, sourceSignature: signature,
                             readiness: currentReadiness, stress: timeline.last?.estimate ?? MetricEstimate(reasons: ["missingHR"]),
                             stressTimeline: timeline.filter { $0.interval.start >= today }, energy: energy, sleep: todayRow.sleep,
                             sleepDebtMinutes: SleepCalculator.debt(minutes: debtReports.map(\.totalMinutes), target: Double(profile.sleepTargetMinutes)),
-                            regularityMinutes: SleepCalculator.regularity(startClockMinutes: regularStarts), activity: activity, history: history)
+                            regularityMinutes: SleepCalculator.regularity(startClockMinutes: regularStarts), activity: activity, history: history,
+                            personalRanges: ranges)
     }
     private static func pair(hrv: [HealthRecord], heart: Double?) -> PhysiologyPair? {
         guard let h = median(hrv.compactMap(\.value)), let heart else { return nil }; return PhysiologyPair(hrv: h, heartRate: heart)

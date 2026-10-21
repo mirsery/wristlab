@@ -24,7 +24,7 @@ public struct ContributionRow: Equatable, Sendable {
 /// Explains readiness and stress through the standardized inputs the model already
 /// computed. |z| < 0.5 is a display band only; it does not change any formula.
 public enum MetricContributions {
-    public static let nearBaselineZ = 0.5
+    public static let nearBaselineZ = Physiology.nearBaselineZ
 
     public static func rows(for metric: ComplicationMetric, estimate: MetricEstimate, at now: Date) -> [ContributionRow] {
         // Stale or missing scores hide their old inputs too.
@@ -57,7 +57,7 @@ public enum MetricContributions {
         // The difference is taken between the shown integers so the three numbers always agree.
         let shownCurrent = Int(current.rounded(.toNearestOrAwayFromZero)), shownBaseline = Int(baseline.rounded(.toNearestOrAwayFromZero))
         let difference = shownCurrent - shownBaseline
-        let sign = difference > 0 ? "+" : difference < 0 ? "−" : "±"
+        let sign = difference > 0 ? "+" : difference < 0 ? "−" : ""
         return ContributionRow(input: input, relation: base.relation, effect: base.effect, title: title,
                                valueText: "\(shownCurrent) \(unit)", baselineText: "\(shownBaseline) \(unit)",
                                differenceText: "\(sign)\(abs(difference)) \(unit)",
@@ -232,9 +232,18 @@ public struct SleepBreakdown: Equatable, Sendable {
 // MARK: - Trend
 
 public enum TrendMetric: String, CaseIterable, Sendable {
-    case readiness, sleep, load
+    case readiness, sleep, load, nightHRV, restingHeartRate
     public var title: String {
-        switch self { case .readiness: "准备度"; case .sleep: "睡眠"; case .load: "负荷" }
+        switch self { case .readiness: "准备度"; case .sleep: "睡眠"; case .load: "负荷"; case .nightHRV: "夜间HRV"; case .restingHeartRate: "静息心率" }
+    }
+    func value(in day: DayOverview?) -> Double? {
+        switch self {
+        case .readiness: day?.readiness.map(Double.init)
+        case .sleep: day?.sleepMinutes.map { $0 / 60 }
+        case .load: day?.load
+        case .nightHRV: day?.nightHRV
+        case .restingHeartRate: day?.restingHeartRate
+        }
     }
 }
 public struct TrendDay: Equatable, Sendable {
@@ -242,30 +251,70 @@ public struct TrendDay: Equatable, Sendable {
     public let value: Double?
 }
 
-/// Seven calendar days ending on the report day. A missing day stays nil so it is never drawn as zero.
+/// Calendar days (7 or 30) ending on the report day. A missing day stays nil so it is never drawn as zero.
 public struct TrendSeries: Equatable, Sendable {
     public let metric: TrendMetric
     public let days: [TrendDay]
     public let validDays: Int
     public let mean: Double?
 
-    public init(history: [DayOverview], metric: TrendMetric, endingAt end: Date, timeZoneID: String) {
-        let clock = try? AnalysisClock(timeZoneID: timeZoneID)
-        let last = clock?.day(containing: end).start ?? end
+    public init(history: [DayOverview], metric: TrendMetric, endingAt end: Date, timeZoneID: String, length: Int = 7) {
         let byDay = Dictionary(history.map { ($0.day, $0) }, uniquingKeysWith: { _, latest in latest })
         self.metric = metric
-        days = (-6...0).map { offset in
-            let day = clock?.shiftedDay(last, by: offset) ?? last.addingTimeInterval(Double(offset) * 86400)
-            let row = byDay[day]
-            let value: Double? = switch metric {
-            case .readiness: row?.readiness.map(Double.init)
-            case .sleep: row?.sleepMinutes.map { $0 / 60 }
-            case .load: row?.load
-            }
-            return TrendDay(day: day, value: value)
-        }
+        days = calendarDays(endingAt: end, timeZoneID: timeZoneID, count: length).map { TrendDay(day: $0, value: metric.value(in: byDay[$0])) }
         let values = days.compactMap(\.value)
         validDays = values.count
         mean = values.isEmpty ? nil : values.reduce(0, +) / Double(values.count)
+    }
+}
+
+/// Analysis-day starts in the fixed analysis time zone, oldest first.
+func calendarDays(endingAt end: Date, timeZoneID: String, count: Int) -> [Date] {
+    let clock = try? AnalysisClock(timeZoneID: timeZoneID)
+    let last = clock?.day(containing: end).start ?? end
+    return (1 - max(count, 1) ... 0).map { clock?.shiftedDay(last, by: $0) ?? last.addingTimeInterval(Double($0) * 86400) }
+}
+
+// MARK: - Weekly review
+
+public struct WeeklyRow: Equatable, Sendable {
+    public let metric: TrendMetric
+    public let thisWeekMean: Double?
+    public let thisWeekDays: Int
+    public let previousMean: Double?
+    public let previousDays: Int
+    /// This week minus the previous four weeks; only when both means exist.
+    public let difference: Double?
+    /// Digits shown for this metric: sleep hours keep one decimal, the rest are integers.
+    public var fractionDigits: Int { metric == .sleep ? 1 : 0 }
+    /// The difference between the two means as displayed, so the three shown numbers agree.
+    /// Zero carries no sign; VoiceOver would read "±" as "plus minus".
+    public var differenceText: String? {
+        guard let current = thisWeekMean, let previous = previousMean else { return nil }
+        let scale = pow(10, Double(fractionDigits))
+        let shown = ((current * scale).rounded(.toNearestOrAwayFromZero) - (previous * scale).rounded(.toNearestOrAwayFromZero)) / scale
+        let magnitude = String(format: "%.\(fractionDigits)f", abs(shown))
+        return shown > 0 ? "+" + magnitude : shown < 0 ? "\u{2212}" + magnitude : magnitude
+    }
+}
+
+/// The 7 days ending today against the 28 days before them. Means need 3 and 10 valid days;
+/// observed load is left out because partly observed days are only lower bounds.
+public struct WeeklyReview: Equatable, Sendable {
+    public static let minimumThisWeekDays = 3
+    public static let minimumPreviousDays = 10
+    public let rows: [WeeklyRow]
+
+    public init(history: [DayOverview], endingAt end: Date, timeZoneID: String) {
+        let byDay = Dictionary(history.map { ($0.day, $0) }, uniquingKeysWith: { _, latest in latest })
+        let days = calendarDays(endingAt: end, timeZoneID: timeZoneID, count: 35)
+        rows = [TrendMetric.readiness, .sleep, .nightHRV, .restingHeartRate].map { metric in
+            let previous = days.prefix(28).compactMap { metric.value(in: byDay[$0]) }
+            let current = days.suffix(7).compactMap { metric.value(in: byDay[$0]) }
+            let currentMean = current.count >= Self.minimumThisWeekDays ? current.reduce(0, +) / Double(current.count) : nil
+            let previousMean = previous.count >= Self.minimumPreviousDays ? previous.reduce(0, +) / Double(previous.count) : nil
+            return WeeklyRow(metric: metric, thisWeekMean: currentMean, thisWeekDays: current.count, previousMean: previousMean,
+                             previousDays: previous.count, difference: currentMean.flatMap { c in previousMean.map { c - $0 } })
+        }
     }
 }
