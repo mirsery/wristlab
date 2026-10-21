@@ -10,7 +10,7 @@ requirements:
   - id: SC-PHONEW-001
     confidence: high
     evidence: canonical/proposals/2026-10-22-phone-widgets.yaml
-    given: 有效真实快照、演示快照、损坏JSON、超过64KB、未知schema与清除标记快照
+    given: 有效真实快照（含补足到32768字节）、演示快照、损坏JSON、32769字节、未知schema、带数值的清除标记与有效清除标记
     when: 小组件读取phone-snapshot.json
     then: SHALL 只接受有效真实快照与清除标记，其余视为无快照（等待手机）
     and:
@@ -21,13 +21,14 @@ requirements:
   - id: SC-PHONEW-002
     confidence: high
     evidence: canonical/proposals/2026-10-22-phone-widgets.yaml
-    given: 快照含当前、部分、过期与缺失的指标
+    given: 快照含当前、部分、单项过期、缺失与真实0的指标，以及无快照
     when: 生成组件时间线与各指标显示
-    then: SHALL 每个指标按ComplicationPresentation显示数值或原因，时间线包含现在与各指标失效时刻且不含过去时刻
+    then: SHALL 每个指标按ComplicationPresentation显示数值或原因（部分估算标注、过期隐藏数值），时间线为现在与各指标失效时刻且不含过去时刻
     and:
     - 清除标记显示数据已清除且无数值
+    - 无快照时提示打开Wristlab刷新
 - id: REQ-PHONEW-003
-  description: 注册与外观
+  description: 注册运行检查
   scenarios:
   - id: SC-PHONEW-003
     confidence: high
@@ -36,10 +37,13 @@ requirements:
     when: 在独立宿主中执行配置body
     then: SHALL 每个配置输出成功标记，无fatal
     and: []
+- id: REQ-PHONEW-004
+  description: 外观与隐私
+  scenarios:
   - id: SC-PHONEW-004
     confidence: medium
     evidence: canonical/proposals/2026-10-22-phone-widgets.yaml
     given: 小/中、圆形、矩形、行内五种尺寸，有快照与无快照
     when: 渲染
-    then: SHALL 数值、原因与更新时间可辨，锁屏视图标记隐私敏感
+    then: SHALL 数值、原因（含圆形）、部分估算与更新时间可辨，深色背景下原因文字可读，锁屏视图标记隐私敏感
     and: []

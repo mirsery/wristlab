@@ -1,12 +1,23 @@
 change_id: 2026-10-22-phone-widgets
 complexity_score: null
-current_phase: understand
+current_phase: build
 design_adjustments:
-  count: 0
+  count: 4
 mode: standard
 phases:
   build:
-    status: pending
+    status: in_progress
+    slices_completed:
+      '1':
+        status: done
+        tc_coverage: 2/2 Core
+        new_tests: 3
+        verified_at: '2026-10-22T02:36:34+0800'
+      '2':
+        status: done
+        tc_coverage: 1/2（PHONEW-004待真机）
+        new_tests: 0
+        verified_at: '2026-10-22T02:36:34+0800'
   deliver:
     status: pending
   spec:
@@ -27,7 +38,12 @@ score_confidence: null
 status: active
 task_type: code
 traceability:
-  spec_scenarios: 0
-  tc_cases: 0
-  test_functions: 0
+  spec_scenarios: 4
+  tc_cases: 4
+  test_functions: 3
 version: '3.0'
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+  evidence: 用户选择本批四轮，Gate 1/2按推荐方案连续实施，Gate 3明早真机验收，CI通过按顺序合并

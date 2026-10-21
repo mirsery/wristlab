@@ -12,11 +12,11 @@ iPhone每次刷新由HealthRepository产出DisplaySnapshot（最小、已去掉�
 **备选**：共用watch的group——跨平台容器不共享且语义混淆；写SnapshotReceiver——iPhone是生产者，不需要接收端的epoch确认。
 
 ### 2. Core解码与汇总
-**方案**：Core新增`PhoneWidgetCache.snapshot(from:)`（≤64KB、DisplaySnapshot解码与validate、仅healthKit来源；清除标记保留）与`PhoneWidgetSummary(snapshot:at:)`（准备度/电量/压力三个ComplicationPresentation、更新时间、整体状态），时间线沿用ComplicationTimeline.dates。
+**方案**：Core新增`PhoneWidgetCache.snapshot(from:)`（≤64KB、DisplaySnapshot解码与validate、仅healthKit来源；清除标记保留）与`PhoneWidgetSummary(snapshot:at:)`（准备度/电量/压力三个ComplicationPresentation与更新时间；等待状态在手机上改称“打开Wristlab刷新”），时间线沿用ComplicationTimeline.dates。缓存上限与DisplaySnapshot一致为32KB，App Group常量放在Core。
 **为什么**：与Watch组件同一显示规则，避免两端映射不一致（EXP-20261021-001）。
 
 ### 3. 小组件扩展
-**方案**：新target WristlabPhoneWidget（iOS app-extension），一个固定名称的配置“Wristlab 状态”，支持systemSmall（准备度环+电量/压力）、systemMedium（三项及原因）、accessoryCircular（准备度）、accessoryRectangular（三项）、accessoryInline；无数值显示原因，过期隐藏数值；视图`privacySensitive`；点击打开应用。
+**方案**：新target WristlabPhoneWidget（iOS app-extension），一个固定名称的配置“Wristlab 状态”，支持systemSmall（准备度数值与原因+电量/压力）、systemMedium（三项及原因）、accessoryCircular（准备度）、accessoryRectangular（三项）、accessoryInline；无数值显示原因（圆形也显示），部分估算标注，过期隐藏数值；背景固定深色并强制深色配色以保证原因文字可读；按快照时区显示时间；视图`privacySensitive`；点击打开应用。
 **为什么**：一个配置覆盖常用位置，名称固定避免注册崩溃。
 
 ### 4. 注册运行检查与CI

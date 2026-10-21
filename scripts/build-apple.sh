@@ -9,3 +9,4 @@ xcodegen generate
 xcodebuild -project Wristlab.xcodeproj -scheme Wristlab -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath work/DerivedData-iOS CODE_SIGNING_ALLOWED=NO build
 xcodebuild -project Wristlab.xcodeproj -scheme WristlabWatch -configuration Debug -destination 'generic/platform=watchOS Simulator' -derivedDataPath work/DerivedData-watchOS CODE_SIGNING_ALLOWED=NO build
 python3 scripts/test-widget-registration.py
+python3 scripts/test-widget-registration.py --platform ios

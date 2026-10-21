@@ -43,7 +43,7 @@ final class DashboardModel: ObservableObject {
         }
         guard let repository else { return }
         let state = await repository.current(); profile = state.profile; report = state.report
-        if let snapshot = state.snapshot { bridge.publish(snapshot) }
+        if let snapshot = state.snapshot { publish(snapshot) }
         updateSources(state)
         if ProcessInfo.processInfo.arguments.contains("--demo") { await enableDemo(); return }
         if state.readingEnabled { observe(); await refresh() }
@@ -78,7 +78,7 @@ final class DashboardModel: ObservableObject {
             }
             guard token == generation else { return }
             report = result.report; profile = result.profile; updateSources(result)
-            if let snapshot = result.snapshot { bridge.publish(snapshot) }
+            if let snapshot = result.snapshot { publish(snapshot) }
             await loadMoods(asOf: now)
             guard token == generation else { return }
             status = result.records.isEmpty ? "暂无可读取记录；可能尚无记录或未允许读取，请检查健康 App。" : "已更新本地报告 · 估算仅供日常趋势参考"
@@ -124,7 +124,7 @@ final class DashboardModel: ObservableObject {
         do {
             let state = try await repository.configure(updated, asOf: Date())
             profile = state.profile; report = state.report
-            if let snapshot = state.snapshot { bridge.publish(snapshot) }
+            if let snapshot = state.snapshot { publish(snapshot) }
             status = "设置已保存，已按新配置重算本地历史。"
         } catch { status = "设置无效或保存失败，已保留原配置。" }
         busy = false
@@ -142,10 +142,14 @@ final class DashboardModel: ObservableObject {
                 moodConnected = false
                 UserDefaults.standard.removeObject(forKey: "moodReadingRequested")
             }
-            if let snapshot = state.snapshot { bridge.publish(snapshot) }
+            if let snapshot = state.snapshot { publish(snapshot) }
             status = "本地数据已清除 · 等待手表同步"
             if !stop, state.readingEnabled { await refresh() }
         } catch { status = "清除未完成，原数据保持不变。" }
+    }
+    private func publish(_ snapshot: DisplaySnapshot) {
+        bridge.publish(snapshot)
+        PhoneWidgetStore.publish(snapshot)
     }
     private func updateSources(_ state: RepositoryState) {
         sources = Dictionary(grouping: state.records, by: \.kind).mapValues { Array(Set($0.map { $0.source.group })).sorted() }

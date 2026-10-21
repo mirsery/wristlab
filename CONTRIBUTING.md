@@ -8,7 +8,7 @@
 - `iOS and watchOS build`：生成工程，分别编译 iOS 与 watchOS 模拟器目标，关闭签名。
 - CI 触发于 main push、PR 和手动执行；只读 token，不使用生产数据、签名证书或仓库 secrets。
 - Actions 使用固定提交 SHA；Dependabot 每月更新。Xcode 固定 16.4；Homebrew XcodeGen 当前随 runner 安装，日志记录版本。若生成器漂移导致失败，应评估后固定版本。
-- 模拟器编译不证明健康传感器、后台同步、表盘刷新或真机安装可用；这些项目在 PR 单独记录手工验收。
+- 模拟器编译不证明健康传感器、后台同步、表盘刷新、小组件刷新、通知送达或真机安装可用；这些项目在 PR 单独记录手工验收。
 
 ## 分支策略
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute the production Widget configurations in a disposable watchOS host.
+"""Execute the production Widget configurations in a disposable watchOS or iOS host.
 
 Compilation alone misses WidgetKit runtime metadata preconditions. The host uses
 synthetic UI only, never invokes a provider, and never opens a health container.
@@ -15,6 +15,21 @@ import time
 ROOT = Path(__file__).resolve().parent.parent
 WORK = ROOT / "work" / "widget-registration-test"
 EXECUTABLE = "WidgetRegistrationTest"
+# Each platform lists its production widget source and the configurations to execute.
+PLATFORMS = {
+    "watchos": {
+        "runtime": "watchOS", "device": "", "source": "Apps/Widgets/WristlabWidget.swift",
+        "widgets": [("energy", "EnergyWidget"), ("readiness", "ReadinessWidget"), ("stress", "StressWidget"), ("overview", "OverviewWidget")],
+        "deployment": 'watchOS: "10.0"', "platform": "watchOS", "products": "Debug-watchsimulator",
+        "info": "WKApplication: true\n        WKWatchOnly: true", "bundle": "com.mirsery.wristlab.registrationtest", "work": "widget-registration-test",
+    },
+    "ios": {
+        "runtime": "iOS", "device": "iPhone", "source": "Apps/PhoneWidgets/WristlabPhoneWidget.swift",
+        "widgets": [("phone", "WristlabPhoneSummaryWidget")],
+        "deployment": 'iOS: "17.0"', "platform": "iOS", "products": "Debug-iphonesimulator",
+        "info": "UILaunchScreen: {}", "bundle": "com.mirsery.wristlab.registrationtest.ios", "work": "widget-registration-test-ios",
+    },
+}
 
 
 def run(args, *, capture=False, timeout=180):
@@ -60,12 +75,15 @@ def diagnose(udid, since):
 
 
 def main():
+    global WORK
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--device", help="Available watchOS simulator UDID")
-    parser.add_argument("--widget-source", type=Path,
-                        default=ROOT / "Apps/Widgets/WristlabWidget.swift",
-                        help="Production source or a saved baseline for RED replay")
+    parser.add_argument("--platform", choices=sorted(PLATFORMS), default="watchos")
+    parser.add_argument("--device", help="Available simulator UDID for the platform")
+    parser.add_argument("--widget-source", type=Path, help="Production source or a saved baseline for RED replay")
     args = parser.parse_args()
+    config = PLATFORMS[args.platform]
+    WORK = ROOT / "work" / config["work"]
+    widget_source = args.widget_source or ROOT / config["source"]
     # Keep this process on one full Xcode toolchain; do not modify xcode-select.
     if "DEVELOPER_DIR" not in os.environ:
         selected = subprocess.check_output(["xcode-select", "-p"], text=True).strip()
@@ -74,19 +92,24 @@ def main():
             if "CommandLineTools" in selected else selected
         )
     devices = json.loads(run(["xcrun", "simctl", "list", "devices", "available", "--json"], capture=True))["devices"]
-    watches = [d for runtime, group in devices.items() if "watchOS" in runtime for d in group]
+    def version(runtime):
+        return tuple(int(part) for part in runtime.rsplit(f".{config['runtime']}-", 1)[1].split("-") if part.isdigit())
+    # Newest runtime first, so an old installed runtime below the deployment target is not picked.
+    runtimes = sorted((r for r in devices if f".{config['runtime']}-" in r), key=version, reverse=True)
+    candidates = [d for runtime in runtimes for d in devices[runtime] if config["device"] in d["name"]]
     if args.device:
-        watches = [d for d in watches if d["udid"] == args.device]
-    if not watches:
-        raise SystemExit("Install an available watchOS simulator runtime first.")
-    device = sorted(watches, key=lambda d: d["state"] != "Booted")[0]
+        candidates = [d for d in candidates if d["udid"] == args.device]
+    if not candidates:
+        raise SystemExit(f"Install an available {config['runtime']} simulator runtime first.")
+    newest = [d for d in candidates if d in devices[runtimes[0]]] or candidates
+    device = sorted(newest, key=lambda d: d["state"] != "Booted")[0]
     udid = device["udid"]
     if device["state"] != "Booted":
         run(["xcrun", "simctl", "boot", udid])
     run(["xcrun", "simctl", "bootstatus", udid, "-b"], timeout=300)
     sources = WORK / "Sources"
     sources.mkdir(parents=True, exist_ok=True)
-    widget = args.widget_source.read_text()
+    widget = widget_source.read_text()
     if widget.count("@main\n") != 1:
         raise SystemExit("Review probe extraction: expected one WidgetBundle entry point.")
     # Copy the real views/configuration bodies, changing only the entry point.
@@ -97,11 +120,7 @@ import Darwin
     var body: some Scene {
         WindowGroup {
             Text("Widget registration test").task {
-                withExtendedLifetime(EnergyWidget().body) { print("REGISTRATION: energy OK") }
-                withExtendedLifetime(ReadinessWidget().body) { print("REGISTRATION: readiness OK") }
-                withExtendedLifetime(StressWidget().body) { print("REGISTRATION: stress OK") }
-                withExtendedLifetime(OverviewWidget().body) { print("REGISTRATION: overview OK") }
-                print("REGISTRATION: PASS")
+''' + "".join(f"                withExtendedLifetime({type_name}().body) {{ print(\"REGISTRATION: {name} OK\") }}\n" for name, type_name in config["widgets"]) + '''                print("REGISTRATION: PASS")
                 fflush(stdout)
                 exit(0)
             }
@@ -113,7 +132,7 @@ import Darwin
     (WORK / "project.yml").write_text(f'''name: WidgetRegistrationTest
 options:
   deploymentTarget:
-    watchOS: "10.0"
+    {config["deployment"]}
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -123,19 +142,18 @@ packages:
 targets:
   WidgetRegistrationTest:
     type: application
-    platform: watchOS
+    platform: {config["platform"]}
     sources: [Sources]
     info:
       path: Info.plist
       properties:
-        WKApplication: true
-        WKWatchOnly: true
+        {config["info"]}
         CFBundleDisplayName: Widget Registration Test
         CFBundleVersion: "1"
         CFBundleShortVersionString: "1.0"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.mirsery.wristlab.registrationtest
+        PRODUCT_BUNDLE_IDENTIFIER: {config["bundle"]}
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - package: WristlabCore
@@ -148,8 +166,8 @@ targets:
             "-destination", f"id={udid}", "-derivedDataPath", str(WORK / "DerivedData"),
             "CODE_SIGNING_ALLOWED=NO", "build",
         ], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=240)
-    app = WORK / f"DerivedData/Build/Products/Debug-watchsimulator/{EXECUTABLE}.app"
-    bundle = "com.mirsery.wristlab.registrationtest"
+    app = WORK / f"DerivedData/Build/Products/{config['products']}/{EXECUTABLE}.app"
+    bundle = config["bundle"]
     run(["xcrun", "simctl", "install", udid, str(app)])
     since = datetime.now()
     try:
@@ -157,7 +175,7 @@ targets:
         (WORK / "runtime.log").write_text(output)
         print(output)
         # simctl can return zero even when the child traps: require every marker.
-        markers = [f"REGISTRATION: {kind} OK" for kind in ["energy", "readiness", "stress", "overview"]] + ["REGISTRATION: PASS"]
+        markers = [f"REGISTRATION: {name} OK" for name, _ in config["widgets"]] + ["REGISTRATION: PASS"]
         if not all(marker in output for marker in markers) or "Fatal error:" in output:
             diagnose(udid, since)
             raise SystemExit("FAIL: production Widget configuration trapped or did not finish.")

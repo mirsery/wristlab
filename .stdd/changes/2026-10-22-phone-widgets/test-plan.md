@@ -12,7 +12,7 @@ Core解码与时间线用合成快照单测；小组件配置用独立宿主运�
 | **ID** | TC-PHONEW-001 |
 | **对应 Spec** | phone-widgets/spec.md → Scenario: SC-PHONEW-001 |
 | **优先级** | P0 |
-| **预置条件** | 有效真实快照、演示快照、损坏JSON、超过64KB、未知schema与清除标记快照 |
+| **预置条件** | 有效真实快照（含补足到32768字节）、演示快照、损坏JSON、32769字节、未知schema、带数值的清除标记与有效清除标记 |
 | **输入** | 小组件读取phone-snapshot.json |
 | **预期结果** | SHALL 只接受有效真实快照与清除标记，其余视为无快照（等待手机）；无文件时同样为等待状态 |
 | **测试函数** | phoneWidgetCacheAcceptsOnlyRealSnapshots_TC_PHONEW_001 |
@@ -25,13 +25,13 @@ Core解码与时间线用合成快照单测；小组件配置用独立宿主运�
 | **ID** | TC-PHONEW-002 |
 | **对应 Spec** | phone-widgets/spec.md → Scenario: SC-PHONEW-002 |
 | **优先级** | P0 |
-| **预置条件** | 快照含当前、部分、过期与缺失的指标 |
+| **预置条件** | 快照含当前、部分、单项过期、缺失与真实0的指标，以及无快照 |
 | **输入** | 生成组件时间线与各指标显示 |
-| **预期结果** | SHALL 每个指标按ComplicationPresentation显示数值或原因，时间线包含现在与各指标失效时刻且不含过去时刻；清除标记显示数据已清除且无数值 |
-| **测试函数** | phoneWidgetTimelineAndStatesFollowSnapshot_TC_PHONEW_002 |
+| **预期结果** | SHALL 每个指标按ComplicationPresentation显示数值或原因（部分估算标注、过期隐藏数值），时间线为现在与各指标失效时刻且不含过去时刻；清除标记显示数据已清除且无数值；无快照时提示打开Wristlab刷新 |
+| **测试函数** | phoneWidgetTimelineAndStatesFollowSnapshot_TC_PHONEW_002 / phoneWidgetPerMetricStates_TC_PHONEW_002 |
 | **层次** | Swift Testing Core单元 |
 
-### SC-PHONEW-003 — 注册与外观
+### SC-PHONEW-003 — 注册运行检查
 
 | 字段 | 内容 |
 | --- | --- |
@@ -44,7 +44,7 @@ Core解码与时间线用合成快照单测；小组件配置用独立宿主运�
 | **测试函数** | scripts/test-widget-registration.py --platform ios |
 | **层次** | 运行检查（build-apple.sh注册宿主） |
 
-### SC-PHONEW-004 — 注册与外观
+### SC-PHONEW-004 — 外观与隐私
 
 | 字段 | 内容 |
 | --- | --- |
@@ -53,8 +53,8 @@ Core解码与时间线用合成快照单测；小组件配置用独立宿主运�
 | **优先级** | P1 |
 | **预置条件** | 小/中、圆形、矩形、行内五种尺寸，有快照与无快照 |
 | **输入** | 渲染 |
-| **预期结果** | SHALL 数值、原因与更新时间可辨，锁屏视图标记隐私敏感 |
-| **测试函数** | —（模拟器渲染截图） |
+| **预期结果** | SHALL 数值、原因（含圆形）、部分估算与更新时间可辨，深色背景下原因文字可读，锁屏视图标记隐私敏感 |
+| **测试函数** | —（静态检查；系统渲染与添加待真机） |
 | **层次** | 模拟器/人工 |
 
 ## 测试执行矩阵
