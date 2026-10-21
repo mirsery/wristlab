@@ -41,3 +41,7 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 说明页已在双端模拟器观察并保存[实际截图](screenshots/watch-face/README.md)。当前watchOS27模拟器的simctl openurl返回LSApplicationWorkspaceErrorDomain 115；这不能当作路由成功证据，也不单凭该错误断言实际Widget点击失败。四组件实际安装、各family外观和冷/热点击仍待平台验收。完整17项TC对照见[本轮测试报告](../.stdd/changes/2026-10-21-watch-face-complications/test-report.md)。
 
 真实设备架构未签名构建也已通过。已接入iPhone；通过Xcode现有个人团队生成开发证书和匹配的App Group/HealthKit profiles后，三目标真机签名构建通过。用户开启开发者模式并信任开发者后，针对设备更新profile，iPhone16ProMax/iOS27.2的安装、普通启动与进程运行查询通过（0.1.0/1）。WatchSeries9/watchOS27.0.1随后也完成定向签名构建、安装、普通启动及进程运行查询。双端安装通过；实际表盘添加/点击、健康授权与跨设备同步仍待验。
+
+## 真机使用反馈：组件注册崩溃
+
+安装与启动通过后，实际使用暴露Widget扩展在配置名称阶段崩溃。已用独立宿主运行生产配置复现相同fatal，并改为固定本地化名称。修复前运行回归失败，修复后四个配置通过；运行检查已加入Apple构建脚本。真实Watch已安装修复版并启动，尚不据此声称全部表盘操作或手机刷新正常。手机长时间加载问题仍在诊断。

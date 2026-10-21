@@ -17,7 +17,7 @@ brew install xcodegen
 1. 安装兼容设备系统的Xcode，打开并安装iOS/watchOS组件；在Settings→Accounts添加Apple Account。
 2. 若CLI仍指向Command Line Tools，执行`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`。
 3. `xcodegen generate`后打开Wristlab.xcodeproj；为Wristlab、WristlabWatch、WristlabWidget三个target选择可用签名team。
-4. 按账号实际可用性配置HealthKit、HealthKit Background Delivery和Watch/Widget App Groups。应用组为`group.com.mirsery.wristlab.watch`；真机签名和capability尚未验证。
+4. 按账号实际可用性配置HealthKit、HealthKit Background Delivery和Watch/Widget App Groups。应用组为`group.com.mirsery.wristlab.watch`；双端真机签名及安装已通过；HealthKit实际授权、App Group数据读取和后台行为仍待验证。
 5. 若改bundleID，同步修改project.yml中的Watch companion、Widget前缀，以及WatchBridge/Widget中的App Group常量和两个entitlements。保留三者一致；个人证书/配置不提交。
 6. 配对iPhone与Watch，按Xcode引导开启开发者模式，分别运行两个scheme。Widget构建为Watch app内嵌扩展；长按系统表盘→编辑→复杂功能，选择Wristlab的电量/准备度/压力，或在矩形槽位选择状态总览。也可从iPhone系统Watch App编辑。
 7. 手机点“连接Apple健康”后按需授权只读类型；无记录不能当成拒绝授权。已有历史不足14个有效日时显示校准，不造分数。
@@ -37,3 +37,7 @@ brew install xcodegen
 依照[验证记录](validation.md)和[006](../specs/006-acceptance.md)逐项记录；模拟器编译与合成截图不证明HealthKit真数据、锁屏后台执行、签名、Watch送达或组件刷新可用。
 
 参考：[HealthKit授权](https://developer.apple.com/documentation/healthkit/authorizing-access-to-health-data)、[XcodeGen](https://github.com/yonaskolb/XcodeGen)。
+
+## Widget运行注册回归
+
+`build-apple.sh`现在还调用`python3 scripts/test-widget-registration.py`，要求可用的watchOS模拟器运行时。测试在隔离宿主中执行四个生产Widget配置，不读取健康缓存；注册时的文本前置条件只能在运行时发现。可用`--device <模拟器UDID>`指定设备，日志保存在忽略提交的work/widget-registration-test目录。

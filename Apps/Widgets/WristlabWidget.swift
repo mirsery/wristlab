@@ -24,6 +24,14 @@ struct Provider: TimelineProvider {
 }
 
 private extension ComplicationMetric {
+    // WidgetKit rejects interpolated LocalizedStringKey values during registration.
+    var configurationTitle: LocalizedStringKey {
+        switch self {
+        case .energy: "Wristlab 身体电量"
+        case .readiness: "Wristlab 训练准备度"
+        case .stress: "Wristlab 生理压力"
+        }
+    }
     var color: Color {
         switch self { case .energy: .cyan; case .readiness: .mint; case .stress: .orange }
     }
@@ -85,7 +93,7 @@ struct MetricComplicationView: View {
 }
 @MainActor private func metricConfiguration(_ metric: ComplicationMetric) -> some WidgetConfiguration {
         StaticConfiguration(kind: metric.widgetKind, provider: Provider()) { MetricComplicationView(entry: $0, metric: metric) }
-            .configurationDisplayName("Wristlab \(metric.title)")
+            .configurationDisplayName(metric.configurationTitle)
             .description("显示最近同步的估算；缺失或过期会明确标注。")
             .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
 }

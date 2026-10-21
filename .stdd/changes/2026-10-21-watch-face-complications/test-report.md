@@ -77,3 +77,17 @@ Watch系统编辑器可打开，但当前选择的全屏表盘没有复杂功能
 2026-10-21，AppleWatchSeries9/watchOS27.0.1。用户开启开发者模式并完成开发配对后，Mac设备列表识别到真实Watch。明确指定该设备destination，Xcode自动签名/注册，WristlabWatch与内嵌Widget构建成功；devicectl install返回App installed，launch返回Launched application，随后进程查询确认WristlabWatch运行。安装的是普通真实模式，未添加--demo。
 
 因此双端真机安装和启动通过。表盘四kind实际选择、点击冷/热启动、数据送达/清除、App Group实际读取与后台刷新仍未由安装证明，保留待验；未采集或提交真实健康数据、设备唯一标识及签名材料。
+
+## 真实使用后发现的组件注册崩溃与修正
+
+用户报告无法使用后，真实Watch发现4次WristlabWidget崩溃。两份记录的故障堆栈一致，用匹配UUID的本地调试二进制符号化，定位到metricConfiguration的configurationDisplayName。原始诊断仅保存在gitignored work/bug-diagnostics，不提交个人设备日志。
+
+最小宿主执行生产配置body，确切复现：`Fatal error: Formatted text for configurationDisplayName is not supported`。根因是插值LocalizedStringKey在WidgetKit注册阶段不被接受。改为三个固定本地化名称，kind/数据/布局不变。
+
+永久回归命令：`python3 scripts/test-widget-registration.py`。它复制生产Widget声明，仅替换main入口，逐个执行四种配置body；即使simctl在子进程崩溃时返回0，也要求四个OK与PASS标记。用git show保存的修复前源码执行--widget-source，退出1并复现同一fatal（RED）；执行当前源码，四组件全部通过（GREEN）。该测试已加入build-apple.sh，后续CI编译不能代替运行检查。
+
+修复后37 Core+1 workspace、双端模拟器构建、四配置运行检查通过；真实Watch定向签名构建、更新安装与启动成功，随后的崩溃列表未见新组件记录。此结果只关闭注册崩溃，实际表盘布局/点击/同步仍待验。
+
+手机问题另案诊断：用户明确为授权/刷新后一直加载、卡住或无反应。约231403条合成记录的61日计算在开发Mac Debug耗时11.36秒，构成性能风险线索，但尚无手机卡住时的线程证据，不能认定唯一根因或宣称修好。手机锁屏阻止启动取证，已请求用户解锁并复现。未读取真实健康缓存。
+
+本次修正另经代码/测试/文档三路复审。已补齐测试宿主版本键、统一模拟器冷启动等待为300秒，并保留非零退出/超时输出；文档已区分签名安装通过与HealthKit/App Group真实行为待验。复审后的配置运行回归再次通过。
