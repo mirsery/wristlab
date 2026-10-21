@@ -71,7 +71,15 @@ for device, product, bundle, name in [
         run('xcrun', 'simctl', 'boot', device['udid'], check=False)
         run('xcrun', 'simctl', 'bootstatus', device['udid'], '-b')
         run('xcrun', 'simctl', 'install', device['udid'], str(root / product))
-        run(*launch)
+        try:
+            run(*launch)
+        except subprocess.TimeoutExpired:
+            # Leave evidence for the next diagnosis, then fail this best-effort step.
+            log = subprocess.run(['xcrun', 'simctl', 'spawn', device['udid'], 'log', 'show', '--last', '10m', '--style', 'compact',
+                                  '--predicate', 'process == "Wristlab" OR eventMessage CONTAINS "com.mirsery.wristlab"'],
+                                 capture_output=True, text=True, timeout=120)
+            print('\n'.join((log.stdout + log.stderr).splitlines()[-150:]), flush=True)
+            raise
     time.sleep(15)
     run('xcrun', 'simctl', 'io', device['udid'], 'screenshot', str(out / f'{name}.png'))
     manifest.append({'file': f'{name}.png', 'device': device['name'], 'data': 'synthetic --demo', 'source': 'running SwiftUI app', 'sourceFingerprint': fingerprint, 'imageSHA256': hashlib.sha256((out / f'{name}.png').read_bytes()).hexdigest(), 'commit': os.environ.get('GITHUB_SHA'), 'run': f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', 'mirsery/wristlab')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', 'local')}"})
