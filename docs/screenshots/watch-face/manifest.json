@@ -1,0 +1,16 @@
+{
+  "captured_at": "2026-10-21",
+  "source": "local Xcode 27.1 simulator screenshots; synthetic guide preview, not watch face installation",
+  "images": [
+    {
+      "file": "iphone-guide.png",
+      "sha256": "9fcc305ef8c84f7c26b45e8fb95d7ce16faceae3766df187fe8058f6088e39bd",
+      "entry": "iPhone Settings navigation"
+    },
+    {
+      "file": "watch-guide.png",
+      "sha256": "8a308782f019796a61f391a3384a3cf87f53cfbc01baae275e65144c38eae5b5",
+      "entry": "Watch --face-guide development launch argument"
+    }
+  ]
+}

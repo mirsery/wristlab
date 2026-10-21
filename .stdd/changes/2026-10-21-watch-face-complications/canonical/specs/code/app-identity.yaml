@@ -1,0 +1,35 @@
+meta:
+  capability: app-identity
+  change_id: 2026-10-21-watch-face-complications
+  created: '2026-10-21'
+  confidence: high
+requirements:
+- id: REQ-ICON-001
+  description: 已确认图标接入双端
+  confidence: high
+  scenarios:
+  - id: SC-ICON-001
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C1
+    given: 用户已确认薄荷绿W图标母版
+    when: 生成应用图标和工程配置
+    then: SHALL 沿用同一图案与颜色生成不透明1024平方母版及平台所需Asset Catalog，不预烘焙外部圆角；两个target选择AppIcon，三个Apple目标构建通过
+    and: []
+- id: REQ-ICON-002
+  description: 可达的表盘安装说明与独立预览
+  confidence: high
+  scenarios:
+  - id: SC-ICON-002
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C4
+    given: 手机设置页或Watch更多菜单
+    when: 打开表盘组件说明
+    then: SHALL 展示四种组件选择、手机Watch App或手表长按表盘后编辑复杂功能的步骤，并明确槽位由所选表盘决定；无有效.watchface资源时不显示一键添加承诺
+    and: []
+  - id: SC-ICON-003
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C4/C5
+    given: 说明页展示准备度89、电量76、压力39的示例
+    when: 查看预览及公开截图
+    then: SHALL 始终标注合成演示，不把样例写入同步/真实快照；中英文README和验证记录区分预览、模拟器运行及真机验收
+    and: []

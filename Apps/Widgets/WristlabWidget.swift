@@ -2,55 +2,138 @@ import SwiftUI
 import WidgetKit
 import WristlabCore
 
-struct Entry: TimelineEntry { let date: Date; let snapshot: DisplaySnapshot? }
+struct Entry: TimelineEntry {
+    let date: Date
+    let snapshot: DisplaySnapshot?
+}
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> Entry { Entry(date: Date(), snapshot: nil) }
-    func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) { completion(read()) }
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
-        let entry = read()
-        completion(Timeline(entries: [entry], policy: .after(entry.date.addingTimeInterval(900))))
+    func getSnapshot(in context: Context, completion: @escaping (Entry) -> Void) {
+        completion(Entry(date: Date(), snapshot: read()))
     }
-    private func read() -> Entry {
-        let base = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.mirsery.wristlab.watch")
-        let value = base.flatMap { try? Data(contentsOf: $0.appendingPathComponent("watch-receiver.json")) }
-            .flatMap { try? JSONDecoder().decode(SnapshotReceiver.self, from: $0) }?.snapshot
-        let validated = value.flatMap { (try? $0.validate()) != nil ? $0 : nil }
-        return Entry(date: Date(), snapshot: validated?.clearData == true ? nil : validated)
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> Void) {
+        let now = Date(), snapshot = read()
+        let entries = ComplicationTimeline.dates(snapshot: snapshot, now: now).map { Entry(date: $0, snapshot: snapshot) }
+        completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(900))))
+    }
+    private func read() -> DisplaySnapshot? {
+        let folder = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.mirsery.wristlab.watch")
+        let data = folder.flatMap { try? Data(contentsOf: $0.appendingPathComponent("watch-receiver.json")) }
+        return ComplicationCache.snapshot(from: data)
     }
 }
-struct Complication: View {
+
+private extension ComplicationMetric {
+    var color: Color {
+        switch self { case .energy: .cyan; case .readiness: .mint; case .stress: .orange }
+    }
+    var destination: ComplicationDestination {
+        switch self { case .energy: .energy; case .readiness: .readiness; case .stress: .stress }
+    }
+}
+struct MetricComplicationView: View {
     let entry: Entry
+    let metric: ComplicationMetric
     @Environment(\.widgetFamily) private var family
-    private var value: Int? { entry.snapshot?.energy.value }
-    private var stale: Bool { entry.snapshot.map { $0.isStale(at: entry.date) || $0.energy.isStale(at: entry.date) } ?? false }
+    private var display: ComplicationPresentation { ComplicationPresentation(snapshot: entry.snapshot, metric: metric, at: entry.date) }
+    private var symbol: String { display.state == .stale ? "clock" : metric.symbol }
+    private var score: String { display.value.map(String.init) ?? "—" }
+    private var accessible: Text {
+        let label = Text("\(metric.title)，\(display.value.map { "\($0)分" } ?? "暂无数值")，\(display.statusText)")
+        if let date = display.updatedAt { return label + Text("，更新于") + Text(date, style: .time) }
+        return label
+    }
     var body: some View {
         Group {
-            if family == .accessoryInline {
-                Label(stale ? "电量已过期" : value.map { "电量 \($0)" } ?? "等待手机", systemImage: stale ? "clock" : "battery.75percent")
-            } else if family == .accessoryCircular {
-                Gauge(value: Double(stale ? 0 : value ?? 0), in: 0...100) {
-                    Image(systemName: stale ? "clock" : "battery.75percent")
-                } currentValueLabel: { Text(stale ? "—" : value.map(String.init) ?? "—") }
-                    .gaugeStyle(.accessoryCircular).tint(.mint)
-            } else {
-                VStack(alignment: .leading, spacing: 2) {
-                    Label(stale ? "Wristlab · 已过期" : "Wristlab · 身体电量", systemImage: "battery.75percent").font(.caption2)
-                    Text(value.map { "\($0) / 100" } ?? "等待手机数据").font(.headline)
-                    if let date = entry.snapshot?.computedAt { Text(date, style: .time).font(.caption2) }
+            switch family {
+            case .accessoryInline:
+                Label(display.value.map { "\(metric.shortTitle) \($0)\(display.state == .partial ? " · 估算" : "")" } ?? "\(metric.shortTitle) · \(display.statusText)", systemImage: symbol)
+            case .accessoryCircular:
+                if let value = display.value {
+                    Gauge(value: Double(value), in: 0...100) {
+                        Image(systemName: metric.symbol)
+                    } currentValueLabel: { Text(score).monospacedDigit() }
+                        .gaugeStyle(.accessoryCircular).tint(metric.color)
+                } else {
+                    VStack(spacing: 1) {
+                        Image(systemName: symbol).font(.caption2)
+                        Text("—").font(.headline)
+                        Text(display.statusText).font(.system(size: 8)).lineLimit(1).minimumScaleFactor(0.7)
+                    }
+                }
+            case .accessoryCorner:
+                Text(score).font(.system(.title3, design: .rounded, weight: .semibold)).monospacedDigit()
+                    .widgetLabel { Text("\(metric.shortTitle) · \(display.statusText)") }
+            default:
+                VStack(alignment: .leading, spacing: 1) {
+                    Label(metric.title, systemImage: symbol).font(.caption2).widgetAccentable()
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text(score).font(.system(.title2, design: .rounded, weight: .semibold)).monospacedDigit()
+                        Text(display.statusText).font(.system(size: 9)).lineLimit(1).minimumScaleFactor(0.7)
+                    }
+                    if let date = display.updatedAt { Text(date, style: .time).font(.system(size: 9)).foregroundStyle(.secondary) }
+                }.frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .containerBackground(for: .widget) { Color.clear }
+        .environment(\.timeZone, TimeZone(identifier: entry.snapshot?.timeZoneID ?? "") ?? .current)
+        .widgetURL(metric.destination.url)
+        .privacySensitive()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessible)
+    }
+}
+@MainActor private func metricConfiguration(_ metric: ComplicationMetric) -> some WidgetConfiguration {
+        StaticConfiguration(kind: metric.widgetKind, provider: Provider()) { MetricComplicationView(entry: $0, metric: metric) }
+            .configurationDisplayName("Wristlab \(metric.title)")
+            .description("显示最近同步的估算；缺失或过期会明确标注。")
+            .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline, .accessoryCorner])
+}
+struct EnergyWidget: Widget { var body: some WidgetConfiguration { metricConfiguration(.energy) } }
+struct ReadinessWidget: Widget { var body: some WidgetConfiguration { metricConfiguration(.readiness) } }
+struct StressWidget: Widget { var body: some WidgetConfiguration { metricConfiguration(.stress) } }
+struct OverviewComplicationView: View {
+    let entry: Entry
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack {
+                Text("WRISTLAB").font(.system(size: 8, weight: .bold)).tracking(1).widgetAccentable()
+                Spacer(minLength: 2)
+                if let date = entry.snapshot?.computedAt { Text(date, style: .time).font(.system(size: 8)).foregroundStyle(.secondary) }
+            }
+            HStack(alignment: .top, spacing: 4) {
+                ForEach(ComplicationMetric.allCases) { metric in
+                    let display = ComplicationPresentation(snapshot: entry.snapshot, metric: metric, at: entry.date)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(metric.shortTitle).font(.system(size: 9)).lineLimit(1)
+                        Text(display.value.map(String.init) ?? "—").font(.system(.headline, design: .rounded)).monospacedDigit()
+                        if display.state != .current { Text(display.statusText).font(.system(size: 7)).lineLimit(1).minimumScaleFactor(0.7) }
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityElement(children: .combine)
                 }
             }
         }
+        .environment(\.timeZone, TimeZone(identifier: entry.snapshot?.timeZoneID ?? "") ?? .current)
+        .containerBackground(for: .widget) { Color.clear }
+        .widgetURL(ComplicationDestination.overview.url)
         .privacySensitive()
-        .containerBackground(for: .widget) { Color.black }
-        .accessibilityLabel("身体电量 \(value.map(String.init) ?? "暂无数据")\(stale ? "，已过期" : "")")
+        .accessibilityElement(children: .combine)
+    }
+}
+struct OverviewWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "WristlabOverview", provider: Provider()) { OverviewComplicationView(entry: $0) }
+            .configurationDisplayName("Wristlab 状态总览")
+            .description("同时查看电量、准备度与压力；点击打开手表报告。")
+            .supportedFamilies([.accessoryRectangular])
     }
 }
 @main
-struct WristlabWidget: Widget {
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: "WristlabEnergy", provider: Provider()) { Complication(entry: $0) }
-            .configurationDisplayName("Wristlab 身体电量")
-            .description("显示手机同步的最新估算与更新时间。")
-            .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
+struct WristlabWidgets: WidgetBundle {
+    var body: some Widget {
+        EnergyWidget()
+        ReadinessWidget()
+        StressWidget()
+        OverviewWidget()
     }
 }

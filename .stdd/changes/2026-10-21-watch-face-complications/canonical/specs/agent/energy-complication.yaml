@@ -1,0 +1,28 @@
+meta:
+  task_id: energy-complication
+  change_id: 2026-10-21-watch-face-complications
+  created: '2026-10-21'
+  task_type: code
+  system: Wristlab iPhone / Watch / Widget
+  status: planned
+scenario_checkpoints:
+- id: CP-ENERGY-001
+  description: SC-ENERGY-001：SHALL 保留原kind和App Group文件/schema；仍经验证的SnapshotReceiver使用epoch/sequence及新producer确认规则，清除后请求重载组件
+  action: 参见 test-plan.md 对应 TC；开发完成后以实际执行命令和人工观察证据验收
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-ENERGY-002
+  description: SC-ENERGY-002：SHALL 只按已缓存数据及时效显示，不制造实时状态；离线清除要在实际送达后生效，并继续注明真机同步/后台刷新待验收
+  action: 参见 test-plan.md 对应 TC；开发完成后以实际执行命令和人工观察证据验收
+  assertions:
+  - type: exit_code
+    expected: 0
+steps:
+- id: CP-CHECK
+  description: 实际执行已有及新增纯逻辑测试；UI/真机项另行观察，命令通过不代替全部场景验收
+  action: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+manual_evidence_policy: SC-FACE-001/010/011、SC-ICON-001/002/003包含编译或UI人工证据，未观察前不得标为通过。

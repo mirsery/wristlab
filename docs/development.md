@@ -2,7 +2,7 @@
 
 ## 工具链
 
-开发Mac当前未安装完整Xcode。共享领域包可用Command Line Tools运行：`scripts/swift-test.sh`会在需要时显式发现已安装TestingMacros插件，CI使用完整Xcode16.4，不更改测试断言。
+开发Mac已安装完整Xcode27.1，已通过本机iPhone/Watch/Widget模拟器构建。共享领域包可用Command Line Tools运行：`scripts/swift-test.sh`会在需要时显式发现已安装TestingMacros插件，CI使用完整Xcode16.4，不更改测试断言。
 
 ```sh
 ./scripts/check.sh
@@ -19,7 +19,7 @@ brew install xcodegen
 3. `xcodegen generate`后打开Wristlab.xcodeproj；为Wristlab、WristlabWatch、WristlabWidget三个target选择可用签名team。
 4. 按账号实际可用性配置HealthKit、HealthKit Background Delivery和Watch/Widget App Groups。应用组为`group.com.mirsery.wristlab.watch`；真机签名和capability尚未验证。
 5. 若改bundleID，同步修改project.yml中的Watch companion、Widget前缀，以及WatchBridge/Widget中的App Group常量和两个entitlements。保留三者一致；个人证书/配置不提交。
-6. 配对iPhone与Watch，按Xcode引导开启开发者模式，分别运行两个scheme。Widget构建为Watch app内嵌扩展，再在表盘添加Wristlab组件。
+6. 配对iPhone与Watch，按Xcode引导开启开发者模式，分别运行两个scheme。Widget构建为Watch app内嵌扩展；长按系统表盘→编辑→复杂功能，选择Wristlab的电量/准备度/压力，或在矩形槽位选择状态总览。也可从iPhone系统Watch App编辑。
 7. 手机点“连接Apple健康”后按需授权只读类型；无记录不能当成拒绝授权。已有历史不足14个有效日时显示校准，不造分数。
 
 ## 本地演示

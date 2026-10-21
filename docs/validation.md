@@ -2,7 +2,7 @@
 
 ## 已执行的逻辑验证
 
-本地最新运行：30个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。对应应用源码的[CI运行](https://github.com/mirsery/wristlab/actions/runs/39454777037)已通过。
+原main基线：30个核心测试与1个工作区测试通过；核心测试包含循环核对12组spec数值金例。对应应用源码的[CI运行](https://github.com/mirsery/wristlab/actions/runs/39454777037)已通过。
 
 `Packages/WristlabCore/Tests/WristlabCoreTests/BusinessTests.swift`通过公共API覆盖：
 
@@ -21,11 +21,11 @@
 
 CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch及Widget目标；截图来自运行的双端模拟器合成演示。[已通过的构建与截图运行](https://github.com/mirsery/wristlab/actions/runs/39454777037)同时记录于截图manifest；后续仅文档更新可复用指纹一致的截图。
 
-本机只有Command Line Tools，但通过`scripts/swift-test.sh`显式发现已安装的TestingMacros插件，已能执行全部领域测试；没有绕过断言。
+此前本机仅有Command Line Tools，通过`scripts/swift-test.sh`显式发现已安装的TestingMacros插件，已能执行全部领域测试；没有绕过断言。
 
 ## 真机待验收
 
-当前开发Mac尚未安装完整Xcode、尚未配置真机签名，以下能力未验证：
+当前开发Mac已安装Xcode27.1，尚未配置真机签名，以下能力未验证：
 
 - Apple健康真实授权、历史与增量/删除送达。
 - 锁屏文件保护、系统后台执行机会和撤销读取后的可读变化。
@@ -33,3 +33,11 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 - App Group与表盘组件安装/刷新、无障碍实机体验。
 
 代码与模拟器可验证的部分完成后，仍需按H-001/H-005/H-007及P-004/P-005用真机补验。公开验证记录只写系统版本和结果，不上传真实健康数值。
+
+## 表盘扩展：2026-10-21 本地 Build 验证
+
+本轮新增7个Swift Testing测试函数，37个核心测试通过（参数化URL用例覆盖多个输入）；工作区测试及最终回归结果在STDD test-report记录。新增显示状态、真实零、按指标严格失效边界、损坏/清除/演示缓存隔离、预排时间线和URL白名单测试。两端图标为同一已确认母版的1024平方不透明导出；本机iPhone/Watch/Widget编译通过。
+
+说明页已在双端模拟器观察并保存[实际截图](screenshots/watch-face/README.md)。当前watchOS27模拟器的simctl openurl返回LSApplicationWorkspaceErrorDomain 115；这不能当作路由成功证据，也不单凭该错误断言实际Widget点击失败。四组件实际安装、各family外观和冷/热点击仍待平台验收。完整17项TC对照见[本轮测试报告](../.stdd/changes/2026-10-21-watch-face-complications/test-report.md)。
+
+真实设备架构未签名构建也已通过。已接入iPhone；通过Xcode现有个人团队生成开发证书和匹配的App Group/HealthKit profiles后，三目标真机签名构建通过。手机检测时开发者模式关闭，安装仍未完成。

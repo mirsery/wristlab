@@ -1,0 +1,110 @@
+meta:
+  capability: watch-face-metrics
+  change_id: 2026-10-21-watch-face-complications
+  created: '2026-10-21'
+  confidence: medium
+requirements:
+- id: REQ-FACE-001
+  description: 四个固定组件及布局兼容性
+  confidence: high
+  scenarios:
+  - id: SC-FACE-001
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C3
+    given: 已安装Watch应用和Widget扩展
+    when: 系统枚举组件配置
+    then: SHALL 提供WristlabEnergy、WristlabReadiness、WristlabStress、WristlabOverview四个kind；Energy保留原kind且三种单指标支持圆形、矩形、行内、角落四种family，Overview仅支持矩形
+    and: []
+- id: REQ-FACE-002
+  description: 各指标使用同一快照、独立映射状态
+  confidence: high
+  scenarios:
+  - id: SC-FACE-002
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 同一有效healthKit快照有三个不同的0–100数值
+    when: 分别显示三个组件及总览
+    then: SHALL 每格读取对应字段并保留quality、更新时间；不得独立计算分数或交叉取错字段
+    and: []
+  - id: SC-FACE-003
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 有效新鲜快照中的某指标值恰好为0
+    when: 渲染该指标
+    then: SHALL 显示0，不能把真实零当作缺失
+    and: []
+  - id: SC-FACE-004
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 快照存在但指标正在校准、输入不足、不支持或失败
+    when: 渲染相应指标
+    then: SHALL 分别显示校准中、数据不足、暂不支持或读取失败及破折号，且无数值Gauge；总览中其他有效指标仍可显示
+    and: []
+  - id: SC-FACE-005
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 可用指标quality为partial
+    when: 渲染指标
+    then: SHALL 保留数值并在完整可访问性描述及可容纳文字的布局标为部分估算
+    and: []
+- id: REQ-FACE-003
+  description: 过期边界、空缓存和清除语义
+  confidence: high
+  scenarios:
+  - id: SC-FACE-006
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 快照或某指标已过期、或者时间在未来
+    when: 渲染各family
+    then: SHALL 将受影响当前值显示为破折号并标已过期；单项过期不屏蔽仍新鲜的其他指标；快照过期屏蔽全部，等于validUntil和computedAt+3600秒时沿用既有严格大于边界
+    and: []
+  - id: SC-FACE-007
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 无缓存、损坏JSON、schema不支持或clearData标记
+    when: 读取并展示组件
+    then: SHALL 显示等待手机或数据已清除的中性空状态，不崩溃、不显示旧值、无真实健康日志
+    and: []
+  - id: SC-FACE-008
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C4/C5
+    given: 真实组件读取到source为demo的缓存
+    when: 渲染组件
+    then: SHALL 拒绝把演示缓存显示为真实分数；应用内独立预览可使用标注合成演示的固定样例，但不写入真实App Group
+    and: []
+- id: REQ-FACE-004
+  description: 时间线和系统外观适配
+  confidence: medium
+  scenarios:
+  - id: SC-FACE-009
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 新鲜快照及其单指标存在未来失效时刻
+    when: 生成Widget时间线
+    then: SHALL 输出now及各有效失效边界后一秒的唯一有序entry，包含快照60分钟边界；请求系统择机刷新且不承诺准点执行
+    and: []
+  - id: SC-FACE-010
+    confidence: medium
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C3/C5
+    given: 圆形/矩形/行内/角落及系统着色或低亮度场景
+    when: 渲染预览或实际组件
+    then: SHALL 数值与状态可辨且VoiceOver含标题、数值或原因、更新时间；组件遵循系统背景与着色，不仅依赖颜色表达状态
+    and: []
+- id: REQ-FACE-005
+  description: 安全的Watch组件路由
+  confidence: high
+  scenarios:
+  - id: SC-FACE-011
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C3
+    given: 点击三种单指标组件或矩形总览
+    when: 处理wristlab://complication/energy、readiness、stress或overview
+    then: SHALL 打开Watch应用对应指标详情或首页总览；冷启动与已打开两种场景均保留选择，不触发HealthKit授权或数据写入
+    and: []
+  - id: SC-FACE-012
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C3
+    given: URL的scheme/host/路径不匹配或带未知query、fragment、用户信息或port
+    when: Watch处理入口URL
+    then: SHALL 安全回到首页总览，不执行命令、不接受任意路径、不改变健康数据
+    and: []
