@@ -15,6 +15,7 @@ required = [
     'specs/004-sleep.md', 'specs/005-activity.md',
     'specs/006-acceptance.md', 'specs/007-implementation-plan.md',
     'docs/architecture.md', 'docs/development.md',
+    'specs/008-development-workflow.md', 'docs/stdd.md', 'STDD_CONSTITUTION.md',
 ]
 
 def require(condition, message):

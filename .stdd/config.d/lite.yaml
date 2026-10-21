@@ -1,0 +1,154 @@
+scoring:
+  dimensions:
+    file_count: 1
+    line_count: 1
+    capability_count: 1
+    risk_level: 2
+    data_api: 1
+    security: 1
+  thresholds:
+    lightweight_max: -1
+    standard_max: 7
+scaling:
+  lightweight:
+    spec:
+      skip_design: false
+      skip_test_plan: false
+      skip_anchoring: false
+      skip_experience_load: true
+      canonical: proposal_only
+      gate2: mandatory
+    build:
+      slice:
+        skip: true
+        implicit_slice_count: 1
+      red: focused
+      green: minimal
+      refactor: skip
+      per_slice_verify: skip
+      load_rules: false
+      phase_context: false
+      review_agents: 0
+      test_scope: existing_plus_new
+      failure_modes:
+      - a
+      - b
+      - c
+      - e
+      - f
+      pass_k: skip
+      plankton: on_failure_only
+      experience_record: new_pattern_only
+      gate3: mandatory
+    deliver:
+      archive: batch_append
+      canonical_merge: proposal_only
+      version_tag: git_commit
+  standard:
+    spec:
+      skip_design: false
+      skip_test_plan: false
+      skip_anchoring: false
+      skip_experience_load: false
+      canonical: all
+      gate2: mandatory
+    build:
+      slice:
+        skip: false
+      red: full_tc
+      green: full
+      refactor: standard
+      per_slice_verify: true
+      load_rules: true
+      phase_context: true
+      review_agents: 0
+      test_scope: full
+      failure_modes:
+      - a
+      - b
+      - c
+      - d
+      - e
+      - f
+      - g
+      - h
+      - i
+      - j
+      - k
+      - l
+      pass_k: 1
+      plankton: on_failure_only
+      experience_record: true
+      gate3: mandatory
+    deliver:
+      archive: standard
+      canonical_merge: all
+      version_tag: git_commit_tag
+  thorough:
+    spec:
+      skip_design: false
+      skip_test_plan: false
+      skip_anchoring: false
+      skip_experience_load: false
+      canonical: all
+      gate2: mandatory
+    build:
+      slice:
+        skip: false
+        advanced_analysis: true
+      red: full_tc_pass_k
+      green: full
+      refactor: standard
+      per_slice_verify: true
+      load_rules: true
+      phase_context: true
+      review_agents: 0
+      subagent_security: true
+      subagent_perf: true
+      test_scope: full_multi_version
+      failure_modes:
+      - a
+      - b
+      - c
+      - d
+      - e
+      - f
+      - g
+      - h
+      - i
+      - j
+      - k
+      - l
+      pass_k: 3
+      plankton: proactive
+      experience_record: true
+      gate3: mandatory
+    deliver:
+      archive: full
+      canonical_merge: all
+      version_tag: git_commit_tag_release_notes
+batch:
+  strategy: monthly
+  max_items: 20
+  auto_close: true
+task_types:
+  code:
+    verify_tool: ./scripts/check.sh
+    lint_tool: git diff --check
+    tc_concept: Swift Testing TC
+  documentation:
+    verify_tool: python3 scripts/check_specs.py
+    lint_tool: git diff --check
+    tc_concept: 规则清单
+  configuration:
+    verify_tool: ./scripts/stdd --project-check
+    lint_tool: git diff --check
+    tc_concept: 配置 diff
+  data-migration:
+    verify_tool: custom
+    lint_tool: custom
+    tc_concept: 合成数据校验
+  dependency-upgrade:
+    verify_tool: ./scripts/check.sh
+    lint_tool: git diff --check
+    tc_concept: CI pipeline

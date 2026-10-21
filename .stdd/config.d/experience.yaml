@@ -1,0 +1,14 @@
+experience:
+  dir: .stdd/experiences
+  auto_record:
+    enabled: true
+  auto_load:
+    enabled: true
+    max_experiences: 10
+  export:
+    sanitize_paths: true
+    sanitize_ips: true
+    sanitize_domains: true
+community:
+  registries: []
+  packs: []

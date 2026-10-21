@@ -90,3 +90,5 @@ AI, food recognition, workout recording/courses, cloud sync, monetization and Ap
 Update specs and acceptance criteria before implementation. Use PRs; `main` requires both CI checks and rejects force pushes/deletion. [AGENTS.md](AGENTS.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [PRIVACY.md](PRIVACY.md)
 
 MIT License. Use synthetic data in issues, logs, tests and screenshots. Never commit health exports or signing assets.
+
+Development follows [STDD](docs/stdd.md): Spec + Test driven delivery with four phases and three confirmation gates. Use `./scripts/stdd` as the project CLI.
