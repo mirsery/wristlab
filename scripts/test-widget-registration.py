@@ -114,18 +114,17 @@ def main():
         raise SystemExit("Review probe extraction: expected one WidgetBundle entry point.")
     # Copy the real views/configuration bodies, changing only the entry point.
     (sources / "WidgetUnderTest.swift").write_text(widget.replace("@main\n", ""))
+    # Run the configurations in App.init: it needs no visible scene, which a slow CI simulator may never activate.
+    calls = "".join(f'        withExtendedLifetime({type_name}().body) {{ print("REGISTRATION: {name} OK") }}\n' for name, type_name in config["widgets"])
     (sources / "ProbeApp.swift").write_text('''import SwiftUI
 import Darwin
 @main struct RegistrationProbe: App {
-    var body: some Scene {
-        WindowGroup {
-            Text("Widget registration test").task {
-''' + "".join(f"                withExtendedLifetime({type_name}().body) {{ print(\"REGISTRATION: {name} OK\") }}\n" for name, type_name in config["widgets"]) + '''                print("REGISTRATION: PASS")
-                fflush(stdout)
-                exit(0)
-            }
-        }
+    init() {
+''' + calls + '''        print("REGISTRATION: PASS")
+        fflush(stdout)
+        exit(0)
     }
+    var body: some Scene { WindowGroup { Text("Widget registration test") } }
 }
 ''')
     package = json.dumps(str(ROOT / "Packages/WristlabCore"))
