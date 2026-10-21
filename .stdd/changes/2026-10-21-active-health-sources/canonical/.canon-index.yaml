@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-21-active-health-sources: proposals/2026-10-21-active-health-sources.yaml
+specs:
+  agent:
+    active-health-sources: specs/agent/active-health-sources.yaml
+  code:
+    active-health-sources: specs/code/active-health-sources.yaml
+version: '2.9'

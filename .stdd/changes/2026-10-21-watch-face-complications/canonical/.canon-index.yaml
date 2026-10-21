@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-21-watch-face-complications: proposals/2026-10-21-watch-face-complications.yaml
+specs:
+  agent:
+    2026-10-21-watch-face-complications: specs/agent/2026-10-21-watch-face-complications.yaml
+  code:
+    2026-10-21-watch-face-complications: specs/code/2026-10-21-watch-face-complications.yaml
+version: '2.9'

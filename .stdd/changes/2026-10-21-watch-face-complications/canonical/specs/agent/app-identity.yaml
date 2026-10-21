@@ -1,0 +1,34 @@
+meta:
+  task_id: app-identity
+  change_id: 2026-10-21-watch-face-complications
+  created: '2026-10-21'
+  task_type: code
+  system: Wristlab iPhone / Watch / Widget
+  status: planned
+scenario_checkpoints:
+- id: CP-ICON-001
+  description: SC-ICON-001：SHALL 沿用同一图案与颜色生成不透明1024平方母版及平台所需Asset Catalog，不预烘焙外部圆角；两个target选择AppIcon，三个Apple目标构建通过
+  action: 参见 test-plan.md 对应 TC；开发完成后以实际执行命令和人工观察证据验收
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-ICON-002
+  description: SC-ICON-002：SHALL 展示四种组件选择、手机Watch App或手表长按表盘后编辑复杂功能的步骤，并明确槽位由所选表盘决定；无有效.watchface资源时不显示一键添加承诺
+  action: 参见 test-plan.md 对应 TC；开发完成后以实际执行命令和人工观察证据验收
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-ICON-003
+  description: SC-ICON-003：SHALL 始终标注合成演示，不把样例写入同步/真实快照；中英文README和验证记录区分预览、模拟器运行及真机验收
+  action: 参见 test-plan.md 对应 TC；开发完成后以实际执行命令和人工观察证据验收
+  assertions:
+  - type: exit_code
+    expected: 0
+steps:
+- id: CP-CHECK
+  description: 实际执行已有及新增纯逻辑测试；UI/真机项另行观察，命令通过不代替全部场景验收
+  action: DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+manual_evidence_policy: SC-FACE-001/010/011、SC-ICON-001/002/003包含编译或UI人工证据，未观察前不得标为通过。

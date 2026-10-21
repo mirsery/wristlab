@@ -1,0 +1,24 @@
+meta:
+  capability: energy-complication
+  change_id: 2026-10-21-watch-face-complications
+  created: '2026-10-21'
+  confidence: high
+requirements:
+- id: REQ-ENERGY-001
+  description: 兼容已有电量组件和同步契约
+  confidence: high
+  scenarios:
+  - id: SC-ENERGY-001
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C2/C5
+    given: 用户已有WristlabEnergy组件及既有SnapshotReceiver缓存
+    when: 升级应用或收到新快照
+    then: SHALL 保留原kind和App Group文件/schema；仍经验证的SnapshotReceiver使用epoch/sequence及新producer确认规则，清除后请求重载组件
+    and: []
+  - id: SC-ENERGY-002
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-watch-face-complications.yaml → C4/C5
+    given: 手机离线且缓存随时间变旧
+    when: 用户抬腕或点击组件
+    then: SHALL 只按已缓存数据及时效显示，不制造实时状态；离线清除要在实际送达后生效，并继续注明真机同步/后台刷新待验收
+    and: []

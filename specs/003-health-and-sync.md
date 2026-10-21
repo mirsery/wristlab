@@ -14,7 +14,7 @@
 
 同ID幂等upsert，删除按ID；更新有同步版本则高版本胜，无版本冲突重新查询。不同ID但同类型/source/device/start/end/标准值视为重复，取ID字典序最小代表。跨设备近似数值不是同一原始样本。
 
-数量来源按类型分开：用户选定顺序 > Apple Watch > 支持该类型的第三方 > iPhone；手工数量不参与v1估算，可在本地原始记录中另行展示。首次在历史里选最高可用优先级来源组，同级sourceID升序；组为bundle+device family。一次revision内固定组，不逐缺口填入低优先级来源；用户改源才重建。HR/HRV/RHR可分别选择，组成sourceSignature。
+数量来源按类型分开：用户选定顺序 > Apple Watch > 支持该类型的第三方 > iPhone；手工数量不参与v1估算，可在本地原始记录中另行展示。自动候选来源须在评估日D之前60个分析日的本地午夜至asOf（按样本end，两端包含）有至少一条有效数量样本，再按既有优先级及同级sourceID升序选单组；保留窗口外数据不能单独让来源成为自动候选。显式preferredSources中仍有保留有效记录的组继续优先，不静默替用户改源；组为bundle+device family。选定后保留该组全部有效历史供回放，数量类型分别选组。一次revision内固定组，不逐缺口填入低优先级来源；用户偏好或自动候选资格变化导致sourceSignature改变时，按新组全量重建并推进同步epoch。HR/HRV/RHR可分别选择，组成sourceSignature。
 
 睡眠按[004](004-sleep.md)每报告窗口选源。准备度night和sleep压力的sourceSignature必须包含睡眠来源；dayFallback/awake不混入其他模式。设备同family更换仍可同组，原始去重仍保留deviceID。来源签名改变不能接旧基线/电量检查点。
 
@@ -80,3 +80,11 @@ envelope≤32KiB，包含schema、source、producerID、epoch、sequence、asOf/
 - H-006：快照60分钟或未来过期，指标时效独立；旧容器只覆盖基础判断。
 - H-007：手机/Watch/组件同revision同值；后台调度需真机观察，不能用固定分钟验收。
 - H-008：晚到、删除、配置变化传播失效；旧模型检查点不得接续。
+
+## 组件展示扩展（Gate 2已确认，实施中）
+
+保持既有缓存/schema及WristlabEnergy kind。真实组件拒绝demo快照；展示空、清除、校准、失败和过期等状态，单指标独立时效，快照全局过期时全部隐藏数值。真实0仍显示0。为已有严格大于时效边界预排后一秒的entry，不承诺系统准点切换；clearData实际收到后才可清除远端。URL仅携带白名单目的地，不带健康值。
+
+### Watch 缓存落盘验收细则
+
+H-005/H-007 的共享缓存仍位于 App Group 的 watch-receiver.json。适配器 SHALL 仅对应用拥有的缓存文件设置备份排除，不修改系统管理的共享容器根目录元数据；保存采用原子写入和首次解锁后文件保护。文件保存失败 SHALL 保留上次内存快照并明确提示保存失败，不能提示为协议无效。成功接收后的重新启动 SHALL 恢复相同缓存供应用与组件展示。

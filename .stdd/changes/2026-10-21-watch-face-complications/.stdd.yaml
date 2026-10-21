@@ -1,0 +1,32 @@
+change_id: 2026-10-21-watch-face-complications
+complexity_score: null
+current_phase: build
+design_adjustments:
+  count: 0
+last_modified: '2026-10-21T12:47:24.231666'
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-21T12:47:24'
+    confirmed_by: dialog
+    confirmed_evidence: 用户：确认 ，连续实施
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-21T11:31:42'
+    confirmed_by: dialog
+    confirmed_evidence: 用户：确认
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

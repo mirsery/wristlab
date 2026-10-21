@@ -1,0 +1,75 @@
+meta:
+  change_id: 2026-10-21-watch-face-complications
+  title: Wristlab 表盘组件与已确认图标接入
+  created: '2026-10-21'
+  status: draft
+why:
+  problem: 当前仅有身体电量组件骨架，缺少准备度、压力、组合展示及安装引导；用户已确认原创图标，并要求接入表盘功能。
+  motivation: 将已有手机报告与Watch快照扩展到表盘抬腕查看，沿用系统WidgetKit能力。
+what_changes:
+- id: C1
+  type: modified
+  description: 接入已确认的薄荷绿W图标，生成iPhone和Watch应用图标资源及构建配置。
+- id: C2
+  type: modified
+  description: 保留既有身体电量组件标识，补齐训练准备度、压力组件；按槽位支持圆形、矩形、行内与角落布局。
+- id: C3
+  type: new
+  description: 新增矩形三指标总览组件；点击组件打开Watch应用并定位对应指标或总览。
+- id: C4
+  type: new
+  description: 在手机和Watch提供表盘设置引导与可见的预览，说明如何在系统表盘编辑器中选择Wristlab组件。
+- id: C5
+  type: modified
+  description: 统一组件的缺失、校准、部分质量、过期和清除状态；过期数值不作为当前值显示，读取同一App Group快照。
+capabilities:
+  new:
+  - name: watch-face-metrics
+    description: 三种单指标及三指标总览布局、组件深链和安装引导。
+  modified:
+  - name: energy-complication
+    description: 保留已有kind并统一过期和缺失表现。
+  - name: app-identity
+    description: 使用用户已确认原创图标。
+constraints:
+- 采用现有Apple表盘的WidgetKit复杂功能槽位；可用布局由系统与具体表盘决定。
+- 不更改健康评分公式、HealthKit权限和同步隐私边界；不用真实健康数据制作截图。
+- 没有已导出并验证的.watchface资源前，不提供会失败或误导的一键添加表盘按钮。
+- 系统决定后台刷新预算；不承诺固定频率或秒级实时心率。
+- 按项目STDD三道Gate推进；本文件仍为未批准草稿。
+stakeholders:
+- 个人自用的iPhone与配对Apple Watch用户
+risk_areas:
+- capability: watch-face-metrics
+  risk: 表盘槽位、系统着色和刷新策略不同。
+  mitigation: 按WidgetFamily适配，保留更新时间和明确缺失状态，分别验证模拟器与真机。
+- capability: energy-complication
+  risk: 现有矩形布局会同时显示过期提示与旧数值，可能误读。
+  mitigation: 把时效状态转为可测试的显示模型，统一抑制过期当前值。
+- capability: app-identity
+  risk: 不同设备图标尺寸与遮罩不同。
+  mitigation: 使用全幅不透明母版与Asset Catalog，编译验证两个目标。
+non_goals:
+- 自定义第三方watchOS表盘引擎或替换系统表盘。
+- 无有效.watchface文件时承诺一键安装整套表盘。
+- 新增实时运动采集、云服务或新评分算法。
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  reference_changes: []
+  anchor_implementations:
+  - Apps/Widgets/WristlabWidget.swift
+  - Apps/Shared/WatchBridge.swift
+  - specs/003-health-and-sync.md
+success_criteria:
+- 已确认图标进入两个应用的图标目录，iPhone/Watch/Widget构建通过。
+- 系统可枚举电量、准备度、压力与总览组件；既有电量kind保持不变。
+- 组件点击能打开对应Watch页面，无效URL安全回退。
+- 合成测试覆盖新鲜、过期、空、清除和校准等显示状态；不把缺失值当作0或健康分数。
+- 手机与手表均能打开表盘设置说明；双语README及验证记录同步。
+- 保留真机签名、实际表盘安装及系统刷新待验收状态，模拟器截图不替代真机结论。

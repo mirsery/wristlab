@@ -48,6 +48,9 @@ struct SettingsView: View {
                     Button("刷新数据") { Task { await model.refresh() } }
                     Button("打开合成演示") { dismiss(); Task { await model.enableDemo() } }
                 }
+                Section("Apple Watch") {
+                    NavigationLink("表盘组件") { WatchFaceGuideView() }
+                }
                 Section("本地数据") {
                     Button("清除派生缓存并重算") { Task { await model.clear(stop: false) } }
                     Button("停止读取并清除应用数据", role: .destructive) { confirmClear = true }

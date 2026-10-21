@@ -161,10 +161,18 @@ public enum RecordNormalizer {
         [r.kind.rawValue, r.source.group, r.source.device, String(r.start.timeIntervalSince1970),
          String(r.end.timeIntervalSince1970), r.value.map(String.init(describing:)) ?? "", r.stage?.rawValue ?? "", r.workoutType ?? ""].joined(separator: "|")
     }
-    public static func selected(_ records: [HealthRecord], kind: HealthKind, profile: HealthProfile) -> [HealthRecord] {
+    public static func selected(_ records: [HealthRecord], kind: HealthKind, profile: HealthProfile,
+                                sourceWindow: DateInterval? = nil) -> [HealthRecord] {
         let candidates = records.filter { $0.kind == kind }
+        let eligibleGroups = Set(candidates.filter { record in
+            sourceWindow.map { record.end >= $0.start && record.end <= $0.end } ?? true
+        }.map { $0.source.group })
         let preferences = profile.preferredSources[kind] ?? []
-        let ordered = candidates.sorted { a, b in
+        // A retained old device cannot qualify for automatic selection on its
+        // history alone. Explicit preferences still express the user's intent.
+        let ordered = candidates.filter {
+            eligibleGroups.contains($0.source.group) || preferences.contains($0.source.group)
+        }.sorted { a, b in
             let pa = preferences.firstIndex(of: a.source.group) ?? Int.max
             let pb = preferences.firstIndex(of: b.source.group) ?? Int.max
             if pa != pb { return pa < pb }

@@ -2,6 +2,8 @@
 
 # Wristlab
 
+<img src="docs/brand/icon-master.png" width="88" alt="Wristlab app icon" />
+
 **A clearer view of your day.**
 
 A local-first health trends lab for iPhone and Apple Watch.
@@ -78,7 +80,7 @@ HealthKit changes → normalized records/sources → sleep and personal baseline
 - `Packages/WristlabCore`: pure Swift domain calculations, reports, transactional storage and snapshot protocol.
 - `Apps/iOS`: read-only HealthKit adapter, settings, charts and explanations.
 - `Apps/watchOS`: snapshots, refresh requests, producer confirmation and demo mode.
-- `Apps/Widgets`: WidgetKit body-energy complication.
+- `Apps/Widgets`: WidgetKit energy, readiness, stress and overview complications.
 - `project.yml`: source configuration for the generated Xcode project.
 
 CI validates specifications, tests domain behavior, builds both simulator targets and captures screenshots. Twelve numeric fixtures come from the spec; see [validation coverage](docs/validation.md) for additional cases. **Simulator builds and screenshots do not establish physical HealthKit access, background delivery, signing or complication installation.**
@@ -92,3 +94,13 @@ Update specs and acceptance criteria before implementation. Use PRs; `main` requ
 MIT License. Use synthetic data in issues, logs, tests and screenshots. Never commit health exports or signing assets.
 
 Development follows [STDD](docs/stdd.md): Spec + Test driven delivery with four phases and three confirmation gates. Use `./scripts/stdd` as the project CLI.
+
+## Apple Watch complications
+
+Open Settings → Apple Watch → Complications on iPhone, or More → Complications on Watch, for setup instructions and visibly synthetic previews. Energy, readiness and stress support circular, rectangular, inline and corner slots; the overview uses a rectangular slot. Available slots depend on the selected system face.
+
+Live complications use only the phone's validated snapshot. Missing, calibrating and stale data never become a default score. Stale values are hidden. A single-metric tap opens its report; the overview opens the Watch home screen. External complication links leave demo mode. Refresh timing is controlled by watchOS. No preconfigured .watchface file is bundled.
+
+Local builds and domain tests passed; consult the [validation record](docs/validation.md) for actual face installation, cold/warm navigation and background delivery evidence. In-app illustrations do not establish successful face installation.
+
+[Local guide screenshots](docs/screenshots/watch-face/README.md) show a labeled synthetic preview, not an installed system watch face.
