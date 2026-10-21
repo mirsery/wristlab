@@ -159,13 +159,14 @@ targets:
       - package: WristlabCore
 ''')
     run(["xcodegen", "generate", "--spec", str(WORK / "project.yml")])
+    # A cold CI runner compiles the package for the probe from scratch; the iOS probe took over 4 minutes there.
     with (WORK / "build.log").open("w") as log:
         subprocess.run([
             "xcodebuild", "-project", str(WORK / "WidgetRegistrationTest.xcodeproj"),
             "-scheme", "WidgetRegistrationTest", "-configuration", "Debug",
             "-destination", f"id={udid}", "-derivedDataPath", str(WORK / "DerivedData"),
             "CODE_SIGNING_ALLOWED=NO", "build",
-        ], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=240)
+        ], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=600)
     app = WORK / f"DerivedData/Build/Products/{config['products']}/{EXECUTABLE}.app"
     bundle = config["bundle"]
     run(["xcrun", "simctl", "install", udid, str(app)])
