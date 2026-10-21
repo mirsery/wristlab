@@ -1,0 +1,55 @@
+meta:
+  change_id: 2026-10-22-morning-brief
+  title: 晨报本地通知
+  created: '2026-10-22'
+  status: draft
+why:
+  problem: 早上需要打开应用才知道昨晚睡眠与今天准备度；同类产品（Garmin晨报、AutoSleep、Gentler Streak晨间check-in）会在醒后推送一条摘要。
+  motivation: 'issue #6候选#7。应用已有HealthKit后台送达（hourly）与观察者刷新，可在刷新得到今天已完成的主睡眠后发一条本地通知，不新增计算。'
+what_changes:
+- id: C1
+  description: 设置新增“晨报通知”（默认关）与“通知中隐藏数值”（默认开）；开启时请求通知授权，拒绝时说明并保持关闭。
+  type: new
+- id: C2
+  description: Core新增MorningBrief：报告为当天、真实来源、今天已有已完成主睡眠、分析时区05:00–14:00、当天尚未发过时生成一条通知；内容为准备度（数值与分段并标日间/部分估算，或缺失原因）与主睡眠时长，隐藏数值时只提示主睡眠已汇总。
+  type: new
+- id: C3
+  description: 每次真实刷新后若满足条件则投递本地通知并记住当天已发；演示从不发送；不承诺固定时间，取决于系统后台机会与用户打开应用。
+  type: new
+capabilities:
+  new:
+  - name: morning-brief
+    description: 晨报判定、内容与设置（C1–C3）
+  modified: []
+constraints:
+- 不新增计算或读取；缺失保持缺失，文案不给训练或健康建议。
+- 默认关闭，用户开启才请求通知权限；隐藏数值默认开，避免锁屏露出健康数值。
+- 每个分析日最多一条；演示与非今天的报告不发送；不承诺固定送达时间。
+- 设置保存在本机偏好，不进入HealthProfile，避免触发评分重算。
+stakeholders:
+- 自用iPhone用户
+risk_areas:
+- capability: morning-brief
+  risk: 锁屏露出健康数值。
+  mitigation: 隐藏数值默认开；关闭后才显示数值。
+- capability: morning-brief
+  risk: 重复或深夜推送。
+  mitigation: 按分析日去重；只在今天已有已完成主睡眠后发送。
+non_goals:
+- 定时推送、晚间回顾、提醒就寝、Watch端通知。
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  reference_changes:
+  - 2026-10-21-metric-insights
+  anchor_implementations:
+  - Apps/iOS/DashboardModel.swift
+  - Packages/WristlabCore/Sources/WristlabCore/MetricExplanation.swift
+success_criteria:
+- MorningBrief判定（当天、真实、主睡眠、去重、演示）与内容（数值/分段/缺失原因/隐藏数值）有单测。
+- check.sh与build-apple.sh通过；真机通知送达由用户验收。

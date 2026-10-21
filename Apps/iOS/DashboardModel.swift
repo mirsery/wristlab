@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import UserNotifications
 import WristlabCore
 
 @MainActor
@@ -16,6 +17,10 @@ final class DashboardModel: ObservableObject {
     @Published var moodConnected = UserDefaults.standard.bool(forKey: "moodReadingRequested")
     @Published var moodStatus: String?
     var displayedMoods: [MoodEntry] { demoEnabled ? demoMoods : moods }
+    @Published var morningBriefEnabled = UserDefaults.standard.bool(forKey: "morningBriefEnabled")
+    @Published var morningBriefShowsValues = UserDefaults.standard.bool(forKey: "morningBriefShowValues")
+    /// Shown in settings: why the brief is off or silently blocked. Not the dashboard status line.
+    @Published var morningBriefNotice: String?
     var moodSupported: Bool { if #available(iOS 18.0, *) { true } else { false } }
     let bridge = WatchBridge()
     private let reader = HealthKitReader()
@@ -81,6 +86,7 @@ final class DashboardModel: ObservableObject {
             if let snapshot = result.snapshot { publish(snapshot) }
             await loadMoods(asOf: now)
             guard token == generation else { return }
+            await deliverMorningBrief(report: result.report, now: now, token: token)
             status = result.records.isEmpty ? "暂无可读取记录；可能尚无记录或未允许读取，请检查健康 App。" : "已更新本地报告 · 估算仅供日常趋势参考"
         } catch is CancellationError {
             if token == generation { status = "刷新已取消" }
@@ -95,6 +101,46 @@ final class DashboardModel: ObservableObject {
             catch { status = "演示加载失败" }
         }
         demoMoods = DemoData.moods(asOf: demo?.asOf ?? DemoData.previewDate)
+    }
+    /// Notifications are requested only when the user turns the brief on; a refusal keeps it off.
+    func setMorningBrief(enabled: Bool) async {
+        morningBriefEnabled = enabled   // reflect the tap at once; revert below if permission is refused
+        guard enabled else { UserDefaults.standard.set(false, forKey: "morningBriefEnabled"); morningBriefNotice = nil; return }
+        let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
+        morningBriefEnabled = granted
+        UserDefaults.standard.set(granted, forKey: "morningBriefEnabled")
+        morningBriefNotice = granted ? nil : "通知权限未开启，晨报保持关闭。可在系统设置中允许 Wristlab 通知。"
+    }
+    /// Called when settings appear: the user may have revoked notifications in system settings.
+    func checkMorningBriefPermission() async {
+        guard morningBriefEnabled else { morningBriefNotice = nil; return }
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        morningBriefNotice = status == .authorized || status == .provisional ? nil : "系统已关闭 Wristlab 通知，晨报不会送达。可在系统设置中重新允许。"
+    }
+    func setMorningBrief(showValues: Bool) {
+        morningBriefShowsValues = showValues
+        UserDefaults.standard.set(showValues, forKey: "morningBriefShowValues")
+    }
+    /// Real refreshes only; at most one brief per analysis day.
+    private func deliverMorningBrief(report: HealthReport?, now: Date, token: Int) async {
+        guard morningBriefEnabled else { return }
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+        // A clear or stop while waiting wins: never notify with data that was just removed.
+        guard token == generation, settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional else { return }
+        let lastSent = UserDefaults.standard.string(forKey: "morningBriefLastDay")
+        guard let brief = MorningBrief.make(report: report, lastSentDay: lastSent, hideValues: !morningBriefShowsValues, now: now) else { return }
+        // Claim the day before the await so an overlapping refresh cannot send a second one.
+        UserDefaults.standard.set(brief.dayKey, forKey: "morningBriefLastDay")
+        let content = UNMutableNotificationContent()
+        content.title = brief.title
+        content.body = brief.body
+        do {
+            try await center.add(UNNotificationRequest(identifier: "morning-brief-\(brief.dayKey)", content: content, trigger: nil))
+        } catch {
+            // Release the claim so a later refresh can try again the same day.
+            UserDefaults.standard.set(lastSent, forKey: "morningBriefLastDay")
+        }
     }
     /// Asked only when the user taps connect; an empty read never implies denial.
     func connectMoods() async {
@@ -137,6 +183,9 @@ final class DashboardModel: ObservableObject {
         do {
             let state = try await repository.clear(stopReading: stop, asOf: Date())
             report = nil; moods = []; moodStatus = nil
+            // Delivered briefs may show values that were just cleared.
+            UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
             if stop {
                 // Stopping reading also forgets the mood request; reconnecting asks again on the mood card.
                 moodConnected = false

@@ -41,6 +41,7 @@ CI captures the running SwiftUI apps with `--demo`. Synthetic health records pas
 | Explanations | Comparison with the personal baseline (raises/lowers and difference), specified tier labels, missing-input reasons, baseline counts, partial quality, coverage, versions and timestamps |
 | Phone and Watch | Phone report with the day's energy and stress over sleep and workouts, sleep detail, 7/30-day trends (readiness, sleep, load, nightly HRV, resting heart rate with the personal baseline band) and a last-7-days review; phone-produced Watch snapshots, refresh requests, and energy, readiness, stress and overview complications |
 | iPhone widgets | Home screen small/medium and lock screen circular/rectangular/inline widgets with the latest readiness, energy and stress; stale, waiting, cleared and real-zero states follow the complication rules; demo data is never written |
+| Morning brief | Opt-in local notification after the first refresh between 05:00 and 14:00 with today's completed main sleep (values hidden by default); once per day, no fixed delivery time |
 | Mood logs | On iOS 18+, after an explicit connect, read-only self-reported State of Mind shown next to the physiological stress of the same time; no mood is inferred, no causation is claimed, nothing syncs to the Watch |
 | Local controls | Source preferences, fixed analysis time zone, sleep target, cache clearing and offline clear markers |
 

@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-morning-brief: proposals/2026-10-22-morning-brief.yaml
+specs:
+  agent:
+    morning-brief: specs/agent/morning-brief.yaml
+  code:
+    morning-brief: specs/code/morning-brief.yaml
+version: '2.9'
