@@ -1,0 +1,38 @@
+meta:
+  task_id: daily-timeline
+  change_id: 2026-10-21-metric-insights
+  task_type: code
+  system: HealthEngine电量区间与DayTimeline
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-TIMELINE-001
+  description: 引擎输出电量驱动区间
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TIMELINE-002
+  description: 时间线区段
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TIMELINE-003
+  description: 时间线区段
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TIMELINE-004
+  description: 曲线断线
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TIMELINE-005
+  description: 曲线断线
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0

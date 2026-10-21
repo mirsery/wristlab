@@ -38,8 +38,8 @@ CI captures the running SwiftUI apps with `--demo`. Synthetic health records pas
 | Body energy | Sleep recharge, activity drain, continuity across midnight, gaps and recalibration |
 | Sleep | Source selection, interval deduplication, stages, primary sleep/naps, seven-day debt and timing regularity |
 | Activity | Existing workouts, HRR zones, observed load, exertion and historical reference ranges |
-| Explanations | Missing-input reasons, baseline counts, partial quality, coverage, versions and timestamps |
-| Apple Watch | Phone-produced snapshots, refresh requests and a body-energy complication |
+| Explanations | Comparison with the personal baseline (raises/lowers and difference), specified tier labels, missing-input reasons, baseline counts, partial quality, coverage, versions and timestamps |
+| Phone and Watch | Phone report with the day's energy and stress over sleep and workouts, sleep detail and a seven-day readiness/sleep/load trend; phone-produced Watch snapshots, refresh requests, and energy, readiness, stress and overview complications |
 | Local controls | Source preferences, fixed analysis time zone, sleep target, cache clearing and offline clear markers |
 
 Real mode starts empty. Reading requires an explicit Apple Health connection. Demo mode is opt-in, visibly synthetic, and isolated from real synchronization caches.

@@ -1,0 +1,72 @@
+meta:
+  change_id: 2026-10-21-metric-insights
+  title: 讲清楚已有估算：贡献分解、日内时间线、睡眠详情与7日趋势切换
+  created: '2026-10-21'
+  status: draft
+why:
+  problem: iPhone只展示分数；Core已计算的压力日内分桶、睡眠阶段时间段/效率/入睡/清醒/小睡、7日睡眠与负荷未展示，详情页贡献项列原始ms/bpm，看不出相对个人基线高低。
+  motivation: issue#6同类产品调研显示最大差距是解释已有估算；首轮仅改展示，不改公式、读取类型或同步。
+what_changes:
+- id: C1
+  description: 准备度详情显示HRV与静息心率、压力详情显示心率及有HRV时的HRV：当前值、个人基线、差值及对该指标有利/不利/接近基线；不显示z值或内部key；Core提供展示模型。
+  type: new
+- id: C2
+  description: 准备度与压力按002已定义产品分段显示状态短句；首页去掉建议性文案，只描述状态；电量无规格分段不加档。
+  type: modified
+- id: C3
+  description: 首页一天的节奏在电量曲线标出主睡眠、小睡与运动区段，新增压力分桶曲线；缺失桶断线，运动桶单独标注。
+  type: new
+- id: C4
+  description: 新增睡眠详情页：阶段时间轴（unknown单列）、效率、入睡潜伏、已记录清醒时长与次数、小睡列表；按004空值规则不显示为0。
+  type: new
+- id: C5
+  description: 7日趋势可在准备度、睡眠时长、已观测负荷间切换；缺失日留白并显示有效天数。
+  type: modified
+capabilities:
+  new:
+  - name: metric-contributions
+    description: 指标输入相对个人基线的贡献分解与规格分段状态短句（C1、C2）
+  - name: daily-timeline
+    description: 电量曲线区段标注与压力分桶日内曲线（C3）
+  - name: sleep-and-trend-detail
+    description: 睡眠详情页与7日趋势指标切换（C4、C5）
+  modified: []
+constraints:
+- 评分公式、门槛、模型版本、HealthKit读取类型、Watch同步schema与Watch端不变；12份数值金例不变。
+- 只改iPhone展示与Core纯展示模型；View消费模型，不在View中计算基线比较。
+- 缺失保持缺失，真实0保留；演示数据继续明确标记；不推断疾病、心理状态或受伤风险，不给训练或就寝处方。
+- 测试与截图只用合成数据；不新增依赖。
+stakeholders:
+- 自用iPhone与Watch用户
+risk_areas:
+- capability: metric-contributions
+  risk: 有利/不利措辞被理解为医疗或训练判断。
+  mitigation: 只描述相对个人基线方向；措辞写入规格并经Gate2确认；保留实验估算声明。
+- capability: daily-timeline
+  risk: 稀疏桶被连线成连续曲线，暗示持续测量。
+  mitigation: 沿用缺口断线规则，单测覆盖缺失桶分段。
+- capability: sleep-and-trend-detail
+  risk: 无阶段或无效数据被画成0。
+  mitigation: 按004空值规则，单测覆盖无阶段与缺失日。
+non_goals:
+- Watch端改动与同步字段扩展。
+- 30/90日趋势、iPhone小组件、晨报通知、新睡眠分、训练或就寝建议（留issue#6后续轮次）。
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  reference_changes:
+  - 2026-10-21-active-health-sources
+  anchor_implementations:
+  - Packages/WristlabCore/Sources/WristlabCore/MetricExplanation.swift
+  - Apps/iOS/PhoneDashboardView.swift
+success_criteria:
+- Core单测覆盖贡献方向与差值、缺基线不输出该行、HR-only压力无HRV行。
+- 详情页不出现z值或内部key名。
+- 压力曲线缺失桶断线、无阶段睡眠的阶段/效率/潜伏为空、7日缺失日不画0，均有单测。
+- 12份数值金例与原50 Core+5 workspace测试不变且通过；check.sh与build-apple.sh通过。
+- 模拟器合成演示截图视觉检查；真机显示由用户验收。

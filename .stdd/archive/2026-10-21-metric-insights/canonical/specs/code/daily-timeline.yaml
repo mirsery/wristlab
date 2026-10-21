@@ -1,0 +1,55 @@
+meta:
+  capability: daily-timeline
+  change_id: 2026-10-21-metric-insights
+  created: '2026-10-21'
+  confidence: high
+requirements:
+- id: REQ-TIMELINE-001
+  description: 引擎输出电量驱动区间
+  scenarios:
+  - id: SC-TIMELINE-001
+    confidence: high
+    evidence: design.md 决策4
+    given: 合成记录含跨午夜主睡眠、当日午后小睡与当日运动
+    when: HealthEngine评估当日报告
+    then: SHALL 在energy.asleepIntervals与energy.workoutIntervals写入电量重放使用的区间，并裁剪到分析日起点至asOf
+    and:
+    - 电量点、准备度、压力数值与改动前一致
+- id: REQ-TIMELINE-002
+  description: 时间线区段
+  scenarios:
+  - id: SC-TIMELINE-002
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-metric-insights.yaml C3
+    given: 报告含睡眠与运动区间，部分落在分析日之外或长度为0
+    when: 生成DayTimeline
+    then: SHALL 输出按开始时间排序、裁剪到分析日起点至asOf、长度大于0的睡眠与运动区段，并区分类型
+    and:
+    - 分析日按固定分析时区的日历日，夏令时切换日可为23或25小时
+  - id: SC-TIMELINE-003
+    confidence: high
+    evidence: design.md 兼容性
+    given: 旧仓库状态JSON的EnergyReport缺少两个区间字段
+    when: 解码并生成DayTimeline
+    then: SHALL 解码成功、区段为空、不崩溃
+    and: []
+- id: REQ-TIMELINE-003
+  description: 曲线断线
+  scenarios:
+  - id: SC-TIMELINE-004
+    confidence: high
+    evidence: canonical/proposals/2026-10-21-metric-insights.yaml C3；specs/002-scoring.md 缺口与质量
+    given: 当天压力桶存在时间空隙、无数值桶与运动桶
+    when: 生成压力分段
+    then: SHALL 只把首尾相接且都有数值的桶连成同一段，空隙或无数值处断开；运动桶标记为运动中
+    and:
+    - 点位于桶中点，数值取显示整数
+  - id: SC-TIMELINE-005
+    confidence: high
+    evidence: specs/002-scoring.md 未观测段曲线断线
+    given: 电量点序列中间有nil
+    when: 生成电量分段
+    then: SHALL 在nil处断开，不插值、不画0
+    and:
+    - 电量当前值不可显示（覆盖不足、过期、校准或缺失）时不输出电量曲线，界面改为显示原因
+    - 分析日已结束时标记为非今天，界面显示报告日期

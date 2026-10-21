@@ -1,0 +1,44 @@
+meta:
+  task_id: sleep-and-trend-detail
+  change_id: 2026-10-21-metric-insights
+  task_type: code
+  system: SleepBreakdown、TrendSeries与iPhone页面
+  preconditions:
+  - 仅使用合成健康夹具
+steps:
+- id: CP-SLEEPUI-001
+  description: 阶段时间轴
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SLEEPUI-002
+  description: 空值不当0
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SLEEPUI-003
+  description: 空值不当0
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-SLEEPUI-004
+  description: 睡眠指标
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TREND-001
+  description: 7日趋势切换
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0
+- id: CP-TREND-002
+  description: 7日趋势切换
+  action: ./scripts/check.sh
+  assertions:
+  - type: exit_code
+    expected: 0

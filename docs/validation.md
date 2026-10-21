@@ -61,3 +61,9 @@ CI执行`./scripts/check.sh`和`./scripts/build-apple.sh`，构建iPhone、Watch
 失活历史来源已从60日计算窗口的自动候选中排除；显式偏好/单组历史保留，来源变化重建并推进epoch。无电量起点现在区分最近相关夜晚缺HRV、对应RHR和基线不足，手机/Watch直接显示实际X/14进度与原因，详情提供操作建议；时效优先、真实0与未知原因回退保持一致。原评分数值及门槛不变。
 
 50 Core +5 workspace、双端模拟器构建/四Widget配置运行及普通双端签名构建通过，三路复审发现项已闭环。合成13日不足场景完成双端卡片视觉检查，Watch实际点击及滚动说明通过。手机真实刷新已证明当前HR进入评分、压力available且fresh。最终普通两端已安装，Watch启动成功；用户解锁后iPhone重新启动成功、进程存在，用户随后明确确认“两端都有明确原因，详情能打开”，本轮正常版双端提示与详情操作验证闭环。Gate3未确认，不将此记为全部表盘或睡眠输入已验收。
+
+### 解释与日内展示（metric-insights，2026-10-22）
+
+只改iPhone展示与Core纯展示模型，公式、门槛、模型版本、HealthKit读取类型、Watch同步schema不变。新增14个Swift Testing函数：贡献方向/±0.5展示分段/差值、规格分段边界、电量驱动区间（与c515ff6的数值和顺序校验和一致）、时间线断线与裁剪、纽约25小时夏令时日、旧缓存解码、睡眠泳道（真实SleepCalculator含清醒与冲突段）与空值、7日趋势。64 Core + 5 workspace、双端模拟器构建与四Widget注册运行检查通过，[PR #7 CI](https://github.com/mirsery/wristlab/actions/runs/39632665463)通过并生成当前截图。
+
+模拟器视觉检查使用东八区设备显示UTC合成报告，发现并修正时间按设备时区格式化的问题。VoiceOver仅静态审阅标签；真实数据下的首页图表、详情贡献、睡眠详情与7日切换尚未在真机验证。完整TC对照见[测试报告](../.stdd/archive/2026-10-21-metric-insights/test-report.md)。

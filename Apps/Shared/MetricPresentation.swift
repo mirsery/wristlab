@@ -31,6 +31,7 @@ struct ScoreRing: View {
     }
 }
 struct SmallMetricCard: View {
+    let kind: ComplicationMetric
     let title: String
     let symbol: String
     let metric: MetricEstimate
@@ -43,7 +44,8 @@ struct SmallMetricCard: View {
                 Text(MetricExplanation(metric, at: now).displayValue.map(String.init) ?? "—").font(.system(.largeTitle, design: .rounded, weight: .semibold)).monospacedDigit()
                 Text("/100").font(.caption).foregroundStyle(.secondary)
             }
-            Text(metricStatus(metric, at: now)).font(.caption2).foregroundStyle(.secondary)
+            Text([MetricTier.label(for: kind, value: MetricExplanation(metric, at: now).displayValue), metricStatus(metric, at: now)]
+                .compactMap { $0 }.joined(separator: " · ")).font(.caption2).foregroundStyle(.secondary)
             if MetricExplanation(metric, at: now).displayValue == nil {
                 Text("查看原因与建议 ↗").font(.caption2).foregroundStyle(color)
             }

@@ -162,6 +162,9 @@ public enum HealthEngine {
             }
         }
         energy.points = energy.points.filter { $0.at >= today }
+        let shown = DateInterval(start: today, end: max(today, asOf))
+        energy.asleepIntervals = asleep.compactMap { intersection($0, shown) }
+        energy.workoutIntervals = union(workouts.map(\.interval)).compactMap { intersection($0, shown) }
         var loads: [Date: LoadSummary] = [:]
         for row in basis {
             let window = clock.day(containing: row.day)
