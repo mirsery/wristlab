@@ -171,7 +171,8 @@ targets:
     run(["xcrun", "simctl", "install", udid, str(app)])
     since = datetime.now()
     try:
-        output = run(["xcrun", "simctl", "launch", "--console", "--terminate-running-process", udid, bundle], capture=True, timeout=45)
+        # Slow CI runners have taken over 45 seconds just to start the probe; a real trap still prints Fatal error.
+        output = run(["xcrun", "simctl", "launch", "--console", "--terminate-running-process", udid, bundle], capture=True, timeout=180)
         (WORK / "runtime.log").write_text(output)
         print(output)
         # simctl can return zero even when the child traps: require every marker.
