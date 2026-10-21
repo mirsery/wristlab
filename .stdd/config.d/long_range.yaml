@@ -1,0 +1,10 @@
+long_range:
+  recommended: false
+  pre_auth:
+    design_deviation:
+      minor: auto_record
+      major: pause
+    gate3: mandatory
+  degradation:
+    max_consecutive_failures: 3
+    safety_check: true

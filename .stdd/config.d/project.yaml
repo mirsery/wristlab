@@ -1,0 +1,15 @@
+stdd_version: 3.0.5
+enforce_stdd: true
+project:
+  name: wristlab
+  language: swift
+  source_dir: Apps
+paths:
+  changes_dir: .stdd/changes
+  specs_dir: specs
+  archive_dir: .stdd/archive
+  skills_dir: .stdd/skills
+  templates_dir: .stdd/templates
+  standards_dir: .stdd/standards
+  experiences_dir: .stdd/experiences
+  platforms_dir: .stdd/platforms

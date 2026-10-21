@@ -19,3 +19,9 @@ xcuserdata/
 export.xml
 export_cda.xml
 apple_health_export/
+
+# STDD local caches and temporary files
+__pycache__/
+*.pyc
+.stdd/backup/
+.stdd/cache/

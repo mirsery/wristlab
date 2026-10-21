@@ -90,3 +90,5 @@ CI验证规格结构、领域测试及双端模拟器构建，并生成截图。
 先更新spec和验收，再实现/测试，使用PR合并。`main`要求两项CI检查通过，禁止强推和删除。[AGENTS.md](AGENTS.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [PRIVACY.md](PRIVACY.md)
 
 MIT License。Issue、日志、测试和截图只提交合成数据，勿上传健康导出或签名资料。
+
+开发流程采用 [STDD](docs/stdd.md)：Spec + Test 驱动、四阶段与三道确认 Gate。项目初始化命令入口为 `./scripts/stdd`。

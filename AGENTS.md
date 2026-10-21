@@ -1,6 +1,9 @@
+<!-- STDD-GUARD-ENABLED -->
+
 # Wristlab agent rules
 
 ## Workflow
+0. For new features, fixes, or refactors, read `STDD_CONSTITUTION.md` and `docs/stdd.md`, create a `.stdd/changes/` entry, and follow the four STDD phases with actual user confirmation at Gates 1/2/3. Use `./scripts/stdd` for CLI commands. Read the phase skill in `.stdd/skills/` when entering that phase.
 1. Read `specs/README.md` and the spec for the feature before editing code. Change behavior and acceptance criteria in the spec first.
 2. Keep the change scoped to one acceptance criterion or a coherent group. Preserve unrelated local edits.
 3. Run `scripts/check.sh`. Changes to app targets also require `scripts/build-apple.sh` on a Mac with full Xcode. Report unavailable checks explicitly.

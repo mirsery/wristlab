@@ -1,0 +1,4 @@
+knowledge:
+  dir: .stdd/knowledge
+  graph_file: knowledge-graph.yaml
+  community: {}
