@@ -84,3 +84,7 @@ envelope≤32KiB，包含schema、source、producerID、epoch、sequence、asOf/
 ## 组件展示扩展（Gate 2已确认，实施中）
 
 保持既有缓存/schema及WristlabEnergy kind。真实组件拒绝demo快照；展示空、清除、校准、失败和过期等状态，单指标独立时效，快照全局过期时全部隐藏数值。真实0仍显示0。为已有严格大于时效边界预排后一秒的entry，不承诺系统准点切换；clearData实际收到后才可清除远端。URL仅携带白名单目的地，不带健康值。
+
+### Watch 缓存落盘验收细则
+
+H-005/H-007 的共享缓存仍位于 App Group 的 watch-receiver.json。适配器 SHALL 仅对应用拥有的缓存文件设置备份排除，不修改系统管理的共享容器根目录元数据；保存采用原子写入和首次解锁后文件保护。文件保存失败 SHALL 保留上次内存快照并明确提示保存失败，不能提示为协议无效。成功接收后的重新启动 SHALL 恢复相同缓存供应用与组件展示。

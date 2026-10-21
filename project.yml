@@ -21,6 +21,7 @@ targets:
     sources:
       - Apps/iOS
       - Apps/Shared
+      - Apps/Storage
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mirsery.wristlab
@@ -52,6 +53,7 @@ targets:
     sources:
       - Apps/watchOS
       - Apps/Shared
+      - Apps/Storage
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.mirsery.wristlab.watchkitapp

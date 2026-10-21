@@ -5,5 +5,12 @@ let package = Package(
     name: "WristlabWorkspace",
     platforms: [.macOS(.v13)],
     dependencies: [.package(path: "Packages/WristlabCore")],
-    targets: [.testTarget(name: "WorkspaceTests", dependencies: [.product(name: "WristlabCore", package: "WristlabCore")], path: "Tests/WorkspaceTests")]
+    targets: [
+        .target(name: "SnapshotStorage", path: "Apps/Storage"),
+        .testTarget(
+            name: "WorkspaceTests",
+            dependencies: ["SnapshotStorage", .product(name: "WristlabCore", package: "WristlabCore")],
+            path: "Tests/WorkspaceTests"
+        )
+    ]
 )

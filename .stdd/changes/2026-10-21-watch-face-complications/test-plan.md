@@ -260,3 +260,12 @@
 ## 六、执行与证据
 
 `./scripts/check.sh`；`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer ./scripts/build-apple.sh`。使用xcrun simctl安装双端模拟器并分别检查widget与URL，保存构建日志及截图。若当前系统无法可靠枚举/编辑表盘组件，记录具体限制，不能把独立预览当成表盘安装证据。
+
+## Build 缺陷回归补充（既有 H-005/H-007、P-004/P-005）
+
+- TC-ENERGY-CACHE-001：属性策略失败，原文件逐字节保持，临时文件清理；生产 SnapshotCacheFile seam，合成数据。
+- TC-ENERGY-CACHE-002：原子替换失败，原文件逐字节保持，临时文件清理。
+- TC-ENERGY-CACHE-003：合成 SnapshotReceiver 完整写入/重开，再接收并保存 clearData；不修改共享根目录属性。
+- TC-ENERGY-CACHE-004：使用真实默认文件策略，两次原子替换后备份排除仍存在，父目录属性未改变（macOS）。
+- TC-ENERGY-DEVICE-001：真实 Watch 接收→文件属性准备→保存→重启读缓存；只采集阶段状态，真实健康内容不上日志/仓库。真机通过不能替代全部表盘验收。
+- TC-WATCH-LAYOUT-001：模拟器空状态横向铺满、内容最小高度覆盖页面、背景覆盖安全区；合成演示仍可滚动，真机另行用户确认。

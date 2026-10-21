@@ -53,18 +53,15 @@ final class WatchBridge: NSObject, ObservableObject, WCSessionDelegate {
         do {
             try next.accept(value, confirmProducer: confirm || receiver.snapshot == nil)
             let data = try JSONEncoder().encode(next)
-            try FileManager.default.createDirectory(at: Self.cacheURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-            var folder = Self.cacheURL.deletingLastPathComponent()
-            var policy = URLResourceValues(); policy.isExcludedFromBackup = true
-            try folder.setResourceValues(policy)
-            try data.write(to: Self.cacheURL, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+            try SnapshotCacheFile.write(data, to: Self.cacheURL)
             receiver = next; snapshot = next.snapshot; pendingProducer = nil
             status = value.clearData ? "手机数据已清除" : "已收到手机数据"
             #if os(watchOS)
             WidgetCenter.shared.reloadAllTimelines()
             #endif
         } catch DomainError.producerConfirmationRequired { pendingProducer = value; status = "请确认连接新手机数据" }
-        catch { status = "已忽略旧版或无效快照" }
+        catch is DomainError { status = "已忽略旧版或无效快照" }
+        catch { status = "快照保存失败，请重试同步" }
     }
     nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: (any Error)?) {
         Task { @MainActor in

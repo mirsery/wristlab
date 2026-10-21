@@ -15,6 +15,7 @@ struct WristlabWatchApp: App {
         WindowGroup {
             NavigationStack(path: $path) {
                 TimelineView(.periodic(from: .now, by: 60)) { context in
+                GeometryReader { geometry in
                 ScrollView {
                     let current = demoEnabled ? demo : bridge.snapshot
                     VStack(spacing: 6) {
@@ -40,9 +41,13 @@ struct WristlabWatchApp: App {
                             Text(bridge.status).font(.caption2).foregroundStyle(.secondary)
                         }
                         if bridge.pendingProducer != nil { Button("确认连接新手机") { bridge.confirmProducer() } }
-                    }.padding(.vertical, 8)
+                    }
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, minHeight: geometry.size.height)
                 }
-                .background(wristBackground)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(wristBackground.ignoresSafeArea())
+                }
                 }
                 .navigationDestination(for: WatchPage.self) { page in
                     switch page {
