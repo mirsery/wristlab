@@ -94,8 +94,11 @@ def main():
     devices = json.loads(run(["xcrun", "simctl", "list", "devices", "available", "--json"], capture=True))["devices"]
     def version(runtime):
         return tuple(int(part) for part in runtime.rsplit(f".{config['runtime']}-", 1)[1].split("-") if part.isdigit())
-    # Newest runtime first, so an old installed runtime below the deployment target is not picked.
-    runtimes = sorted((r for r in devices if f".{config['runtime']}-" in r), key=version, reverse=True)
+    sdk_name = "watchsimulator" if config["platform"] == "watchOS" else "iphonesimulator"
+    sdk = tuple(int(part) for part in run(["xcrun", "--sdk", sdk_name, "--show-sdk-version"], capture=True).strip().split("."))
+    # Prefer the newest runtime not newer than the active SDK: a newer runtime driven by an older
+    # Xcode hung or failed probe launches in CI (Series 11 / iPhone 17 Pro under Xcode 16.4).
+    runtimes = sorted((r for r in devices if f".{config['runtime']}-" in r), key=lambda r: (version(r) <= sdk, version(r)), reverse=True)
     candidates = [d for runtime in runtimes for d in devices[runtime] if config["device"] in d["name"]]
     if args.device:
         candidates = [d for d in candidates if d["udid"] == args.device]
@@ -171,7 +174,8 @@ targets:
     run(["xcrun", "simctl", "install", udid, str(app)])
     since = datetime.now()
     try:
-        output = run(["xcrun", "simctl", "launch", "--console", "--terminate-running-process", udid, bundle], capture=True, timeout=45)
+        # Slow CI runners have taken over 45 seconds just to start the probe; a real trap still prints Fatal error.
+        output = run(["xcrun", "simctl", "launch", "--console", "--terminate-running-process", udid, bundle], capture=True, timeout=180)
         (WORK / "runtime.log").write_text(output)
         print(output)
         # simctl can return zero even when the child traps: require every marker.
@@ -184,6 +188,7 @@ targets:
         if isinstance(output, bytes):
             output = output.decode(errors="replace")
         (WORK / "runtime.log").write_text(output + "\n" + str(error))
+        print(output, flush=True)
         diagnose(udid, since)
         raise
     finally:
