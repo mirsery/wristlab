@@ -1,0 +1,56 @@
+meta:
+  capability: workout-completion
+  change_id: 2026-10-22-adaptive-movement
+  created: "2026-10-22"
+  confidence: medium
+requirements:
+  - id: REQ-MATCH-001
+    description: "时长与暂停"
+    scenarios:
+      - id: SC-MATCH-001
+        confidence: high
+        evidence: "proposal C1–C5; design Decisions"
+        given: "有效/无效事件、duration或旧缓存的合成workout"
+        when: "转换并重建运动记录"
+        then: "SHALL仅保存可验证活跃半开区间；旧字段缺失不按elapsed补时长；暂停不多算，不支持时显示待确认"
+        and: []
+  - id: REQ-MATCH-002
+    description: "去重跨日与类型"
+    scenarios:
+      - id: SC-MATCH-002
+        confidence: high
+        evidence: "proposal C1–C5; design Decisions"
+        given: "多个来源、重复重叠、跨午夜及DST运动"
+        when: "匹配当天已采纳活动目标"
+        then: "SHALL同类型去重后对匹配活跃区间并集、按实际日裁剪；其他类型不猜匹配，不因多个来源重复计时"
+        and: []
+  - id: REQ-MATCH-003
+    description: "完成阈值和缺失"
+    scenarios:
+      - id: SC-MATCH-003
+        confidence: high
+        evidence: "proposal C1–C5; design Decisions"
+        given: "实际时长在目标前后边界或无记录"
+        when: "查看进度"
+        then: "SHALL按秒比较、显示已记录分钟和比例，不取整提前完成；无记录保持unknown，手动确认不虚构或叠加实际分钟"
+        and: []
+  - id: REQ-MATCH-004
+    description: "修订和人工冲突"
+    scenarios:
+      - id: SC-MATCH-004
+        confidence: high
+        evidence: "proposal C1–C5; design Decisions"
+        given: "已自动完成或手动确认/休息的目标"
+        when: "重复刷新、删除或修订workout"
+        then: "SHALL结果幂等且自动进度随真实记录回退并说明；人工状态和来源保留，不被自动结果覆写"
+        and: []
+  - id: REQ-MATCH-005
+    description: "迁移事务与隔离"
+    scenarios:
+      - id: SC-MATCH-005
+        confidence: high
+        evidence: "proposal C1–C5; design Decisions"
+        given: "旧健康及PlanningState缓存、演示或清除并发"
+        when: "解码/保存/重建/清除/切换来源"
+        then: "SHALL兼容缺字段并保留手动计划，revision/来源/清除generation阻止旧回写；无新健康权限，体重计划不入Watch快照"
+        and: []

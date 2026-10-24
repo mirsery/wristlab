@@ -1,0 +1,42 @@
+meta:
+  change_id: "2026-10-22-adaptive-movement"
+  title: "自动运动周计划与每日完成度"
+  created: "2026-10-22"
+  status: confirmed
+why:
+  problem: "现有计划时长由用户设定、完成靠手动，尚不能自动生成运动安排并核算实际完成。"
+  motivation: "用户在确认自动周计划和每日完成度建议后明确要求开始做、参考同类产品并按建议推进。"
+what_changes:
+  - {id: C1, type: new, description: "根据经验、活动偏好、可用日期、时间上限及近期运动基础生成可预览和采纳的周计划。"}
+  - {id: C2, type: new, description: "读取已授权workout的类型、有效运动时段和来源，去重后按分析日匹配计划，计算记录分钟和完成比例。"}
+  - {id: C3, type: modified, description: "保留手动确认、休息、替换与历史快照，自动结果可因健康记录修订更新且不重复累计。"}
+  - {id: C4, type: new, description: "周回顾提出下一周调整草案，解释规则、输入和缺失原因，由用户确认生效。"}
+  - {id: C5, type: modified, description: "减重目标和截止日期关联计划周期与进度，不反推热量缺口、不宣称每日减脂达标或保证期限。"}
+capabilities:
+  new:
+    - {name: generated-week, description: "确定性、可解释的自动周计划"}
+    - {name: workout-completion, description: "健康运动记录去重匹配和每日完成度"}
+  modified: []
+constraints:
+  - "保留所有当前本地改动和未验收Gate3；只手机功能，不要求现在连接手机。"
+  - "缺失为缺失，空健康读取不推断拒绝；无自动加量或未授权健康写入。"
+  - "生成规则是实验产品规则，不伪称竞品私有算法或医学处方；体重日期不是消耗量公式输入。"
+  - "全部健康数据仅本机，日志测试仅合成，演示不入真实存储或快照。"
+stakeholders: ["手机使用者"]
+risk_areas:
+  - {capability: generated-week, risk: "将目标期限误用成强制加量", mitigation: "体重差及期限不进入分钟公式，超出可用时间显示约束，必须预览确认"}
+  - {capability: workout-completion, risk: "暂停/重叠/跨日导致重复或虚构分钟", mitigation: "保留活跃时段和来源，半开切日、去重并集，缺少时段不估算"}
+non_goals: ["饮食热量预算", "保证减脂达标", "训练录制/动作课程", "高强度处方", "HealthKit体重导入", "Watch新功能或安装", "未经确认自动加量"]
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L2
+  reference_changes: ["2026-10-22-activity-weight-plan"]
+  anchor_implementations: ["PlanningState", "ActivityCalculator.deduplicatedWorkouts", "AnalysisClock", "HealthRepository"]
+success_criteria:
+  - "无需逐日填写时长即可得到可解释周草案，能修改、确认或保留手动模式。"
+  - "自动展示已记录分钟/计划分钟和完成来源，暂停/跨日/重复/删除修订不多算。"
+  - "无记录、旧缓存和不支持类型不补零；手动完成不虚构实际分钟，不叠加自动数据。"
+  - "下一周调整需确认，休息不补课，体重期限不触发强迫运动或达标保证。"
+  - "完成规则、迁移、事务、演示和UI测试；真机验收按用户安排延期。"

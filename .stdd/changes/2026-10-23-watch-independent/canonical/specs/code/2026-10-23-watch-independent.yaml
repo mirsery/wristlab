@@ -1,0 +1,42 @@
+# spec.yaml — 行为规格（Canonical YAML）
+
+meta:
+  capability: "watch-local-health"
+  change_id: "2026-10-23-watch-independent"
+  created: "2026-10-23T18:03:15.707724"
+  confidence: medium
+
+requirements:
+  - id: "REQ-001"
+    description: "WI-L：主动授权、独立本地仓库及同核心报告。"
+    scenarios:
+      - id: WI-L-001
+        confidence: high
+        evidence: "proposal C1及离线验收"
+        given: "手机不可达，用户主动选择手表本地"
+        when: "在Watch发起健康授权并刷新"
+        then: "SHALL 只请求五类既有只读类型，在Watch读取/计算/保存，不等待手机；空查询不判拒绝。"
+      - id: WI-L-002
+        confidence: high
+        evidence: "proposal同核心与历史不足约束"
+        given: "输入不足或合成输入与手机完全相同"
+        when: "同asOf及profile执行原引擎"
+        then: "SHALL 不改变公式/14有效日门槛；同输入结果一致，不足显示实际X/14及对应原因，不补演示。"
+      - id: WI-L-003
+        confidence: medium
+        evidence: "proposal C4配置来源"
+        given: "无本地profile或用户修改本地设置"
+        when: "连接健康前确认默认值或修改时区/睡眠目标/maxHR/训练模式"
+        then: "SHALL 显示独立设置来源；默认时区固定、8小时、maxHR未知及maintain，修改原子重算且推进epoch，不自动继承手机。"
+      - id: WI-L-004
+        confidence: medium
+        evidence: "proposal C4停止清除及迁移"
+        given: "本地读取进行中或晚到结果待提交"
+        when: "用户确认停止手表读取并清除本地数据"
+        then: "SHALL 停任务并清本地记录/anchors/报告，保留清除控制信息，不删除Apple健康或手机副本，不自动切来源；晚回调不能复活，重启仍需主动连接。"
+      - id: WI-L-005
+        confidence: high
+        evidence: "proposal持久化与演示隔离"
+        given: "查询/保存失败、相同sample删除或重复、锁屏、演示记录"
+        when: "尝试提交本地报告"
+        then: "SHALL 保留旧事务/anchor且明确失败，不让演示落真实仓库；正常去重/删除及取消遵循003，前台有界批次而不常驻后台。"

@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-activity-page-hierarchy: proposals/2026-10-22-activity-page-hierarchy.yaml
+specs:
+  agent:
+    2026-10-22-activity-page-hierarchy: specs/agent/2026-10-22-activity-page-hierarchy.yaml
+  code:
+    2026-10-22-activity-page-hierarchy: specs/code/2026-10-22-activity-page-hierarchy.yaml
+version: '2.9'

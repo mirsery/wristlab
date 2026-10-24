@@ -1,0 +1,9 @@
+# 设计调整
+
+无用户行为层面的重大偏离。评审发现冷启动已有磁盘快照但内存outgoing为空时仍可能先等健康读取，已按原设计修复：异步onPrepareSnapshot从仓库恢复真实快照，generation校验后发布，再调用Responder优先回执。
+
+为覆盖保存失败与清除后迟到数据，抽出纯WatchSnapshotDelivery；平台文件保护与原子写仍在Apps/Storage。协议与状态模型不引用Apple框架。
+
+真实WCSession回调、15秒Task竞争和端到端同步仍缺设备或可控平台适配测试，不能视作所有SC均已验收。手机本地无iCloud测试构建需用户单独批准。
+
+部署确认已获得：用户回复“暂不启用iCloud那边的能力，代码可以先做，这里先不开启iCloud 默认关闭”。按此授权，默认project.yml和实际iOS entitlement不再申请iCloud，Info开关false；源码和容器配置通过显式project-icloud.yml保留，云entitlement生成到work/Generated，不写入个人团队配置。真实生成检查true/false、独立云文件保留HealthKit/App Group、最终默认安装包无iCloud签名键均已通过。此为用户确认的默认配置调整，不清本地仓库、不卸载应用。

@@ -1,0 +1,18 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "trends-page-sections"
+  change_id: "2026-10-22-trends-page-sections"
+  created: "2026-10-22T20:30:24.298232"
+  task_type: code
+  system: "iPhone趋势SwiftUI展示与只读筛选导航状态"
+
+preconditions:
+  - "Gate1/2对话确认，保留已有未提交改动，测试只用合成数据"
+
+steps:
+  - action: "验证分区、筛选隔离、无健康本地操作、来源失效与可访问性"
+    verify: "纯状态测试、Apple编译和实际交互分别记录；不以编译替代UI验收"
+
+expected_outcomes:
+  - "三个主题原能力可达，周期不串用，不更改算法/存储协议"

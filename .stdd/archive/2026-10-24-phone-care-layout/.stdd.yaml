@@ -1,0 +1,37 @@
+change_id: 2026-10-24-phone-care-layout
+complexity_score: null
+current_phase: spec
+design_adjustments:
+  count: 0
+last_modified: '2026-10-24T13:22:52.728906'
+mode: standard
+phases:
+  build:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T16:55:53'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示验收报告：PCL-001-004 模拟器UI与截图核对、256项Swift与双端构建通过、2406同包覆盖iPhone；用户真机反馈：手机布局也好了。未验项VoiceOver/Home键机型/iOS17-26已披露。用户回答：确认验收并归档。
+    status: completed
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T16:24:34'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示根因(LazyVGrid默认垂直居中;今天页隐藏导航栏无状态栏背板)、PCL-001-004规格与测试计划、2406同包覆盖不清数据不开iCloud。用户选择：等高双列(Recommended)、同色不透明背板(Recommended)；Gate
+      2 回答：确认，开始实现。
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T13:22:52'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示范围：修正不同高度指标卡错位、核查顶部状态栏与底部页签遮挡，保留完整缺数原因/详情；补模拟器回归后覆盖安装，不改评分权限数据iCloud。用户明确回答：确认，修复手机布局
+    status: completed
+score_confidence: null
+status: archived
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

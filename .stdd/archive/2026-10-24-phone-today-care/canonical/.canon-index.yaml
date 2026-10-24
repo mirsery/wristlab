@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-24-phone-today-care: proposals/2026-10-24-phone-today-care.yaml
+specs:
+  agent:
+    2026-10-24-phone-today-care: specs/agent/2026-10-24-phone-today-care.yaml
+  code:
+    2026-10-24-phone-today-care: specs/code/2026-10-24-phone-today-care.yaml
+version: '2.9'

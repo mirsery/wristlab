@@ -1,0 +1,42 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "phone-today-care"
+  change_id: "2026-10-24-phone-today-care"
+  created: "2026-10-24T11:42:46.074063"
+  task_type: code
+  system: "Wristlab 手机今天页与指标详情，仅本地合成测试及模拟器"
+
+preconditions:
+  - "实际 Gate 2 确认后才进入 Build；保留其他本地改动，不更新稳定真机。"
+  - "仅用合成数据；iCloud 默认关闭，不新增权限/通知或网络服务。"
+
+steps:
+  - id: CP-1
+    description: "PTC-001 状态边界与情境"
+    action: "执行手机关怀纯展示测试，覆盖分段边界、四舍五入、activity、HR-only 和 partial。"
+    verify: "检查展示标题、图标与说明，不改变估算输入或公式。"
+  - id: CP-2
+    description: "PTC-002 电量零与缺失"
+    action: "测试有效电量 0/1/50/100 和缺失，检查实际卡片的辅助功能元素。"
+    verify: "0 是有效空填充，nil 无填充；首页无分数或百分比朗读。"
+  - id: CP-3
+    description: "PTC-003 异常数据原因"
+    action: "测试无报告、校准、缺 HR/HRV/RHR/主睡眠、低覆盖、重校准、失败及不支持。"
+    verify: "具体原因来自 MetricExplanation；无正常等级或 Watch 等待同步文案。"
+  - id: CP-4
+    description: "PTC-004 显式时钟与原有效期"
+    action: "测试有效期前/等于/超过、未来观测、超过 60 分钟但仍有效的手机准备度；模拟器检查前台状态更新。"
+    verify: "严格遵守原指标时限，展示刷新不触发健康读取，不改变演示时钟。"
+  - id: CP-5
+    description: "PTC-005 生产卡片到生产详情"
+    action: "隔离宿主使用生产关怀组件与 MetricDetailView，实际点击三入口，检查有效数值 0、原因、贡献、来源与两类时间。"
+    verify: "健康/同步依赖替换为合成适配器，详情不是测试重写副本；不将宿主测试称为完整 App 或 HealthKit 实机验收。"
+  - id: CP-6
+    description: "PTC-006 布局及完整回归"
+    action: "运行 scripts/check.sh、scripts/build-apple.sh；模拟器检查窄屏/最大辅助字体/长原因及完整 App 今天页。"
+    verify: "记录通过/失败、截图和未验项；辅助功能树断言不等于完整 VoiceOver 手势真机验收。"
+
+expected_outcomes:
+  - "六场景有对应 TC、RED/GREEN 与生产实现证据；实际报告提交 Gate 3 用户验收。"
+  - "不覆盖稳定手机 2404/手表 2402，不清数据、不提交推送。"

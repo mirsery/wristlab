@@ -1,0 +1,39 @@
+change_id: 2026-10-24-phone-today-care
+product_scope_changed: false
+items:
+  - id: PTC-A1
+    severity: minor
+    original: "前台 30 秒展示计时，真实 now，演示冻结 asOf。"
+    actual: "TimelineView 只作触发器，每次直接读取 Date，不使用旧时间下限。"
+    reason: "避免系统时间回拨时仍显示未来观测。"
+  - id: PTC-A2
+    severity: minor
+    original: "保留生产详情与时间依据。"
+    actual: "生产详情平移为独立文件，两类时间使用报告时区，缺失来源不伪造。"
+    reason: "隔离 UI 宿主直接复用生产视图并验证两类时间。"
+  - id: PTC-A3
+    severity: minor
+    original: "卡片有无障碍详情入口，无隐藏评分。"
+    actual: "忽略子元素后显式保留 isButton 语义。"
+    reason: "实际 UI 测试暴露原链接按钮语义丢失。"
+  - id: PTC-A4
+    severity: minor
+    original: "覆盖有效期及详情依据回归。"
+    actual: "不同合成时间、明确贡献、就绪后显式启动合成期限，并补贡献正反回归。"
+    reason: "避免启动耗时、相同输入值和 List 虚拟化造成假失败或假绿。"
+  - id: PTC-A5
+    severity: minor
+    original: "保留原生导航返回。"
+    actual: "UI 测试首选返回按钮，未暴露时使用原生侧滑。"
+    reason: "测试环境的导航按钮查询差异；不修改产品路由。"
+  - id: PTC-A6
+    severity: minor
+    original: "仅模拟器测试，不更新稳定真机。"
+    actual: "按模拟器类型筛选，允许明确模拟器 ID；正式 App 冒烟使用新建隔离 mini。"
+    reason: "自定义模拟器名称和运行时兼容性；脚本不安装/卸载正式 App。"
+  - id: PTC-A7
+    severity: minor
+    original: "真实后台返回后重新检查显示时效。"
+    actual: "测试激活系统设置，明确断言宿主后台/返回前台；保留原 TimelineView 产品代码。"
+    reason: "Home 未触发真实后台导致无效前置条件。暂停后获用户授权仅恢复排查，聚焦与完整回归均已通过。"
+    limits: "不独立证明期限恰在后台跨过，不证明系统后台调度或真机时效。"

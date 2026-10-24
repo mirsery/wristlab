@@ -1,0 +1,35 @@
+# 2026-10-23-watch-refresh-handshake.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-23-watch-refresh-handshake"
+  title: "Watch 首次同步与刷新回执排障"
+  created: "2026-10-23T15:55:41.437133"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    实体Watch被系统识别，但没有快照。请求刷新后显示已请求手机刷新；该状态在发送前赋值，不能证明手机收到或完成处理。根因尚待验证。
+
+what_changes:
+  - description: "建立不含健康值的请求回执与快照接收诊断闭环，区分不可达、等待回执、刷新失败和无快照。"
+  - description: "依据复现修复首次同步或刷新响应，保留缓存、清除标记、演示隔离及旧协议兼容。"
+
+capabilities:
+  new:
+    - name: "refresh-diagnostics"
+      description: "手机处理结果与手表实际收到快照分别确认。"
+  modified:
+    - name: "watch-sync"
+      description: "H-007 双端同步及首次快照交付。"
+
+constraints:
+  - "不清数据、不记录健康数值、不改变评分。"
+  - "保留iCloud实现；Personal Team签名受限，手机更新方案需单独确认，不静默覆盖现有手机。"
+non_goals:
+  - "新云能力、手表独立健康读取或固定后台刷新。"
+
+success_criteria:
+  - "失败与无快照原因可区分，不把发送请求当成同步成功。"
+  - "手机已有真实快照时，真机手表主动刷新可展示同revision；断连不伪造数据。"

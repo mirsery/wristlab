@@ -1,0 +1,54 @@
+meta:
+  capability: phone-health-connection
+  change_id: 2026-10-24-phone-health-connection
+  created: '2026-10-24'
+  confidence: high
+requirements:
+  - id: PHC-REQ-001
+    confidence: high
+    description: 手机健康连接有阶段反馈，读取单任务生命周期与数据保护一致。
+    scenarios:
+      - id: PHC-001
+        confidence: high
+        evidence: proposal C1 and isolated production controller RED
+        given: 缓存可用而系统授权尚未返回
+        when: 用户点击连接并重复发起连接
+        then: SHALL在等待期间给出可见阶段和忙碌反馈，仅发起一次授权；授权完成再读取，不声称已获全部权限。
+        and:
+          - 设置弹层内的连接按钮必须就近显示实时状态与忙碌反馈，不依赖被遮住的首页或设置页最底部；忙碌期间禁用连接和刷新。
+      - id: PHC-002
+        confidence: high
+        evidence: proposal C2 and isolated cancelled-caller RED
+        given: 页面调用刷新且调用任务取消
+        when: 模型正在处理共享读取
+        then: SHALL不因调用页面取消而丢失共享读取，正常完成或明确报告真实失败，保留适配器取消检查。
+      - id: PHC-003
+        confidence: medium
+        evidence: proposal C2 and MainActor await boundaries
+        given: 启动前台观察或手动请求并发到达
+        when: 当前授权或读取跨越await
+        then: SHALL互斥在第一个仓库await前建立，只保留一个查询；连接强制读取不丢失，观察事件至多合并一次后续刷新，不无限失败重试。
+      - id: PHC-004
+        confidence: medium
+        evidence: proposal C1 and cache protection boundary
+        given: 本地仓库打开失败或原文件暂不可读
+        when: 用户点击连接或解锁后再次重试
+        then: SHALL明确提示并重试打开原路径，不静默返回、不删除或覆盖失败文件，恢复后可连接。
+      - id: PHC-005
+        confidence: high
+        evidence: proposal constraints and existing generation revision protection
+        given: 合成读取挂起时用户明确停止或清除
+        when: 旧任务随后回调或普通请求到达
+        then: SHALL取消旧任务并拒绝旧结果，停止后的读取不自动重启；测试只操作临时合成缓存。
+      - id: PHC-006
+        confidence: high
+        evidence: proposal C1 and specs 003 authorization policy
+        given: 授权请求失败、读取失败或可读样本为空
+        when: 本次工作结束并再次主动重试
+        then: SHALL释放忙碌状态、保留失败前报告/anchor及手动计划，空结果给出中性提示而非拒绝授权；下次连接仍可执行。
+      - id: PHC-007
+        confidence: medium
+        evidence: proposal C3 and explicit device acceptance boundary
+        given: 自动检查通过且保持原权限、数据和默认无云
+        when: 手机同包覆盖2403及后续修复版后实际从设置或首页点击连接与刷新
+        then: SHALL核对实际版本及可见阶段，再由设备/用户确认最终状态，不以安装或合成通过宣称健康可读或手表更新成功。

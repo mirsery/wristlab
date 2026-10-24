@@ -1,0 +1,36 @@
+# 2026-10-22-icloud-data-center.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-22-icloud-data-center"
+  title: "iCloud与数据中心：账户状态及界面偏好换机恢复"
+  created: "2026-10-22T20:55:45.920969"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    用户希望我的页跟随当前iCloud账户并支持换机。当前应用仅本地存储，健康缓存排除备份。按已展示建议，先建设账户/同步状态与严格白名单的非健康界面偏好同步，不把健康数据库直接上传；体重、健康报告和个性化健康目标迁移另行界定。
+
+what_changes:
+  - description: "我的页增加iCloud与数据中心，显示当前系统账户可用性、独立同步状态、恢复及本地/云端删除边界。"
+  - description: "CloudKit私有数据库仅同步趋势主题、健康图表指标选择及健康/运动图表7或30日选择；默认关闭，主动开启前说明范围。"
+  - description: "换机首次启用先检查云端，恢复或本机上传须明确选择；账户切换隔离，冲突不静默覆盖，演示不上传。"
+
+capabilities:
+  new:
+    - name: "icloud-data-center"
+      description: "账户、白名单界面偏好同步和恢复状态，不传健康数据。"
+  modified: []
+
+success_criteria:
+  - "未登录、受限、离线、配置缺失和可用状态可区分；不显示虚构Apple ID邮箱或将可用等同同步成功。"
+  - "上传载荷严格白名单，无体重/目标/运动记录/评分/原始健康/身份信息或整库JSON。"
+  - "首次启用/换机不以默认值覆盖云端，切账户及晚到任务不能跨账户回写，冲突需用户选择。"
+  - "关闭同步、清本机和删云端分别有明确定义；真实两设备恢复与UI验收独立记录。"
+constraints:
+  - "需更新PRIVACY、spec与原本地优先承诺，联网同步独立选择；日志/测试只有合成数据，账号标识不记录。"
+  - "只iPhone接CloudKit；不加注册登录、后端、AI、依赖或HealthKit写权限，Watch不安装。"
+non_goals:
+  - "首版不实现手动体重/个性化目标/执行历史的云迁移；不承诺完整健康数据换机恢复。"
+  - "不伪造iCloud姓名邮箱头像，不承诺固定后台或实时刷新。"

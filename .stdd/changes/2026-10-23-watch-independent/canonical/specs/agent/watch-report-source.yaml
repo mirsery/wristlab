@@ -1,0 +1,21 @@
+meta:
+  task_id: watch-report-source
+  change_id: 2026-10-23-watch-independent
+  task_type: code
+  system: Watch UI / App Group / Widget
+  preconditions: ["Gate 2用户确认，仅合成数据"]
+steps:
+  - id: CP-SOURCE-1
+    description: "WI-S-001至005来源选择、原子投影、清除和迁移"
+    action: "scripts/check.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-SOURCE-2
+    description: "组件注册与平台接口"
+    action: "scripts/build-apple.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+rollback:
+  steps: ["失败保留既有缓存；回退或重装需用户确认，不自动卸载。"]

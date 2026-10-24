@@ -1,0 +1,46 @@
+meta:
+  change_id: 2026-10-24-watch-activity-calendar-crash
+  title: Watch活动摘要日期契约闪退修复
+  created: '2026-10-24T03:07:54+08:00'
+  status: confirmed
+why:
+  problem: 用户真机2401版Watch闪退，目标进程复现NSInvalidArgumentException：Date components require a calendar。当前活动摘要参数只有era/year/month/day，未携calendar。
+  motivation: 修复已启用活动在启动/前台刷新时反复退出，不以删除缓存或卸载掩盖。
+what_changes:
+  - id: C1
+    type: modified
+    description: 提取生产活动摘要日期构造并明确携Gregorian calendar与系统时区，保持原系统日归属。
+  - id: C2
+    type: modified
+    description: 生产适配器参数通过真实HealthKit谓词构造回归，包含近午夜/纽约DST合成日期；同包2402复验。
+capabilities:
+  new: []
+  modified:
+    - name: watch-daily-activity
+      description: 修复WDA活动摘要日期契约，不改读取类型/写权限/系统日/评分或存储。
+impact:
+  code: [Apps/watchOS/DailyActivityReader.swift, scripts/test-widget-registration.py]
+  config: [本地签名构建版本2402，不提交团队设置]
+  infrastructure: [无云或服务变更]
+constraints:
+  - 不卸载、不清本地数据、不扩大权限、不开启iCloud、不提交推送。
+  - 仅保留异常元数据，测试仅用合成日期，无健康记录导出。
+stakeholders: [本机iPhone和Apple Watch用户]
+risk_areas:
+  - capability: watch-daily-activity
+    risk: 纯模型/演示测试绕过Apple谓词前置条件。
+    mitigation: 生产日期构造直接进入HealthKit谓词，旧参数必须重现同一异常，修后无授权无数据地验证。
+non_goals:
+  - 本轮不改变手机评分和健康读取；手机“刷新已取消”先独立诊断，不假定授权拒绝。
+  - 不把安装或启动回执当稳定运行和真实活动读取通过。
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L3
+  reference_changes: [2026-10-23-watch-daily-care]
+  anchor_implementations: [DailyActivityReader, AnalysisClock]
+success_criteria:
+  - 真实HealthKit谓词在原日期参数下RED复现同一calendar异常。
+  - 修后生产日期构造在UTC/上海/纽约及DST与近午夜合成输入下构造谓词成功，日期归属不变。
+  - 全部回归与Apple构建通过；真机同包更新后单独验证不再同因闪退，用户反馈与未验项分开记录。

@@ -1,0 +1,30 @@
+change_id: 2026-10-23-integrated-weekly-review
+complexity_score: 7
+current_phase: spec
+design_adjustments:
+  count: 0
+mode: standard
+phases:
+  build:
+    status: pending
+  deliver:
+    status: pending
+  spec:
+    status: in_progress
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T23:18:09'
+    confirmed_by: dialog
+    confirmed_evidence: 已向用户展示综合周报范围：今天页一张摘要卡、趋势二级详情、不增加一级Tab；本周睡眠/运动执行/体重周均与完整度，缺失不补值、不预测减重日期，计划调整需确认。询问按此范围进入设计，用户回复：可以。本次只批准范围，不视为Gate2或Build授权。
+    status: completed
+score_confidence: preliminary
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 10
+  tc_cases: 10
+  test_functions: 0
+version: '3.0'
+long_range:
+  enabled: false
+  mode: normal

@@ -1,0 +1,28 @@
+meta:
+  capability: watch-daily-activity
+  change_id: 2026-10-24-watch-activity-calendar-crash
+  created: '2026-10-24T03:07:54+08:00'
+  confidence: high
+requirements:
+  - id: ACAL-REQ-001
+    confidence: high
+    description: 活动摘要查询满足平台日历契约且保持系统日。
+    scenarios:
+      - id: ACAL-001
+        confidence: high
+        evidence: proposal C1/C2 and device exception metadata
+        given: 生产适配器构造当天活动摘要日期
+        when: 将日期传给真实HKQuery活动摘要谓词
+        then: SHALL显式携带Gregorian calendar和同一系统时区、era/year/month/day，谓词构造无NSException且不请求授权或读取健康记录。
+      - id: ACAL-002
+        confidence: high
+        evidence: proposal C1 and original WDA-004
+        given: UTC、上海、纽约的近午夜和23/25小时DST合成时刻
+        when: 构造活动摘要日期和谓词
+        then: SHALL日期字段与对应AnalysisClock完全一致，不用UTC日或评分日替代系统日。
+      - id: ACAL-003
+        confidence: medium
+        evidence: proposal constraints and original WDA-005
+        given: 用户原活动连接和缓存保留且前台读取会触发摘要
+        when: 同包覆盖2402后普通启动并刷新
+        then: SHALL不再因缺少calendar终止进程，保留原数据和连接选择、不清缓存或改权限；真实运行及活动结果须由设备或用户反馈确认。

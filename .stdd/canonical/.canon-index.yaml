@@ -1,0 +1,26 @@
+designs: {}
+proposals:
+  2026-10-24-watch-refresh-exit: proposals/2026-10-24-watch-refresh-exit.yaml
+  2026-10-24-phone-care-layout: proposals/2026-10-24-phone-care-layout.yaml
+  2026-10-24-phone-today-care: proposals/2026-10-24-phone-today-care.yaml
+  2026-10-24-watch-activity-calendar-crash: proposals/2026-10-24-watch-activity-calendar-crash.yaml
+  2026-10-24-phone-health-connection: proposals/2026-10-24-phone-health-connection.yaml
+  2026-10-23-watch-daily-care: proposals/2026-10-23-watch-daily-care.yaml
+specs:
+  agent:
+    2026-10-24-watch-refresh-exit: specs/agent/2026-10-24-watch-refresh-exit.yaml
+    2026-10-24-phone-care-layout: specs/agent/2026-10-24-phone-care-layout.yaml
+    2026-10-24-phone-today-care: specs/agent/2026-10-24-phone-today-care.yaml
+    2026-10-24-watch-activity-calendar-crash: specs/agent/2026-10-24-watch-activity-calendar-crash.yaml
+    2026-10-24-phone-health-connection: specs/agent/2026-10-24-phone-health-connection.yaml
+    2026-10-23-watch-daily-care: specs/agent/2026-10-23-watch-daily-care.yaml
+  code:
+    2026-10-24-watch-refresh-exit: specs/code/2026-10-24-watch-refresh-exit.yaml
+    2026-10-24-phone-care-layout: specs/code/2026-10-24-phone-care-layout.yaml
+    2026-10-24-phone-today-care: specs/code/2026-10-24-phone-today-care.yaml
+    2026-10-24-watch-activity-calendar-crash: specs/code/2026-10-24-watch-activity-calendar-crash.yaml
+    2026-10-24-phone-health-connection: specs/code/2026-10-24-phone-health-connection.yaml
+    2026-10-23-watch-daily-care: specs/code/2026-10-23-watch-daily-care.yaml
+    watch-daily-activity: specs/code/watch-daily-activity.yaml
+    watch-care-state: specs/code/watch-care-state.yaml
+version: '2.9'

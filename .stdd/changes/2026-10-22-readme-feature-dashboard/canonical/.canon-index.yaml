@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-readme-feature-dashboard: proposals/2026-10-22-readme-feature-dashboard.yaml
+specs:
+  agent:
+    2026-10-22-readme-feature-dashboard: specs/agent/2026-10-22-readme-feature-dashboard.yaml
+  code:
+    2026-10-22-readme-feature-dashboard: specs/code/2026-10-22-readme-feature-dashboard.yaml
+version: '2.9'

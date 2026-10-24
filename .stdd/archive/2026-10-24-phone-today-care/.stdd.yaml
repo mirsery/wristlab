@@ -1,0 +1,63 @@
+change_id: 2026-10-24-phone-today-care
+complexity_score: 6
+current_phase: deliver
+design_adjustments:
+  count: 7
+last_modified: '2026-10-24T13:08:01+08:00'
+long_range:
+  confirmed_by: dialog
+  confirmed_evidence: 用户对本轮长程预授权清单回答：确认本轮预授权，连续推进。范围见 long-range-auth.md；不操作真机，重大偏离暂停，Gate
+    3 仍须用户验收。
+  degradation_reason: 前后台 UI 用例连续修复/切换环境仍未完成验证，触发本轮重试及通过率阈值；暂停自动修复，等待用户决定。Home 后 App
+    实际仍为 runningForeground，不据此判定生产时钟故障。
+  degraded_at: '2026-10-24T12:37:26+08:00'
+  enabled: false
+  mode: normal
+  pre_auth_completed: true
+  pre_auth_timestamp: '2026-10-24T12:00:18+08:00'
+  resume_evidence: 用户明确回答：继续排查模拟器测试环境（推荐）。按普通模式继续，仅排查前后台测试驱动并补回归；不扩大功能、不操作真机、不改评分/权限/iCloud。
+mode: standard
+phases:
+  build:
+    awaiting_gate3: false
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T13:05:30'
+    confirmed_by: dialog
+    confirmed_evidence: 已向用户披露：PTC-001–006代码/模拟器完成，254项Swift、15项模拟器UI、双端构建和组件探针通过；前后台修复仅测试驱动，七项小偏差与STDD自动Swift追溯限制已记录。真实健康、真机、完整VoiceOver、系统后台调度和性能未验；不操作真机、不清数据、不提交推送，iCloud关闭。用户明确回答：确认本轮代码与模拟器验收，并本地归档
+    slices_completed:
+      '1':
+        new_tests: 9
+        status: done
+        tc_coverage: 4/4
+        verified_at: '2026-10-24T12:13:01+08:00'
+      '2':
+        new_tests: 11
+        status: done
+        tc_coverage: 4/4
+        verified_at: '2026-10-24T13:01:08+08:00'
+    status: completed
+    validation_complete: true
+  deliver:
+    status: completed
+    completed_at: '2026-10-24T13:08:01+08:00'
+    scope: local_archive_only
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T11:57:28'
+    confirmed_by: dialog
+    confirmed_evidence: 已向用户展示具体设计与测试方案：原位三卡、图标状态、activity与HR-only说明、连续电量不分档、首页不显示或朗读评分、异常原因明确、详情数值依据及两类时间、保留评分有效期、六场景与大字体导航模拟器验证、不更新稳定真机、不增权限、iCloud关闭。用户回答：确认设计与测试方案
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T11:45:58'
+    confirmed_by: dialog
+    confirmed_evidence: 已向用户展示手机今日关怀范围：原位改造首页图标与状态短句，数值依据时间留详情，电量不新增分档，缺数校准过期说明；不推算心情、不改评分、不增权限通知iCloud，只做本地代码回归模拟器、不覆盖稳定真机。用户回答：确认，先做手机今日关怀
+    status: completed
+score_confidence: preliminary
+status: archived
+task_type: code
+traceability:
+  spec_scenarios: 6
+  tc_cases: 6
+  test_functions: 20
+version: '3.0'

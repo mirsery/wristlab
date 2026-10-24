@@ -1,0 +1,18 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "activity-page-hierarchy"
+  change_id: "2026-10-22-activity-page-hierarchy"
+  created: "2026-10-22T20:08:32.772948"
+  task_type: code
+  system: "Wristlab iPhone SwiftUI活动展示，不改算法或持久化"
+
+preconditions:
+  - "Gate1/2已获对话确认，保留现有未提交改动，使用合成测试数据"
+
+steps:
+  - action: "验证日期模式投影和活动层级，再运行模型与Apple检查"
+    verify: "独立记录Core测试、Apple构建和实际交互，未验证不标通过"
+
+expected_outcomes:
+  - "今日安排优先，管理与详情完整可达，数据边界不变"
