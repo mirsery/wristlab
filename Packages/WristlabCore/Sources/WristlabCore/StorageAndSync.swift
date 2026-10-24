@@ -82,6 +82,7 @@ public struct RepositoryState: Codable, Sendable {
     public var sequence = 0
     public var readingEnabled = false
     public var report: HealthReport?
+    public var planning: PlanningState?
     public var snapshot: DisplaySnapshot?
     public init(profile: HealthProfile) { self.profile = profile }
 }
@@ -93,6 +94,7 @@ public actor HealthRepository {
         if FileManager.default.fileExists(atPath: file.path) {
             state = try JSONDecoder().decode(RepositoryState.self, from: Data(contentsOf: file))
             try state.profile.validate(); try state.snapshot?.validate()
+            try state.planning?.validate(asOf: Date())
         } else { try profile.validate(); state = RepositoryState(profile: profile) }
     }
     public func current() -> RepositoryState { state }
@@ -150,9 +152,18 @@ public actor HealthRepository {
         next.snapshot = DisplaySnapshot(report: next.report!, producerID: next.producerID, epoch: next.epoch, sequence: 0)
         try commit(next); return next
     }
+    public func savePlanning(_ planning: PlanningState, asOf: Date, expectedRevision: Int) throws -> RepositoryState {
+        guard expectedRevision == state.revision else { throw DomainError.staleRevision }
+        try planning.validate(asOf: asOf)
+        var next = state
+        next.planning = planning
+        next.revision += 1
+        try commit(next)
+        return next
+    }
     public func clear(stopReading: Bool, asOf: Date) throws -> RepositoryState {
         var next = state; next.epoch += 1; next.sequence = 0; next.revision += 1
-        if stopReading { next.records = []; next.anchors = [:]; next.queryStart = nil; next.readingEnabled = false }
+        if stopReading { next.records = []; next.anchors = [:]; next.queryStart = nil; next.readingEnabled = false; next.planning = nil }
         next.report = nil
         let empty = try HealthEngine.evaluate(records: [], profile: next.profile, asOf: asOf, inputRevision: next.revision)
         var tombstone = DisplaySnapshot(report: empty, producerID: next.producerID, epoch: next.epoch, sequence: 0)
