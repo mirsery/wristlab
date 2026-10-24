@@ -489,7 +489,8 @@ struct PhoneDashboardView: View {
                 ForEach(Array(series.days.enumerated()), id: \.offset) { index, day in
                     if let value = day.value {
                         if isLine {
-                            LineMark(x: .value("日期", labels[index]), y: .value(trend.title, value), series: .value("连续段", "s\(series.days[..<index].filter { $0.value == nil }.count)"))
+                            let segment: String = "s\(series.days[..<index].filter { $0.value == nil }.count)"
+                            LineMark(x: .value("日期", labels[index]), y: .value(trend.title, value), series: .value("连续段", segment))
                                 .foregroundStyle(wristMint)
                             PointMark(x: .value("日期", labels[index]), y: .value(trend.title, value)).symbolSize(trendLength == 7 ? 30 : 12).foregroundStyle(wristMint)
                         } else {

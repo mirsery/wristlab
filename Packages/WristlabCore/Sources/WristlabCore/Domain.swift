@@ -160,10 +160,16 @@ public enum RecordNormalizer {
             .sorted { $0.end == $1.end ? $0.id < $1.id : $0.end < $1.end }
     }
     static func fingerprint(_ r: HealthRecord) -> String {
-        [r.kind.rawValue, r.source.group, r.source.device, String(r.start.timeIntervalSince1970),
-         String(r.end.timeIntervalSince1970), r.value.map(String.init(describing:)) ?? "", r.stage?.rawValue ?? "", r.workoutType ?? "",
-         r.workoutDurationSeconds.map(String.init(describing:)) ?? "",
-         r.workoutActiveIntervals.map { $0.map { "\($0.start.timeIntervalSince1970):\($0.end.timeIntervalSince1970)" }.joined(separator: ",") } ?? ""].joined(separator: "|")
+        // Typed pieces keep older Swift type checkers (CI Xcode 16.4) within their time limit.
+        let value: String = r.value.map { String(describing: $0) } ?? ""
+        let duration: String = r.workoutDurationSeconds.map { String(describing: $0) } ?? ""
+        let intervals: String = r.workoutActiveIntervals.map { list in
+            list.map { "\($0.start.timeIntervalSince1970):\($0.end.timeIntervalSince1970)" }.joined(separator: ",")
+        } ?? ""
+        let parts: [String] = [r.kind.rawValue, r.source.group, r.source.device, String(r.start.timeIntervalSince1970),
+                               String(r.end.timeIntervalSince1970), value, r.stage?.rawValue ?? "", r.workoutType ?? "",
+                               duration, intervals]
+        return parts.joined(separator: "|")
     }
     public static func selected(_ records: [HealthRecord], kind: HealthKind, profile: HealthProfile,
                                 sourceWindow: DateInterval? = nil) -> [HealthRecord] {
