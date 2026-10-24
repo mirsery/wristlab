@@ -1,0 +1,55 @@
+meta:
+  capability: watch-daily-activity
+  change_id: 2026-10-23-watch-daily-care
+  created: '2026-10-23'
+  confidence: medium
+requirements:
+  - id: REQ-WDA-001
+    description: "新增读取须主动且与评分分离。"
+    scenarios:
+      - id: WDA-001
+        confidence: high
+        evidence: "proposal C2与只读约束；design Decision 3"
+        given: "旧安装未启用日常活动，评分或手机同步可能已连接"
+        when: "启动/切页，或用户点连接日常活动"
+        then: "SHALL主动操作前不请求新增权限或读取；操作后只申请stepCount/activitySummary只读，两项独立可用，不请求写权限或运动会话。"
+        and:
+          - "SHALL授权完成不推断可读，空结果不判拒绝；不修改五类评分读取及手机协议。"
+      - id: WDA-002
+        confidence: high
+        evidence: "proposal C2及缺失约束；design Decision 3"
+        given: "HealthKit统计结果有有限非负步数0、nil或非法值，多来源可能重叠"
+        when: "读取当天及前6系统日并生成事实/柱图"
+        then: "SHALL使用累计统计结果而不自行累加跨来源样本或手机+手表总数；有效0保留、nil/非法为未知，七日缺口不补。"
+        and:
+          - "SHALL不造步数目标或保证与其他设备同刻一致，标读取时间/本机可读汇总。"
+  - id: REQ-WDA-002
+    description: "忠实于系统活动模式、目标和日期。"
+    scenarios:
+      - id: WDA-003
+        confidence: high
+        evidence: "proposal C2风险缓解；HKActivitySummary.h；design Decision 3"
+        given: "Move为能量/时间模式，目标有效/nil/0，值超目标或系统暂停"
+        when: "展示三环与活动分钟"
+        then: "SHALL按真实模式/单位/可空目标呈现，目标未知不画完成比例或补默认值；超目标保留实际数，暂停不判失败或催补。"
+        and:
+          - "SHALL只有返回的可用0作0，模式未知单项不可用，旧系统无暂停信息不猜暂停；Exercise分钟不等同全部运动时长。"
+      - id: WDA-004
+        confidence: medium
+        evidence: "proposal C2风险；specs/003时间规则；design Decision 3"
+        given: "系统时区与固定分析时区不同、跨午夜或23/25小时日"
+        when: "加载/恢复前台或切换系统时区"
+        then: "SHALL活动按手表系统日、压力按固定分析日分别标注；日历取样不按固定秒分日，旧当日失效后重新读取，不把昨日当今天。"
+        and:
+          - "SHALL不借活动事实改变评分时区或合成身心评分。"
+  - id: REQ-WDA-003
+    description: "有限刷新、失败与取消不误报。"
+    scenarios:
+      - id: WDA-005
+        confidence: high
+        evidence: "proposal C2约束；WI-L-005；design Decision 3/6"
+        given: "启用活动且旧缓存存在，出现单项失败/超时/取消/并发刷新或停止"
+        when: "前台/手动刷新完成或晚到回调返回"
+        then: "SHALL合并有限查询，失败保留对应旧事实并显示原时间与失败，超过60分钟/未来/跨日不作当前或祝贺，取消/停止后晚回不能复活。"
+        and:
+          - "SHALL不启动常驻/后台观察/固定周期承诺，错误终态不一直显示正在读取。"

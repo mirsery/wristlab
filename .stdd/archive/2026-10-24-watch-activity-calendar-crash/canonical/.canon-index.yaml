@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-24-watch-activity-calendar-crash: proposals/2026-10-24-watch-activity-calendar-crash.yaml
+specs:
+  agent:
+    2026-10-24-watch-activity-calendar-crash: specs/agent/2026-10-24-watch-activity-calendar-crash.yaml
+  code:
+    2026-10-24-watch-activity-calendar-crash: specs/code/2026-10-24-watch-activity-calendar-crash.yaml
+version: '2.9'

@@ -1,0 +1,29 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "watch-independent"
+  change_id: "2026-10-23-watch-independent"
+  created: "2026-10-23T18:03:15.707724"
+  task_type: code
+  system: "watch-local-health / watch-report-source"
+
+preconditions:
+  - "Gate 2用户确认；仅合成测试数据；真机HealthKit用户主动授权。"
+
+steps:
+  - id: CP-1
+    description: "WI-L-001至005 / WI-S-001至005模型、事务、投影与可控适配测试"
+    action: "scripts/check.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-2
+    description: "双端构建、组件注册及SDK可用性"
+    action: "scripts/build-apple.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+expected_outcomes:
+  - "真机断开手机授权/刷新、实际历史覆盖、重连、重启、两分区清除分别记录，不以编译替代。"
+  - "实际硬件内存/耗时检查和API限制如实报告；未执行项标明，不对缺数据放宽门槛。"

@@ -1,0 +1,21 @@
+adjustments:
+  - id: PTC-A1
+    severity: minor
+    reason: "代码评审发现 max(context.date, resumedAt) 会阻止墙钟回拨后的真实未来观测判定。"
+    resolution: "TimelineView 仅作 30 秒触发器，每次读真实 Date；恢复前台重置周期起点，演示仍固定 asOf。补显式时钟回拨回归。"
+    behavior_change: false
+  - id: PTC-A2
+    severity: minor
+    reason: "测试评审发现原 UI 时间只断言存在，且两个合成时间相同；没有验证已打开详情跨过期。"
+    resolution: "合成时间区分 120/90 分钟前，测试校验各自值、有效贡献及过期移除；增加已打开详情过期与前台恢复。"
+    behavior_change: false
+  - id: PTC-A3
+    severity: minor
+    reason: "导航链接忽略子元素后丢失按钮语义，导致 UI 查找失败。"
+    resolution: "显式添加 isButton 语义；聚焦评分隐藏用例已通过。先前并发探针造成一次运行器中断，后续全部串行运行。"
+    behavior_change: false
+  - id: PTC-A4
+    severity: minor
+    reason: "原详情格式未显式使用报告分析时区，无法稳定核对两类时间。"
+    resolution: "详情按报告时区和中文年月日时分秒格式显示；测试使用相同格式核对各自合成输入，不更改时间归属。"
+    behavior_change: false

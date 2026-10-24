@@ -1,0 +1,29 @@
+meta:
+  task_id: integrated-weekly-review
+  change_id: 2026-10-23-integrated-weekly-review
+  task_type: code
+  system: WristlabCore纯周报投影与iPhone SwiftUI二级展示
+  preconditions:
+    - Gate 2实际确认后才实施；仅合成数据，保留无关本地修改，继续暂缓真机。
+steps:
+  - id: CP-IWR-1
+    description: IWR-001至008时间/数值/执行/隔离自动化验证，测试名带对应TC后缀。
+    action: ./scripts/check.sh
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-IWR-2
+    description: IWR-009/010双端编译及组件回归，不冒充交互或真机验证。
+    action: ./scripts/build-apple.sh
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-IWR-3
+    description: Diff空白与范围核查，不新增权限/存储/Watch协议/云开启。
+    action: git diff --check
+    assertions:
+      - type: exit_code
+        expected: 0
+rollback:
+  steps:
+    - 人工确认后仅撤销本change投影和入口，不卸载或清数据，不回退其他本地修改。

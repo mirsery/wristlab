@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-trends-page-sections: proposals/2026-10-22-trends-page-sections.yaml
+specs:
+  agent:
+    2026-10-22-trends-page-sections: specs/agent/2026-10-22-trends-page-sections.yaml
+  code:
+    2026-10-22-trends-page-sections: specs/code/2026-10-22-trends-page-sections.yaml
+version: '2.9'

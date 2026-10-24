@@ -12,21 +12,29 @@ concurrency:
 jobs:
   core:
     name: Core and specs
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        # Self-use project: only the newest released Xcode is supported.
+        run: |
+          xcode="$(ls -d /Applications/Xcode_27*.app | grep -vi beta | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
       - run: ./scripts/check.sh
   apple:
     name: iOS and watchOS build
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        # Self-use project: only the newest released Xcode is supported.
+        run: |
+          xcode="$(ls -d /Applications/Xcode_27*.app | grep -vi beta | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
       - name: Install project generator
         run: brew install xcodegen && xcodegen --version
       - run: ./scripts/build-apple.sh

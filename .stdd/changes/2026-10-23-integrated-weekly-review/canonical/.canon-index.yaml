@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-23-integrated-weekly-review: proposals/2026-10-23-integrated-weekly-review.yaml
+specs:
+  agent:
+    2026-10-23-integrated-weekly-review: specs/agent/2026-10-23-integrated-weekly-review.yaml
+  code:
+    2026-10-23-integrated-weekly-review: specs/code/2026-10-23-integrated-weekly-review.yaml
+version: '2.9'

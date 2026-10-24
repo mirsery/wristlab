@@ -44,9 +44,29 @@ struct SettingsView: View {
                     Text("仅用于区分未观测和确实未睡。后续健康记录到达时以实际记录为准，不写入 Apple 健康。").font(.caption).foregroundStyle(.secondary)
                 }
                 Section("连接与演示") {
-                    Button("连接 / 检查 Apple 健康") { Task { await model.connect() } }
+                    Button { Task { await model.connect() } } label: {
+                        HStack {
+                            Text(model.busy ? "健康请求处理中…" : "连接 / 检查 Apple 健康")
+                            Spacer()
+                            if model.busy { ProgressView().controlSize(.small) }
+                        }
+                    }
+                    .disabled(model.busy || model.demoEnabled)
+                    .accessibilityIdentifier("settings.health.connect")
+                    .accessibilityValue(model.demoEnabled ? "合成演示中，暂不连接" : model.busy ? model.status : "可连接")
+                    if model.demoEnabled {
+                        Text("当前为合成演示，请先在首页退出演示，再连接真实健康记录。")
+                            .font(.footnote).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("settings.health.demo")
+                    } else {
+                        Text(model.status).font(.footnote).foregroundStyle(.secondary)
+                            .accessibilityIdentifier("settings.health.status")
+                    }
                     Button("刷新数据") { Task { await model.refresh() } }
+                        .disabled(model.busy || model.demoEnabled)
+                        .accessibilityIdentifier("settings.health.refresh")
                     Button("打开合成演示") { dismiss(); Task { await model.enableDemo() } }
+                        .disabled(model.busy)
                 }
                 Section {
                     Toggle("推送晨报", isOn: Binding(get: { model.morningBriefEnabled }, set: { value in Task { await model.setMorningBrief(enabled: value) } }))
@@ -63,6 +83,7 @@ struct SettingsView: View {
                 }
                 Section("本地数据") {
                     Button("清除派生缓存并重算") { Task { await model.clear(stop: false) } }
+                    Text("重算保留运动计划、执行记录、减重目标与手动体重。").font(.caption).foregroundStyle(.secondary)
                     Button("停止读取并清除应用数据", role: .destructive) { confirmClear = true }
                     Text("不会删除 Apple 健康原始记录。离线的手表会在下次连接时接收清除标记。").font(.caption).foregroundStyle(.secondary)
                 }
@@ -77,7 +98,7 @@ struct SettingsView: View {
             .alert("停止读取并清除？", isPresented: $confirmClear) {
                 Button("取消", role: .cancel) {}
                 Button("清除", role: .destructive) { Task { await model.clear(stop: true) } }
-            } message: { Text("清除本机应用健康缓存，并通知配对手表。Apple 健康中的原始记录会保留。") }
+            } message: { Text("清除本机健康缓存、运动计划、执行记录、减重目标和手动体重，并清除手表中的手机同步副本；不会删除手表独立记录或 Apple 健康原始记录。") }
         }.tint(wristMint)
     }
     private var todayLabel: String { (try? AnalysisClock(timeZoneID: profile.timeZoneID).label(Date())) ?? "" }

@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-24-watch-refresh-exit: proposals/2026-10-24-watch-refresh-exit.yaml
+specs:
+  agent:
+    2026-10-24-watch-refresh-exit: specs/agent/2026-10-24-watch-refresh-exit.yaml
+  code:
+    2026-10-24-watch-refresh-exit: specs/code/2026-10-24-watch-refresh-exit.yaml
+version: '2.9'

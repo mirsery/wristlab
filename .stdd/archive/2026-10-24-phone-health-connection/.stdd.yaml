@@ -1,0 +1,55 @@
+change_id: 2026-10-24-phone-health-connection
+complexity_score: 7
+current_phase: deliver
+design_adjustments:
+  count: 5
+mode: standard
+phases:
+  build:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T10:20:36'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示最终报告：手机2404已更新本地报告、Watch2402不再闪退且页面可打开，245项Swift/4项设置UI/双端构建验签通过；仅验收两项故障修复，健康类型/评分/活动值/表盘/后台/性能仍保留未验，默认无云、不清数据、不提交推送。用户回复：确认，本轮修复验收并本地归档。
+    slices_completed:
+      S1:
+        evidence: work/phone-health-probe/formal-red-complete.log; work/phone-health-probe/green-review-fixed.log;
+          work/phone-health-check-final.log; work/phone-health-apple-final.log
+        new_tests: 14
+        status: done
+        tc_coverage: PHC001-006 synthetic; PHC007 phone2404 updated report user confirmed
+        verified_at: '2026-10-24T04:04:37+08:00'
+      S2:
+        evidence: work/settings-connection-ui-red.log; work/settings-connection-ui-green.log;
+          work/settings-connection-check-final.log; work/settings-connection-apple-final.log
+        new_tests: 4
+        status: done
+        tc_coverage: PHC001 and PHC006 SettingsView UI; PHC007 actual Settings entry
+          user confirmed
+        verified_at: '2026-10-24T04:20:47+08:00'
+    status: completed
+    verification_status: gate3_accepted_scoped_phone_connection_fix_with_disclosed_gaps
+  deliver:
+    status: completed
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T03:52:38'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示连接立即反馈和防重、模型单任务不随页面取消但保留显式停止、缓存原路径重试、挂起/并发/取消/空数据/保留旧数据测试、2403同包更新且不增权限不清数据默认无云的方案。用户回复：确认，按此方案实施。手表开发连接仍阻塞，单独待验。
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T03:43:36'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示手机连接Apple健康无反馈、刷新取消的范围：仅修连接/读取任务与状态提示、补测试并覆盖安装，不清数据、不新增健康权限、不改评分或iCloud。用户回复：确认，按这个范围修复。
+    status: completed
+score_confidence: preliminary
+status: archived
+task_type: code
+traceability:
+  device_acceptance: user_confirmed_phone2404_updated_local_report_watch2402_no_crash_pages_open
+  spec_scenarios: 7
+  swift_package_tests: 245
+  tc_cases: 7
+  test_functions: 18
+  xctest_ui_functions: 4
+version: '3.0'

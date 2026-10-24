@@ -5,9 +5,10 @@ import WristlabCore
 @MainActor
 final class HealthKitReader {
     enum ReadError: Error { case unavailable, missingAnchor }
-    private let store = HKHealthStore()
+    let store = HKHealthStore()
     private var observers: [HKObserverQuery] = []
-    private var queries: [HKQuery] = []
+    private var pendingReads: [PendingRead] = []
+    private var readGeneration = UUID()
     private static var types: [(HealthKind, HKSampleType)] {
         [(.heartRate, HKQuantityType(.heartRate)), (.restingHeartRate, HKQuantityType(.restingHeartRate)),
          (.hrv, HKQuantityType(.heartRateVariabilitySDNN)), (.sleep, HKCategoryType(.sleepAnalysis)), (.workout, HKObjectType.workoutType())]
@@ -16,24 +17,9 @@ final class HealthKitReader {
         guard HKHealthStore.isHealthDataAvailable() else { throw ReadError.unavailable }
         try await store.requestAuthorization(toShare: [], read: Set(Self.types.map { $0.1 }))
     }
-    /// Self-reported moods are read on their own: they are not scoring inputs and never touch the anchors.
-    func authorizeMoods() async throws {
-        guard HKHealthStore.isHealthDataAvailable() else { throw ReadError.unavailable }
-        if #available(iOS 18.0, *) { try await store.requestAuthorization(toShare: [], read: [HKObjectType.stateOfMindType()]) }
-    }
-    func readMoods(from start: Date) async throws -> [MoodEntry] {
-        guard #available(iOS 18.0, *), HKHealthStore.isHealthDataAvailable() else { return [] }
-        let descriptor = HKSampleQueryDescriptor(predicates: [.stateOfMind(HKQuery.predicateForSamples(withStart: start, end: nil))],
-                                                 sortDescriptors: [SortDescriptor(\.startDate, order: .reverse)], limit: 500)
-        return try await descriptor.result(for: store).compactMap { sample in
-            guard let kind = MoodKind(rawValue: sample.kind.rawValue) else { return nil }
-            return MoodEntry(id: sample.uuid.uuidString, at: sample.startDate, kind: kind,
-                      valence: sample.valence, classification: sample.valenceClassification.rawValue,
-                      labels: sample.labels.map(\.rawValue), associations: sample.associations.map(\.rawValue))
-        }
-    }
     func readBatch(state: RepositoryState, asOf: Date) async throws -> RecordBatch {
         do { return try await queryBatch(state: state, asOf: asOf) }
+        catch is CancellationError { throw CancellationError() }
         catch {
             guard !state.anchors.isEmpty else { throw error }
             var reset = state; reset.anchors = [:]
@@ -41,7 +27,7 @@ final class HealthKitReader {
         }
     }
     private func queryBatch(state: RepositoryState, asOf: Date) async throws -> RecordBatch {
-        defer { queries.removeAll() }
+        let generation = readGeneration
         guard HKHealthStore.isHealthDataAvailable() else { throw ReadError.unavailable }
         let clock = try AnalysisClock(timeZoneID: state.profile.timeZoneID)
         let invalidAnchor = state.anchors.values.contains { data in
@@ -50,26 +36,41 @@ final class HealthKitReader {
         let fullReload = state.queryStart == nil || state.anchors.count != Self.types.count || invalidAnchor
         let start = state.queryStart ?? clock.shiftedDay(asOf, by: state.records.isEmpty ? -61 : -151)
         let predicate = HKQuery.predicateForSamples(withStart: start, end: nil)
-        var additions: [HealthRecord] = [], deletions = Set<String>(), anchors: [String: Data] = [:]
-        for (kind, type) in Self.types {
-            try Task.checkCancellation()
-            let old = fullReload ? nil : state.anchors[kind.rawValue]
-            let anchor = try old.map { try NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: $0) }.flatMap { $0 }
-            let result: QueryResult = try await withCheckedThrowingContinuation { continuation in
-                let query = HKAnchoredObjectQuery(type: type, predicate: predicate, anchor: anchor, limit: HKObjectQueryNoLimit) { _, samples, deleted, newAnchor, error in
-                    if let error { continuation.resume(throwing: error); return }
-                    do {
-                        guard let newAnchor else { throw ReadError.missingAnchor }
-                        let encoded = try NSKeyedArchiver.archivedData(withRootObject: newAnchor, requiringSecureCoding: true)
-                        continuation.resume(returning: QueryResult(records: (samples ?? []).compactMap { Self.convert($0, kind: kind) }, deleted: Set((deleted ?? []).map { $0.uuid.uuidString }), anchor: encoded))
-                    } catch { continuation.resume(throwing: error) }
+        #if os(watchOS)
+        let maximumRecords = 200000
+        #else
+        let maximumRecords = Int.max
+        #endif
+        return try await HealthBatchLoader.load(kinds: Self.types.map { $0.0 }, anchors: state.anchors,
+            replaceAll: fullReload, queryStart: start, maximumRecords: maximumRecords,
+            isCancelled: { generation != self.readGeneration }) { kind, encodedAnchor in
+                guard let type = Self.types.first(where: { $0.0 == kind })?.1 else { throw ReadError.unavailable }
+                let anchor = try encodedAnchor.map { try NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: $0) }.flatMap { $0 }
+                let pending = PendingRead()
+                pendingReads.append(pending)
+                defer { pendingReads.removeAll { $0 === pending } }
+                return try await withTaskCancellationHandler {
+                    try await withCheckedThrowingContinuation { continuation in
+                        pending.continuation = continuation
+                        guard !pending.cancelled, !Task.isCancelled else { pending.cancel(store: store); return }
+                        let query = HKAnchoredObjectQuery(type: type, predicate: predicate, anchor: anchor, limit: HealthBatchLoader.pageSize) { _, samples, deleted, newAnchor, error in
+                            let result: Result<HealthRecordPage, any Error> = Result {
+                                if let error { throw error }
+                                guard let newAnchor else { throw ReadError.missingAnchor }
+                                let encoded = try NSKeyedArchiver.archivedData(withRootObject: newAnchor, requiringSecureCoding: true)
+                                return HealthRecordPage(records: (samples ?? []).compactMap { Self.convert($0, kind: kind) },
+                                    deleted: Set((deleted ?? []).map { $0.uuid.uuidString }), anchor: encoded,
+                                    count: (samples?.count ?? 0) + (deleted?.count ?? 0))
+                            }
+                            Task { @MainActor in pending.finish(result) }
+                        }
+                        pending.query = query
+                        store.execute(query)
+                    }
+                } onCancel: {
+                    Task { @MainActor in pending.cancel(store: self.store) }
                 }
-                queries.append(query); store.execute(query)
-            }
-            additions += result.records; deletions.formUnion(result.deleted); anchors[kind.rawValue] = result.anchor
         }
-        queries.removeAll()
-        return RecordBatch(additions: additions, deletions: deletions, anchors: anchors, replaceAll: fullReload, queryStart: start)
     }
     func observe(onChange: @escaping @Sendable () async -> Void) {
         guard observers.isEmpty else { return }
@@ -86,10 +87,29 @@ final class HealthKitReader {
     func stop() {
         for query in observers { store.stop(query) }
         observers.removeAll()
-        // In-flight read continuations finish normally; the model rejects their generation on clear.
+        cancelRead()
         for (_, type) in Self.types { store.disableBackgroundDelivery(for: type) { _, _ in } }
     }
-    private struct QueryResult: Sendable { var records: [HealthRecord]; var deleted: Set<String>; var anchor: Data }
+    func cancelRead() {
+        readGeneration = UUID()
+        for pending in pendingReads { pending.cancel(store: store) }
+    }
+    @MainActor private final class PendingRead {
+        var continuation: CheckedContinuation<HealthRecordPage, any Error>?
+        var query: HKQuery?
+        var cancelled = false
+        func finish(_ result: Result<HealthRecordPage, any Error>) {
+            let callback = continuation
+            continuation = nil
+            query = nil
+            callback?.resume(with: result)
+        }
+        func cancel(store: HKHealthStore) {
+            cancelled = true
+            if let query { store.stop(query) }
+            finish(.failure(CancellationError()))
+        }
+    }
     nonisolated private static func convert(_ sample: HKSample, kind: HealthKind) -> HealthRecord? {
         let product = sample.sourceRevision.productType ?? sample.device?.model ?? "Other"
         let family = product.lowercased().contains("watch") ? "Watch" : product.lowercased().contains("iphone") ? "iPhone" : product
@@ -110,7 +130,22 @@ final class HealthKitReader {
             case .asleepUnspecified: record.stage = .unspecified
             @unknown default: record.stage = .unknown
             }
-        } else if let workout = sample as? HKWorkout { record.workoutType = String(workout.workoutActivityType.rawValue) }
+        } else if let workout = sample as? HKWorkout {
+            record.workoutType = String(workout.workoutActivityType.rawValue)
+            record.workoutDurationSeconds = workout.duration
+            let events = workout.workoutEvents ?? []
+            let hasUnsupportedActivity = workout.workoutActivities.count > 1 || events.contains { $0.type == .pauseOrResumeRequest }
+            let pauses = events.compactMap { event -> WorkoutPauseEvent? in
+                switch event.type {
+                case .pause, .motionPaused: WorkoutPauseEvent(at: event.dateInterval.start, paused: true)
+                case .resume, .motionResumed: WorkoutPauseEvent(at: event.dateInterval.start, paused: false)
+                default: nil
+                }
+            }
+            if !hasUnsupportedActivity {
+                record.workoutActiveIntervals = WorkoutActiveTime.intervals(start: workout.startDate, end: workout.endDate, duration: workout.duration, events: pauses)
+            }
+        }
         return record
     }
 }

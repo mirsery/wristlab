@@ -1,0 +1,29 @@
+meta:
+  task_id: watch-daily-care
+  change_id: 2026-10-23-watch-daily-care
+  task_type: code
+  system: Watch本机只读活动/自报心情/关怀图标及原子组件投影
+  preconditions:
+    - Gate 2实际确认后才进入Build；仅合成数据，不新增写健康/后台会话/云能力。
+steps:
+  - id: CP-CARE-1
+    description: WCP/WDA/WCS十五场景对应Swift生产路径测试与回归。
+    action: ./scripts/check.sh
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-CARE-2
+    description: 双端构建和原kind及新增活动kind运行注册；不代替布局或真机验收。
+    action: ./scripts/build-apple.sh
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-CARE-3
+    description: Diff和手工范围/隐私检查，无心情共享投影、写权限或评分公式变化。
+    action: git diff --check
+    assertions:
+      - type: exit_code
+        expected: 0
+rollback:
+  steps:
+    - 人工确认后仅撤销本change代码，保留其他本地修改；不卸载/清用户数据，不因回滚降级读取新格式为演示。

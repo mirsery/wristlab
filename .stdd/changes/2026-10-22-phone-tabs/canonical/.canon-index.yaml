@@ -1,0 +1,11 @@
+designs: {}
+proposals:
+  2026-10-22-phone-tabs: proposals/2026-10-22-phone-tabs.yaml
+specs:
+  agent:
+    phone-tabs: specs/agent/phone-tabs.yaml
+    phone-health-content: specs/agent/phone-health-content.yaml
+  code:
+    phone-tabs: specs/code/phone-tabs.yaml
+    phone-health-content: specs/code/phone-health-content.yaml
+version: '2.9'

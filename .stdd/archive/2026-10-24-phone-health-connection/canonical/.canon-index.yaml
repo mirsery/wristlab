@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-24-phone-health-connection: proposals/2026-10-24-phone-health-connection.yaml
+specs:
+  agent:
+    2026-10-24-phone-health-connection: specs/agent/2026-10-24-phone-health-connection.yaml
+  code:
+    2026-10-24-phone-health-connection: specs/code/2026-10-24-phone-health-connection.yaml
+version: '2.9'

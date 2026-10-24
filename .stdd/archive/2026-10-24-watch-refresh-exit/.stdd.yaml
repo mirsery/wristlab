@@ -1,0 +1,37 @@
+change_id: 2026-10-24-watch-refresh-exit
+complexity_score: null
+current_phase: spec
+design_adjustments:
+  count: 0
+last_modified: '2026-10-24T13:22:52.870699'
+mode: standard
+phases:
+  build:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T16:55:53'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示验收报告：WRX-001-002 Core测试与check.sh守卫通过、2406同包覆盖手表且前后崩溃目录无新增；用户真机反馈：手表不闪退了。未验项切页路径单独验证已披露。用户回答：确认验收并归档。
+    status: completed
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T16:24:34'
+    confirmed_by: dialog
+    confirmed_evidence: '已展示两份2405崩溃报告符号化根因(closure #2 in WatchBridge.requestRefresh()继承MainActor隔离,WC后台队列回调触发_dispatch_assert_queue_fail)、WRX-001-003规格与测试计划、2406同包覆盖不清数据。用户选择：抽到
+      Core + 后台线程测试(Recommended)；Gate 2 回答：确认，开始实现。'
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T13:22:52'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示范围：定位2405启动/切页/刷新退出，仅修本轮崩溃回归，补测试同包覆盖，不卸载清数据、不改评分权限iCloud。用户明确回答：确认，切页或刷新后退出
+    status: completed
+score_confidence: null
+status: archived
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

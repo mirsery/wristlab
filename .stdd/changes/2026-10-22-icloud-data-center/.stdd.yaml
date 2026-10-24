@@ -1,0 +1,34 @@
+change_id: 2026-10-22-icloud-data-center
+complexity_score: null
+current_phase: build
+design_adjustments:
+  count: 0
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T21:07:14'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示当前iCloud账户、四项界面偏好、首次恢复选择、账户隔离和冲突处理、本机/云端删除边界，明确不含健康/体重/目标迁移，用户回复：开始实施
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T20:56:52'
+    confirmed_by: dialog
+    confirmed_evidence: 已解释当前仅本地、我的改iCloud与数据中心、非健康偏好CloudKit、健康原始由Apple健康同步，体重目标需另界定；用户回复：可以你说的对，按照你的来。此为方向范围确认，不代替Gate2具体白名单/冲突交互确认。
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 6
+  tc_cases: 6
+  test_functions: 24
+version: '3.0'
+long_range:
+  enabled: false
+  mode: normal

@@ -1,0 +1,64 @@
+# 2026-10-24-phone-today-care.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-24-phone-today-care"
+  title: "手机今日关怀：图标与状态优先"
+  created: "2026-10-24T11:42:46.074063"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    手机今天页仍以醒目的准备度、电量和压力分数呈现，用户不容易理解，也与手表的日常关怀方向不一致。
+    本轮只改造现有首页卡片，让状态、数据局限和详情入口更易理解，不新增健康推断。
+
+what_changes:
+  - id: C1
+    type: modified
+    description: "原位置改造三张指标卡片：准备度、压力用图标和短句；电量保留连续视觉但不显示醒目分数、不新增分档。"
+  - id: C2
+    type: modified
+    description: "校准、缺失、部分数据和过期状态明确显示；原始数值、依据、数据时间与报告更新时间保留在详情。"
+  - id: C3
+    type: modified
+    description: "覆盖展示边界、详情导航、大字体与辅助功能，运行回归及模拟器验证，不更新稳定真机版。"
+
+capabilities:
+  new: []
+  modified:
+    - name: "phone-today-care"
+      description: "今天页的三指标状态展示及其详情入口；对应 P010 和 metric-insights。"
+
+constraints:
+  - "仅使用现有 MetricEstimate 和展示分段，不改公式、模型版本、有效期或评分输入。"
+  - "缺失数据不得显示正常状态或正常电量；不从生理压力推断心情或心理疾病。"
+  - "保留原有日计划、睡眠/活动摘要、页签及演示标识，不增加首页内容层级。"
+  - "仅本地代码、测试与模拟器；不安装、卸载、清除或操作真机数据。"
+  - "不提交、不推送；保留其他未提交改动。"
+non_goals:
+  - "不增加健康权限、通知、健康数据上传或 iCloud 能力；iCloud 继续默认关闭。"
+  - "不新增心情推算、运动处方、压力评分算法或电量高低阈值。"
+  - "不修改 Watch、表盘、后台同步或手机健康读取任务。"
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L2
+  anchor_implementations:
+    - "MetricExplanation：缺失、部分数据与过期理由"
+    - "MetricTier 与 specs/002-scoring.md：现有展示分段"
+    - "PhoneDashboardView.todayContent：原位三指标与详情导航"
+risk_areas:
+  - capability: "phone-today-care"
+    risk: "Watch 快照 TTL 污染手机有效期；图标掩盖缺数；可访问性仍读出首页分数。"
+    mitigation: "直接从手机 MetricEstimate 和显式时钟生成展示；异常状态优先；独立展示与 UI 回归。"
+
+success_criteria:
+  - "今天页三指标不显示或通过 VoiceOver 播报 0–100 分数，状态与图标可理解，详情仍可查看有效数值和依据。"
+  - "真实 0 电量与缺失可区分；缺数、校准、过期及 HR-only 有明确原因，不显示正常估算。"
+  - "现有分段、手机指标有效期、演示隔离和导航行为保持一致，大字体不截断主要状态。"
+  - "完成 scripts/check.sh 和 scripts/build-apple.sh；模拟器通过不表述为真机验收。"

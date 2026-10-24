@@ -1,0 +1,11 @@
+designs: {}
+proposals:
+  2026-10-23-watch-daily-care: proposals/2026-10-23-watch-daily-care.yaml
+specs:
+  agent:
+    2026-10-23-watch-daily-care: specs/agent/2026-10-23-watch-daily-care.yaml
+  code:
+    2026-10-23-watch-daily-care: specs/code/2026-10-23-watch-daily-care.yaml
+    watch-daily-activity: specs/code/watch-daily-activity.yaml
+    watch-care-state: specs/code/watch-care-state.yaml
+version: '2.9'

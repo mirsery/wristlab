@@ -1,0 +1,46 @@
+meta:
+  change_id: 2026-10-24-phone-health-connection
+  title: 手机健康连接反馈与读取任务生命周期修复
+  created: '2026-10-24'
+  status: confirmed
+why:
+  problem: 用户在手机2402点连接Apple健康无反馈，此前显示刷新已取消；Watch日期修复不覆盖手机问题，不能把可启动当健康读取通过。
+  motivation: 建立不包含健康数值的可重复反馈闭环，修复明确的连接反馈和任务生命周期缺陷，保留原数据并完成实际复验。
+what_changes:
+  - id: C1
+    type: modified
+    description: 连接、等待系统请求、读取、完成/空结果/失败/取消与缓存不可用分别给出可见反馈，避免无声返回。
+  - id: C2
+    type: modified
+    description: 以合成适配器验证并修复连接及刷新并发、调用者取消与显式停止的生命周期；未经复现不宣称真机根因。
+  - id: C3
+    type: modified
+    description: 补回归和状态验证，手机同包覆盖安装；自动检查、安装、健康实际可读分开验收。
+capabilities:
+  new: []
+  modified:
+    - name: phone-health-connection
+      description: 既有只读连接与刷新的反馈、串行生命周期和不丢原数据的重试。
+constraints:
+  - 不清本地数据、不卸载，不新增健康类型或写权限，不改评分、来源、时间窗、存储schema与iCloud默认关闭。
+  - 仅合成样本进入测试；日志只限连接状态，不导出真实健康记录、数值或账户。
+  - 在具体方案与测试计划经用户Gate2确认后改生产代码，Gate3须另行实际验收。
+stakeholders: [自用iPhone用户]
+risk_areas:
+  - capability: phone-health-connection
+    risk: Swift并发重入或晚回调覆盖新状态；误把授权完成当数据可读。
+    mitigation: 单任务、generation/revision失效验证；空结果中性提示，缓存失败原文件保留。
+non_goals:
+  - 手表Mac开发连接修复、评分模型或云同步改动。
+  - 通过关闭取消检查、伪造样本或强制授权掩盖读取问题。
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L2
+  reference_changes: [2026-10-24-watch-activity-calendar-crash, 2026-10-23-watch-independent]
+  anchor_implementations: [DashboardModel, HealthBatchLoader, HealthRepository]
+success_criteria:
+  - 点击连接当次给出阶段反馈，缓存不可用或重复请求不静默，等待系统请求可辨识且不重复弹授权。
+  - 合成回归覆盖取消/并发/失败恢复与显式停止后晚结果不复活；未经复现的根因保留未知。
+  - 全量检查和双端构建通过，同包更新核对版本；真实手机健康读取结果由实际测试单独确认。

@@ -1,0 +1,24 @@
+meta:
+  task_id: phone-care-layout
+  change_id: 2026-10-24-phone-care-layout
+  task_type: code
+  system: 手机今天页关怀卡片布局与顶部状态栏背板
+preconditions: [Gate 2 已实际确认后实施, 仅合成数据，真机截图不入库]
+steps:
+  - id: CP-PCL-1
+    description: 混合高度夹具下顶边/高度断言 RED，修后 GREEN；辅助字号单列不重叠
+    action: python3 scripts/test-phone-care.py
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-PCL-2
+    description: 正式 App 滚动后状态栏像素检查与滚到底边界检查
+    action: python3 scripts/test-phone-care.py --full-app --device <isolated simulator>
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-PCL-3
+    description: 完整回归与双端构建
+    action: scripts/check.sh and scripts/build-apple.sh
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-PCL-4
+    description: 2406 同包覆盖安装后用户真机确认布局
+    action: device verification with build 2406
+    assertions: [{type: manual, expected: record user feedback and remaining gaps honestly}]
+expected_outcomes: [双列卡片顶边对齐等高, 状态栏区域不透出页面文字, 文案与导航不变]

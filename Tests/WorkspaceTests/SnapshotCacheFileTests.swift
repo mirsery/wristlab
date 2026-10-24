@@ -12,6 +12,37 @@ private func withCache(_ test: (URL) throws -> Void) throws {
     try test(directory.appendingPathComponent("watch-receiver.json"))
 }
 
+@Test func refreshDeliveryPersistsClearAndRejectsLateData() throws {
+    try withCache { file in
+        var snapshot = DisplaySnapshot(report: try DemoData.report(), producerID: "synthetic-refresh", epoch: 1, sequence: 1)
+        snapshot.source = .healthKit
+        let previous = snapshot
+        var receiver = SnapshotReceiver()
+        try WatchSnapshotDelivery.accept(snapshot, receiver: &receiver, confirmProducer: true) {
+            try SnapshotCacheFile.write($0, to: file)
+        }
+        snapshot.epoch = 2
+        snapshot.sequence = 0
+        snapshot.clearData = true
+        snapshot.readiness = MetricEstimate()
+        snapshot.energy = MetricEstimate()
+        snapshot.stress = MetricEstimate()
+        snapshot.exertion = MetricEstimate()
+        snapshot.sleepMinutes = nil
+        try WatchSnapshotDelivery.accept(snapshot, receiver: &receiver, confirmProducer: false) {
+            try SnapshotCacheFile.write($0, to: file)
+        }
+        var reopened = try JSONDecoder().decode(SnapshotReceiver.self, from: Data(contentsOf: file))
+        #expect(reopened.snapshot == snapshot)
+        #expect(throws: DomainError.staleRevision) {
+            try WatchSnapshotDelivery.accept(previous, receiver: &reopened, confirmProducer: false) {
+                try SnapshotCacheFile.write($0, to: file)
+            }
+        }
+        #expect(try JSONDecoder().decode(SnapshotReceiver.self, from: Data(contentsOf: file)).snapshot == snapshot)
+    }
+}
+
 @Test func snapshotPolicyFailureLeavesPreviousFile() throws {
     try withCache { file in
         let previous = Data("synthetic previous".utf8)

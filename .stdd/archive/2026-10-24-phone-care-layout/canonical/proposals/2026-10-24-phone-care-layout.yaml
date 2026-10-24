@@ -1,0 +1,55 @@
+# 2026-10-24-phone-care-layout.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-24-phone-care-layout"
+  title: "手机今日关怀卡片对齐与安全区布局修复"
+  created: "2026-10-24T13:21:55.107020"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    2405 真机截图显示不同高度的相邻指标卡上下错位，长缺失说明挤在双列；顶部标题出现在状态栏区域，底部系统页签遮挡/滚动边界需验证。只记录结构现象，不复制真实健康截图或数值。
+  motivation: "用户已确认此修复范围；当前真机体验未通过，先证据定位，再实施已确认设计。"
+
+what_changes:
+  - id: C1
+    description: "修正不同高度卡片的排列，完整保留状态、缺失原因与详情入口。"
+    type: modified
+  - id: C2
+    description: "核查今天页顶部状态栏/底部页签安全区及滚动边界，补合成回归后同包覆盖安装。"
+    type: modified
+
+capabilities:
+  new: []
+  modified:
+    - name: "phone-today-care"
+      description: "手机今日关怀卡片对齐与安全区布局修复"
+
+success_criteria:
+  - "混合长原因与短状态时，相邻卡片无垂直错位、文本无截断且详情可达。"
+  - "首屏标题处于顶部安全区内，末尾内容可滚动至底部页签上方，窄屏/最大辅助字体和返回导航回归通过。"
+
+constraints:
+  - "不卸载、不清数据、不改评分/有效期/健康权限/同步/iCloud，不提交推送。"
+  - "真实健康数据不进入测试、规格、日志或仓库；只使用合成夹具。"
+  - "Gate 1 仅批准范围；具体方案须实际 Gate 2 确认，最终 Gate 3 由用户验收。"
+stakeholders:
+  - "自用 iPhone/Watch 用户"
+risk_areas:
+  - capability: "phone-today-care"
+    risk: "ScrollView、系统 TabView、滚动位置恢复及动态字体组合可能只在完整 App 暴露；用合成混合状态和实际容器测几何，不只判定元素存在。"
+    mitigation: "先建可复现反馈循环，报告代码/模拟器与真机证据边界。"
+non_goals:
+  - "新增产品功能、评分规则、权限、云能力或扩大健康采集。"
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []
