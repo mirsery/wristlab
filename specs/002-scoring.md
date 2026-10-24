@@ -4,6 +4,12 @@
 
 ## 公共规则
 
+Watch关怀版WCP-001/002仅改变展示：压力按原20/60/80及准备度33/67边界映射图标/文字，隐藏直接评分，生理压力最高段称“较高”；身体电量无新增等级阈值。运动显示运动情境，HR-only、校准/缺失/过期优先；不把身体反应当心理状态。原公式、版本、14日及15分钟规则不变。
+
+手机今日关怀 PTC-001–006 同样仅改展示：使用原 MetricEstimate.value 的整数舍入后分段，压力最低/最高段称“较低/较高”，电量按有效显示整数/100 连续填充，无新增高低阈值。无显示值时不显示等级/电量填充；原始数值与贡献仅在有效详情保留。手机以 MetricEstimate.isStale 的 now > validUntil 或 effectiveAt > now 判断，不引入 Watch 快照 TTL；演示以报告 asOf 为时钟。前台 30 秒展示更新不新增计算或健康读取，刷新时间不替换有效观测时间。公式、基线、覆盖要求、模型版本和原有效期不变。
+
+Watch独立计算（WI-L-002，Gate 2已确认，真机待验）：复用本规格全部公式、输入规则和14有效日门槛；Watch本地与手机输入/profile/asOf相同则输出相同，数据或配置不同不承诺相同分值。不跨设备拼基线/评分，不用手机分值填补本地缺失，不因Watch历史不足降低门槛；显示实际覆盖及缺失原因，模型版本不变。
+
 输入先执行[003](003-health-and-sync.md)；睡眠依赖[004](004-sleep.md)。`clamp(x,a,b)=min(max(x,a),b)`。内部Double不提前取整；显示时四舍五入，.5向上。缺失不能参与公式或当0。
 
 每项结果包含value?、availability、dataQuality?、reasonCodes、mode、modelVersion、configurationVersion、inputRevision、analysisDay、windowStart/End、computedAt、latestSampleAt?、validUntil?、baselineDays、coverage?及分项解释。

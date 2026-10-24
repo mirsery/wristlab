@@ -21,7 +21,11 @@
 
 [008 开发流程接入](008-development-workflow.md)定义 STDD 初始化与既有基线迁移。
 
+Watch日常关怀的[三份已合并能力规格](../.stdd/specs/README.md)与[交付记录](../.stdd/archive/2026-10-23-watch-daily-care/delivery.md)已归档；代码/模拟器Gate 3已确认，真实健康、交互与系统表盘待验项仍保留。
+
 ## 追溯规则
+
+手机今日关怀 PTC-001–006 的[合并规格](../.stdd/specs/phone-today-care/spec.md)与[本地交付](../.stdd/archive/2026-10-24-phone-today-care/delivery.md)已归档。Gate 3 仅确认代码/模拟器，真实健康、真机、完整 VoiceOver、系统后台调度和性能仍未验；iCloud 关闭，未提交推送。
 
 PR写验收ID与SCN号；改参数同步模型版本、金例与解释；改源/时区/历史需传播后续基线和电量失效。外部来源保留核对日期，旧说明不作为平台保证。
 

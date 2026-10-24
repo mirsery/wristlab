@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="940" viewBox="0 0 1200 940" role="img" aria-labelledby="title desc">
+  <title id="title">Wristlab 功能 Dashboard</title>
+  <desc id="desc">五个手机页签连接每日状态、睡眠、活动计划、趋势与本地控制。功能示意，非应用截图或健康数据。自动计划和减重功能已实现，实际体验仍待验收。</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1"><stop stop-color="#111d24"/><stop offset="1" stop-color="#080e15"/></linearGradient>
+    <linearGradient id="chartFill" x2="0" y2="1"><stop stop-color="#8dedb6" stop-opacity=".2"/><stop offset="1" stop-color="#8dedb6" stop-opacity="0"/></linearGradient>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+      .title { fill:#f1f6f9; font-weight:600; font-size:22px; }
+      .body { fill:#b0bfcc; font-size:16px; }
+      .small { fill:#9aacbb; font-size:14px; }
+      .mint { fill:#8dedb6; }
+      .card { fill:#14212c; stroke:#293b49; }
+    </style>
+  </defs>
+  <rect width="1200" height="940" rx="28" fill="url(#background)"/>
+  <path d="M40 53h15l7-14 10 29 9-18h18" fill="none" stroke="#8dedb6" stroke-width="3" stroke-linejoin="round"/>
+  <text x="112" y="59" fill="#8dedb6" font-size="18" font-weight="700" letter-spacing="4">WRISTLAB</text>
+  <rect x="929" y="31" width="231" height="36" rx="18" fill="#20352e"/>
+  <text x="1044" y="54" text-anchor="middle" fill="#a2edbf" font-size="14">本地优先 · 只读 Apple 健康</text>
+  <text x="40" y="116" fill="#f1f6f9" font-size="36" font-weight="700">把状态看清楚，把计划接起来。</text>
+  <text x="41" y="150" class="body">从今天的身体状态，到这一周的运动安排，再到长期变化。</text>
+  <text x="41" y="177" class="small">功能示意 · 非应用截图 · 曲线不代表健康数据 · 不表示全部能力已通过真机验收</text>
+  <rect x="40" y="201" width="1120" height="53" rx="16" fill="#101b25" stroke="#293b49"/>
+  <rect x="46" y="207" width="214" height="41" rx="12" fill="#8dedb6"/>
+  <text x="153" y="233" text-anchor="middle" fill="#0d271b" font-size="16" font-weight="700">01  今天</text>
+  <text x="377" y="233" text-anchor="middle" class="body">02  睡眠</text>
+  <text x="601" y="233" text-anchor="middle" class="body">03  活动</text>
+  <text x="825" y="233" text-anchor="middle" class="body">04  趋势</text>
+  <text x="1049" y="233" text-anchor="middle" class="body">05  我的</text>
+  <rect x="40" y="274" width="360" height="238" rx="20" class="card"/>
+  <text x="62" y="308" class="small mint">DAILY SNAPSHOT</text>
+  <text x="62" y="340" class="title">今天，先看这三件事</text>
+  <g fill="none" stroke-width="6">
+    <circle cx="112" cy="397" r="30" stroke="#263b43"/><path d="M112 367a30 30 0 1 1-27 43" stroke="#8dedb6" stroke-linecap="round"/>
+    <circle cx="220" cy="397" r="30" stroke="#263b43"/><path d="M220 367a30 30 0 1 1-30 30" stroke="#7dc9ff" stroke-linecap="round"/>
+    <circle cx="328" cy="397" r="30" stroke="#263b43"/><path d="M328 367a30 30 0 0 1 30 30" stroke="#f1bf81" stroke-linecap="round"/>
+  </g>
+  <text x="112" y="404" text-anchor="middle" fill="#dce8ef" font-size="20">—</text>
+  <text x="220" y="404" text-anchor="middle" fill="#dce8ef" font-size="20">—</text>
+  <text x="328" y="404" text-anchor="middle" fill="#dce8ef" font-size="20">—</text>
+  <text x="112" y="455" text-anchor="middle" class="body">准备度</text>
+  <text x="220" y="455" text-anchor="middle" class="body">身体电量</text>
+  <text x="328" y="455" text-anchor="middle" class="body">生理压力</text>
+  <text x="62" y="487" class="small">个人基线比较 · 原因解释 · 今日计划入口</text>
+  <rect x="420" y="274" width="360" height="238" rx="20" class="card"/>
+  <text x="442" y="308" fill="#b9aff2" font-size="14">SLEEP INSIGHTS</text>
+  <text x="442" y="340" class="title">不只看睡了多久</text>
+  <g fill="#b9aff2">
+    <rect x="442" y="369" width="38" height="34" rx="5" opacity=".45"/><rect x="484" y="386" width="44" height="34" rx="5" opacity=".8"/>
+    <rect x="532" y="369" width="36" height="34" rx="5" opacity=".45"/><rect x="572" y="403" width="46" height="24" rx="5"/>
+    <rect x="622" y="386" width="39" height="34" rx="5" opacity=".8"/><rect x="665" y="369" width="38" height="34" rx="5" opacity=".45"/>
+    <rect x="707" y="386" width="51" height="34" rx="5" opacity=".8"/>
+  </g>
+  <text x="442" y="455" class="body">主睡眠 / 小睡 · 分期与来源</text>
+  <text x="442" y="487" class="small">7日睡眠债 · 入睡规律性 · 缺失说明</text>
+  <rect x="800" y="274" width="360" height="238" rx="20" class="card"/>
+  <text x="822" y="308" fill="#f1bf81" font-size="14">MOVEMENT PLANNING</text>
+  <text x="822" y="340" class="title">把目标拆成可确认的周安排</text>
+  <g fill="#263846">
+    <rect x="822" y="365" width="38" height="43" rx="8"/><rect x="868" y="365" width="38" height="43" rx="8"/>
+    <rect x="914" y="365" width="38" height="43" rx="8"/><rect x="960" y="365" width="38" height="43" rx="8"/>
+    <rect x="1006" y="365" width="38" height="43" rx="8"/><rect x="1052" y="365" width="38" height="43" rx="8"/>
+    <rect x="1098" y="365" width="38" height="43" rx="8"/>
+  </g>
+  <g fill="#f1bf81"><rect x="822" y="365" width="38" height="43" rx="8"/><rect x="914" y="365" width="38" height="43" rx="8"/><rect x="1006" y="365" width="38" height="43" rx="8"/></g>
+  <text x="822" y="449" class="body">偏好生成 → 编辑预览 → 采纳</text>
+  <text x="822" y="478" class="small">健康记录匹配 · 手动完成 / 休息并列</text>
+  <text x="822" y="498" class="small">已实现 · 真实匹配与交互待验收</text>
+  <rect x="40" y="532" width="740" height="231" rx="20" class="card"/>
+  <text x="62" y="566" class="small mint">LONG-TERM VIEW</text>
+  <text x="62" y="599" class="title">趋势，是为了看见变化，而不是追逐分数</text>
+  <path d="M62 682H758M62 651H758" stroke="#2a3a48" fill="none"/>
+  <path d="M62 681C104 681 115 639 155 652S220 680 261 646S326 658 365 638S429 666 467 635S527 645 566 620S634 639 674 615S728 622 758 609V700H62Z" fill="url(#chartFill)"/>
+  <path d="M62 681C104 681 115 639 155 652S220 680 261 646S326 658 365 638S429 666 467 635S527 645 566 620S634 639 674 615S728 622 758 609" fill="none" stroke="#8dedb6" stroke-width="3" stroke-linecap="round"/>
+  <text x="62" y="731" class="body">7 / 30日指标 · 近7日回顾 · 体重与减重目标（kg）</text>
+  <text x="746" y="694" text-anchor="end" class="small">示意曲线</text>
+  <rect x="800" y="532" width="360" height="231" rx="20" class="card"/>
+  <text x="822" y="566" fill="#7dc9ff" font-size="14">LOCAL CONTROL</text>
+  <text x="822" y="599" class="title">数据与解释，都在自己手里</text>
+  <text x="822" y="638" class="body">健康连接 · 来源优先级 · 分析时区</text>
+  <text x="822" y="669" class="body">目标与体重 · 晨报偏好 · 本地清除</text>
+  <text x="822" y="700" class="body">主动演示 · 缺失原因 · 模型版本</text>
+  <text x="822" y="735" class="small">可选 iCloud · 仅界面偏好 · 待真机验证</text>
+  <rect x="40" y="783" width="1120" height="80" rx="18" fill="#172a29" stroke="#30483f"/>
+  <text x="62" y="817" fill="#b3e8c8" font-size="19" font-weight="600">离开 App，也能抬眼看状态</text>
+  <text x="62" y="843" class="body">Apple Watch 快照与表盘组件 · iPhone 主屏 / 锁屏小组件 · 可选本地晨报</text>
+  <text x="1136" y="817" text-anchor="end" class="small">由系统安排刷新</text>
+  <text x="1136" y="843" text-anchor="end" class="small">不承诺实时或固定时刻</text>
+  <text x="40" y="899" class="small">实验性估算，非医疗或训练处方；缺失不补正常分数。减重日期约束计划周期，不反推运动量。</text>
+  <text x="40" y="922" class="small">实现状态与验收范围以 specs / 验证记录为准；此图展示功能组织，不改变现有 App 布局。</text>
+</svg>

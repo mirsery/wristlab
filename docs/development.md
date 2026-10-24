@@ -32,7 +32,31 @@ brew install xcodegen
 
 改数据/模型/时区将全量重建保留窗口；当前实现优先确定性重放，保留最多150日规范记录，不依赖不完整检查点。性能优化不能改变spec输出。
 
-## 真机验收
+## iCloud界面偏好同步
+
+默认`xcodegen generate`不启用iCloud能力：Info标记为false，签名不申请CloudKit权限；云同步源码保留，普通本地/Watch同步不依赖iCloud。用户已明确要求当前默认关闭，不清除本地数据。
+
+以后需要启用时显式运行`xcodegen generate --spec project-icloud.yml`，选择支持CloudKit的Apple Developer Program团队，再执行以下签名检查。免费Personal Team不支持iCloud能力。仅登录Xcode账户不保证能力可用。不要绕过签名或把默认本地包宣传为云同步可用。再次运行默认生成命令会回到不启用iCloud的配置。
+
+容器为`iCloud.com.mirsery.wristlab`，仅私有库、记录类型`InterfacePreferences`，固定记录`InterfacePreferences-v1`；字段`schemaVersion`、`generation`、`deleted`和白名单JSON `payload`。Debug使用Development，Release使用Production，两环境互不恢复。首次Development创建schema后需通过CloudKit控制台审核并发布到Production，不能由编译推断生产可用。只用四项界面偏好，不填任何健康资料。
+
+Xcode签名构建后，在安装/分发前执行：
+
+```sh
+python3 scripts/check-cloud-signing.py /absolute/path/to/Wristlab.app
+```
+
+脚本核对真实签名的容器、CloudKit服务和环境是否匹配Info，并验证签名；失败禁止声称云同步可用。脚本通过也不证明服务器容器、schema或当前iCloud账户可用。运行时只使用公开Info标记预检，模拟器明确显示未配置；SDK返回missingEntitlement/badContainer时归为未配置，不使用私有iOS entitlement API。不能保证所有外部分发错误都在首次SDK请求前被发现。
+
+用户在“我的 → iCloud与数据中心”检查账户，明确开启后先读再选择恢复/上传。真实同账户两设备、换账户、离线重试、冲突、删除防复活分别验收；不要在日志打印账户标识或CloudKit记录内容。
+
+本change当前签名仍受Personal Team限制，手机保留此前趋势页版本。配置日志见`work/cloud-phone-build.log`（未登录）与`work/cloud-phone-signed.log`（登录后团队能力不足）；不提交个人签名资料。
+
+## 真机验收流程
+
+Watch独立版本需重新签名以包含Watch target的只读HealthKit能力和使用说明；默认不启用iCloud。升级仍保留手机同步模式，手表“更多 → 手表独立设置与连接”确认独立时区/睡眠目标/可选最大心率/训练模式后主动连接健康。断开手机再前台刷新，分别记录实际可读类型和历史覆盖（不要导出真实样本）；历史不足可能长期只显示校准进度，不降低14有效日门槛。重连不自动切源，手动切回手机模式可继续请求手机快照。检查App与表盘来源、重启缓存、两分区清除及锁屏失败，不能用签名构建代替此验收。
+
+`Apps/SharedHealth`为双端共享分页适配，iOS心情逻辑保留在`HealthKitMoods.swift`。每页上限500，Watch单次读取最多接纳200000个规范记录与删除ID组合，超限整批失败不推进anchor；该保护不代表已验证耗电/内存预算。首版不为Watch开启HealthKit后台观察或专用常驻会话。
 
 依照[验证记录](validation.md)和[006](../specs/006-acceptance.md)逐项记录；模拟器编译与合成截图不证明HealthKit真数据、锁屏后台执行、签名、Watch送达或组件刷新可用。
 
