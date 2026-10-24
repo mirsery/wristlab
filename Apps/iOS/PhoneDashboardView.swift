@@ -473,6 +473,17 @@ struct PhoneDashboardView: View {
             : isLine ? max(0, (values.min() ?? 0) * 0.9)...max(1, (values.max() ?? 1) * 1.1) : 0...max(1, (values.max() ?? 1) * 1.15)
         // Observed load includes unfinished and partly observed days, which are lower bounds, so no mean.
         let footer = trend == .load ? "已观测负荷，含未完成日" : series.mean.map { "均值 \(trendValue(trend, $0))\(unit)" }
+        // Typed pieces keep the CI Xcode 16.4 type checker within its time limit.
+        let dayDescriptions: [String] = series.days.indices.map { index in
+            let reading: String = series.days[index].value.map { trendValue(trend, $0) + unit } ?? "无记录"
+            return dates[index] + reading
+        }
+        let bandDescription: String = band.map { "，个人基线区间\(trendValue(trend, $0.low))到\(trendValue(trend, $0.high))\(unit)" } ?? ""
+        let chartTitle: String = trend == .load ? "已观测负荷" : trend.title
+        let accessibilitySummary: String = "最近\(trendLength)天\(chartTitle)，" + dayDescriptions.joined(separator: "，") + bandDescription
+        let summaryParts: [String] = ["有效 \(series.validDays)/\(trendLength) 天"] + [footer].compactMap { $0 } + ["缺失日保留空白"]
+        let baselineNote: String = report.personalRanges.map { "浅色带为个人基线区间：今天准备度所用的夜间基线（\($0.days)个有效夜晚），偏离不到0.5个尺度即“接近个人基线”。按今天的基线画出，不是人群或医学正常值。" }
+            ?? "暂无个人基线区间：需要今天的准备度使用夜间数据，且同一睡眠来源至少14个有效夜晚；较早的缓存在刷新后生成。"
         return VStack(alignment: .leading, spacing: 12) {
             Text(section == .movement ? "已观测负荷趋势" : "健康指标趋势").font(.headline)
             if section == .health {
@@ -482,48 +493,49 @@ struct PhoneDashboardView: View {
             }
             Picker("图表天数", selection: Binding(get: { trendLength }, set: { trendsNavigation.setLength($0, for: section) })) { Text("7天").tag(7); Text("30天").tag(30) }.pickerStyle(.segmented)
             Text("仅控制此图表的最近\(trendLength)日，不改变周回顾周期。").font(.caption2).foregroundStyle(.secondary)
-            Chart {
-                if let band {
-                    RectangleMark(yStart: .value("下限", band.low), yEnd: .value("上限", band.high)).foregroundStyle(wristMint.opacity(0.12))
-                }
-                ForEach(Array(series.days.enumerated()), id: \.offset) { index, day in
-                    if let value = day.value {
-                        if isLine {
-                            let segment: String = "s\(series.days[..<index].filter { $0.value == nil }.count)"
-                            LineMark(x: .value("日期", labels[index]), y: .value(trend.title, value), series: .value("连续段", segment))
-                                .foregroundStyle(wristMint)
-                            PointMark(x: .value("日期", labels[index]), y: .value(trend.title, value)).symbolSize(trendLength == 7 ? 30 : 12).foregroundStyle(wristMint)
-                        } else {
-                            BarMark(x: .value("日期", labels[index]), y: .value(trend.title, value)).foregroundStyle(wristMint.gradient).cornerRadius(trendLength == 7 ? 4 : 1)
-                        }
-                    }
-                }
-            }
-            .chartXScale(domain: labels)
-            .chartXAxis {
-                AxisMarks { value in
-                    AxisGridLine().foregroundStyle(.white.opacity(0.04))
-                    // Thin the 30-day labels while keeping every category on the scale.
-                    if let label = value.as(String.self), shownLabels.contains(label) { AxisValueLabel() }
-                }
-            }
-            .chartYScale(domain: domain)
-            .chartLegend(.hidden)
-            .frame(height: 120)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("最近\(trendLength)天\(trend == .load ? "已观测负荷" : trend.title)，" + series.days.indices.map { index in
-                "\(dates[index])\(series.days[index].value.map { trendValue(trend, $0) + unit } ?? "无记录")"
-            }.joined(separator: "，") + (band.map { "，个人基线区间\(trendValue(trend, $0.low))到\(trendValue(trend, $0.high))\(unit)" } ?? ""))
-            Text((["有效 \(series.validDays)/\(trendLength) 天"] + [footer].compactMap { $0 } + ["缺失日保留空白"]).joined(separator: " · "))
+            trendChart(series: series, trend: trend, trendLength: trendLength, labels: labels, shownLabels: shownLabels,
+                       band: band, isLine: isLine, domain: domain)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(accessibilitySummary)
+            Text(summaryParts.joined(separator: " · "))
                 .font(.caption2).foregroundStyle(.secondary)
             if isLine {
-                Text(report.personalRanges.map { "浅色带为个人基线区间：今天准备度所用的夜间基线（\($0.days)个有效夜晚），偏离不到0.5个尺度即“接近个人基线”。按今天的基线画出，不是人群或医学正常值。" }
-                     ?? "暂无个人基线区间：需要今天的准备度使用夜间数据，且同一睡眠来源至少14个有效夜晚；较早的缓存在刷新后生成。")
-                    .font(.caption2).foregroundStyle(.secondary)
+                Text(baselineNote).font(.caption2).foregroundStyle(.secondary)
             } else if trend == .readiness && trendLength == 30 {
                 Text("各日准备度按当前读取到的数据重算；较早日期可用的基线较短，可能仍在校准而留空。").font(.caption2).foregroundStyle(.secondary)
             }
         }.padding(18).background(wristCard, in: RoundedRectangle(cornerRadius: 24))
+    }
+    private func trendChart(series: TrendSeries, trend: TrendMetric, trendLength: Int, labels: [String], shownLabels: [String],
+                            band: (low: Double, high: Double)?, isLine: Bool, domain: ClosedRange<Double>) -> some View {
+        Chart {
+            if let band {
+                RectangleMark(yStart: .value("下限", band.low), yEnd: .value("上限", band.high)).foregroundStyle(wristMint.opacity(0.12))
+            }
+            ForEach(Array(series.days.enumerated()), id: \.offset) { index, day in
+                if let value = day.value {
+                    if isLine {
+                        let segment: String = "s\(series.days[..<index].filter { $0.value == nil }.count)"
+                        LineMark(x: .value("日期", labels[index]), y: .value(trend.title, value), series: .value("连续段", segment))
+                            .foregroundStyle(wristMint)
+                        PointMark(x: .value("日期", labels[index]), y: .value(trend.title, value)).symbolSize(trendLength == 7 ? 30 : 12).foregroundStyle(wristMint)
+                    } else {
+                        BarMark(x: .value("日期", labels[index]), y: .value(trend.title, value)).foregroundStyle(wristMint.gradient).cornerRadius(trendLength == 7 ? 4 : 1)
+                    }
+                }
+            }
+        }
+        .chartXScale(domain: labels)
+        .chartXAxis {
+            AxisMarks { value in
+                AxisGridLine().foregroundStyle(.white.opacity(0.04))
+                // Thin the 30-day labels while keeping every category on the scale.
+                if let label = value.as(String.self), shownLabels.contains(label) { AxisValueLabel() }
+            }
+        }
+        .chartYScale(domain: domain)
+        .chartLegend(.hidden)
+        .frame(height: 120)
     }
     private func weeklyReview(_ report: HealthReport) -> some View {
         let review = WeeklyReview(history: report.history, endingAt: report.day, timeZoneID: report.timeZoneID)
