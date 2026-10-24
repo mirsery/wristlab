@@ -75,7 +75,7 @@ Watch独立使用已实现，尚待新版真机验收：在“更多 → 手表�
 
 ## 运行
 
-需要安装完整 **Xcode**（CI使用16.4），并安装iOS/watchOS平台组件；还需[XcodeGen](https://github.com/yonaskolb/XcodeGen)。
+需要安装完整 **Xcode**（只支持最新版，CI 使用 Xcode 27），并安装iOS/watchOS平台组件；还需[XcodeGen](https://github.com/yonaskolb/XcodeGen)。
 
 ```sh
 git clone https://github.com/mirsery/wristlab.git

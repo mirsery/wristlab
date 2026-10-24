@@ -63,7 +63,7 @@ Real mode starts empty. Reading requires an explicit Apple Health connection. De
 
 ## Run
 
-Install full **Xcode** and its iOS/watchOS platforms. CI uses Xcode16.4. Install [XcodeGen](https://github.com/yonaskolb/XcodeGen), then:
+Install full **Xcode** and its iOS/watchOS platforms. Only the latest Xcode is supported; CI uses Xcode 27. Install [XcodeGen](https://github.com/yonaskolb/XcodeGen), then:
 
 ```sh
 git clone https://github.com/mirsery/wristlab.git

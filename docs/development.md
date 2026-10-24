@@ -2,7 +2,7 @@
 
 ## 工具链
 
-开发Mac已安装完整Xcode27.1，已通过本机iPhone/Watch/Widget模拟器构建。共享领域包可用Command Line Tools运行：`scripts/swift-test.sh`会在需要时显式发现已安装TestingMacros插件，CI使用完整Xcode16.4，不更改测试断言。
+开发Mac已安装完整Xcode27.1，已通过本机iPhone/Watch/Widget模拟器构建。共享领域包可用Command Line Tools运行：`scripts/swift-test.sh`会在需要时显式发现已安装TestingMacros插件，CI使用GitHub `xcode-27` 镜像中最新的正式版Xcode 27（只支持最新Xcode），不更改测试断言。
 
 ```sh
 ./scripts/check.sh
