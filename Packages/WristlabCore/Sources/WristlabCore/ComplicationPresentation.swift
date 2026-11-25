@@ -104,7 +104,7 @@ public enum ComplicationTimeline {
 }
 
 public enum ComplicationDestination: String, CaseIterable, Hashable, Sendable, Identifiable {
-    case overview, energy, readiness, stress
+    case overview, energy, readiness, stress, activity
     public var id: String { rawValue }
     public var metric: ComplicationMetric? { ComplicationMetric(rawValue: rawValue) }
     public var url: URL {

@@ -1,0 +1,33 @@
+# 2026-10-22-trends-page-sections.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-22-trends-page-sections"
+  title: "趋势页健康/运动/体重分区"
+  created: "2026-10-22T20:30:24.298232"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    承接已展示的展示优化建议第二项。当前趋势页堆叠体重、运动回顾、日内节奏、健康图表与心情，用户需要长距离滚动才能找到不同主题。本轮只做主题分区与现有内容重排，不改变计算或存储。
+
+what_changes:
+  - description: "趋势页增加健康、运动、体重三个页内分区，不增加底部Tab；各区只显示对应内容。"
+  - description: "分区保留会话内筛选和滚动位置；每个内容明确其真实统计周期，切换不重新读取健康或写入计划。"
+
+capabilities:
+  new: []
+  modified:
+    - name: "trends-presentation"
+      description: "趋势页的导航与信息组织，关联P-009/010/015/016，不改原趋势/周均计算。"
+
+success_criteria:
+  - "三分区可达且原有图表、回顾、心情、体重与目标功能不丢失。"
+  - "无健康报告仍可访问手动体重和运动回顾；不把空读取推断为拒绝权限。"
+  - "7/30日图表与固定周回顾周期分别标明，不让筛选暗示修改不受其控制的周均。"
+  - "切换只改变展示状态，大字体、空数据、来源变化、Tab往返和滚动位置有独立验证。"
+constraints:
+  - "保留活动页与睡眠修复；kg-only；不改评分、权限、schema或Watch协议。"
+non_goals:
+  - "不实施全局状态条，不引入新趋势公式、减脂预测或饮食功能。"

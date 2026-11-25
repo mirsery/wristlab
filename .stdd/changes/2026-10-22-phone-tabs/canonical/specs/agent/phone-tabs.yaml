@@ -1,0 +1,19 @@
+meta:
+  task_id: phone-tabs
+  change_id: 2026-10-22-phone-tabs
+  task_type: code
+  system: "Wristlab iPhone"
+  preconditions: ["Gate 2已由用户确认后才执行实现验证", "只用合成数据"]
+steps:
+  - id: CP-1
+    description: "对应SC-NAV-001、SC-NAV-002、SC-NAV-003；单测不代替界面人工验收"
+    action: "./scripts/check.sh"
+    assertions:
+      - {type: exit_code, expected: 0}
+  - id: CP-2
+    description: "验证平台编译和现有Widget回归，界面行为另按test-plan逐项检查"
+    action: "./scripts/build-apple.sh"
+    assertions:
+      - {type: exit_code, expected: 0}
+rollback:
+  steps: ["仅撤回本轮展示变更，保留既有数据与其他change；不自动卸载真机应用。"]

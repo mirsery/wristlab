@@ -1,0 +1,18 @@
+baseline: design.md and Gate 2 approved canonical specs
+scope: non-safety implementation details within explicit full_auto authorization
+adjustments:
+  - id: CARE-ADJ-001
+    severity: minor
+    baseline_reference: design.md decisions 3 and 6
+    actual: Each daily activity query has a 30-second cancellation timeout with resume-once tracking.
+    reason: Bound a query that never calls back; cancellation rejects subsequent late results.
+    impact: DailyActivityReader only; no fixed refresh schedule, new permission, or background mode.
+    evidence: SDK compilation and coordinator cancellation tests; actual HealthKit timeout remains device-pending.
+  - id: CARE-ADJ-002
+    severity: minor
+    baseline_reference: test-plan.md production Widget registration checks
+    actual: Disposable probe exits two seconds after App initialization instead of immediately.
+    reason: Simulator printed all PASS markers but simctl returned no process handle; immediate exit raced launch acknowledgment.
+    impact: Development probe only; marker checks and successful process exit remain required, production scheduling unchanged.
+    evidence: work/watch-care-apple-verified.log RED; work/watch-care-widget-ios-retry.log GREEN; work/watch-care-build-pass.log complete GREEN.
+user_visibility: Included in Gate 3 test report; no additional permission or privacy change.

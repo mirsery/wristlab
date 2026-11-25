@@ -1,0 +1,34 @@
+change_id: 2026-10-22-phone-tabs
+complexity_score: 7
+current_phase: build
+design_adjustments:
+  count: 0
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T11:41:34'
+    confirmed_by: dialog
+    confirmed_evidence: 用户对页面设计及6个验收场景回复：可以
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-22T11:38:18'
+    confirmed_by: dialog
+    confirmed_evidence: 用户对五Tab（今天、睡眠、活动、趋势、我的）、扩充已有数据及手机范围回复：先这么推进
+    status: completed
+score_confidence: preliminary
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 6
+  tc_cases: 6
+  test_functions: 5
+version: '3.0'
+long_range:
+  enabled: false
+  mode: normal

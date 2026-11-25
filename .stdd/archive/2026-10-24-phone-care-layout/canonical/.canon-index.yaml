@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-24-phone-care-layout: proposals/2026-10-24-phone-care-layout.yaml
+specs:
+  agent:
+    2026-10-24-phone-care-layout: specs/agent/2026-10-24-phone-care-layout.yaml
+  code:
+    2026-10-24-phone-care-layout: specs/code/2026-10-24-phone-care-layout.yaml
+version: '2.9'

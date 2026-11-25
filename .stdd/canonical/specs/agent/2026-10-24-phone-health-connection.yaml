@@ -1,0 +1,25 @@
+meta:
+  task_id: phone-health-connection
+  change_id: 2026-10-24-phone-health-connection
+  created: '2026-10-24'
+  task_type: code
+  system: 生产手机控制器合成状态与生命周期回归
+preconditions: [Gate 2用户确认后实施, 仅合成记录与临时缓存且无新增健康权限]
+steps:
+  - id: CP-PHC-1
+    description: PHC001至006生产控制器隔离回归，覆盖真实异步边界
+    action: phone controller regression command recorded in test report
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-PHC-2
+    description: 全量回归与双端构建
+    action: scripts/check.sh and scripts/build-apple.sh
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-PHC-3
+    description: PHC007实际手机版本、连接阶段和最终状态复验，不导出健康数据
+    action: same bundle device installation and user state feedback
+    assertions: [{type: manual, expected: actual results and remaining gaps recorded}]
+  - id: CP-PHC-4
+    description: 生产设置视图的连接按钮实际点击和邻近状态验证，隔离宿主不包含真实首页sheet导航，合成适配器不请求健康权限
+    action: python3 scripts/test-settings-connection.py
+    assertions: [{type: exit_code, expected: 0}]
+expected_outcomes: [连接无声路径可辨识, 页面取消不误杀共享工作, 显式停止有效且旧数据不被错误覆盖]

@@ -1,0 +1,74 @@
+# Spec: watch-daily-activity
+
+> Change: 2026-10-23-watch-daily-care | Auto-generated Human View
+
+## Requirements
+
+### Requirement: 新增读取须主动且与评分分离。
+
+#### Scenario: WDA-001
+
+- **GIVEN** 旧安装未启用日常活动，评分或手机同步可能已连接
+- **WHEN** 启动/切页，或用户点连接日常活动
+- **THEN** SHALL主动操作前不请求新增权限或读取；操作后只申请stepCount/activitySummary只读，两项独立可用，不请求写权限或运动会话。
+- **AND** SHALL授权完成不推断可读，空结果不判拒绝；不修改五类评分读取及手机协议。
+
+#### Scenario: WDA-002
+
+- **GIVEN** HealthKit统计结果有有限非负步数0、nil或非法值，多来源可能重叠
+- **WHEN** 读取当天及前6系统日并生成事实/柱图
+- **THEN** SHALL使用累计统计结果而不自行累加跨来源样本或手机+手表总数；有效0保留、nil/非法为未知，七日缺口不补。
+- **AND** SHALL不造步数目标或保证与其他设备同刻一致，标读取时间/本机可读汇总。
+
+### Requirement: 忠实于系统活动模式、目标和日期。
+
+#### Scenario: WDA-003
+
+- **GIVEN** Move为能量/时间模式，目标有效/nil/0，值超目标或系统暂停
+- **WHEN** 展示三环与活动分钟
+- **THEN** SHALL按真实模式/单位/可空目标呈现，目标未知不画完成比例或补默认值；超目标保留实际数，暂停不判失败或催补。
+- **AND** SHALL只有返回的可用0作0，模式未知单项不可用，旧系统无暂停信息不猜暂停；Exercise分钟不等同全部运动时长。
+
+#### Scenario: WDA-004
+
+- **GIVEN** 系统时区与固定分析时区不同、跨午夜或23/25小时日
+- **WHEN** 加载/恢复前台或切换系统时区
+- **THEN** SHALL活动按手表系统日、压力按固定分析日分别标注；日历取样不按固定秒分日，旧当日失效后重新读取，不把昨日当今天。
+- **AND** SHALL不借活动事实改变评分时区或合成身心评分。
+
+### Requirement: 有限刷新、失败与取消不误报。
+
+#### Scenario: WDA-005
+
+- **GIVEN** 启用活动且旧缓存存在，出现单项失败/超时/取消/并发刷新或停止
+- **WHEN** 前台/手动刷新完成或晚到回调返回
+- **THEN** SHALL合并有限查询，失败保留对应旧事实并显示原时间与失败，超过60分钟/未来/跨日不作当前或祝贺，取消/停止后晚回不能复活。
+- **AND** SHALL不启动常驻/后台观察/固定周期承诺，错误终态不一直显示正在读取。
+
+
+<!-- 合并自 2026-10-24-watch-activity-calendar-crash -->
+# Spec: watch-daily-activity
+
+> Change: 2026-10-24-watch-activity-calendar-crash | Auto-generated Human View
+
+## Requirements
+
+### Requirement: 活动摘要查询满足平台日历契约且保持系统日。
+
+#### Scenario: ACAL-001
+
+- **GIVEN** 生产适配器构造当天活动摘要日期
+- **WHEN** 将日期传给真实HKQuery活动摘要谓词
+- **THEN** SHALL显式携带Gregorian calendar和同一系统时区、era/year/month/day，谓词构造无NSException且不请求授权或读取健康记录。
+
+#### Scenario: ACAL-002
+
+- **GIVEN** UTC、上海、纽约的近午夜和23/25小时DST合成时刻
+- **WHEN** 构造活动摘要日期和谓词
+- **THEN** SHALL日期字段与对应AnalysisClock完全一致，不用UTC日或评分日替代系统日。
+
+#### Scenario: ACAL-003
+
+- **GIVEN** 用户原活动连接和缓存保留且前台读取会触发摘要
+- **WHEN** 同包覆盖2402后普通启动并刷新
+- **THEN** SHALL不再因缺少calendar终止进程，保留原数据和连接选择、不清缓存或改权限；真实运行及活动结果须由设备或用户反馈确认。

@@ -1,0 +1,46 @@
+meta:
+  capability: activity-plan
+  change_id: 2026-10-22-activity-weight-plan
+  created: "2026-10-22"
+  confidence: medium
+requirements:
+  - id: REQ-PLAN-001
+    description: "配置与周安排"
+    scenarios:
+      - id: SC-PLAN-001
+        confidence: high
+        evidence: "proposal what_changes C1–C4; design Decisions"
+        given: "尚无计划或已有安排"
+        when: "设置偏好、日期和时长或编辑计划"
+        then: "SHALL只按用户配置形成安排；编辑不覆盖过去或已处理日快照；暂停后不再给每日调整"
+        and: []
+  - id: REQ-PLAN-002
+    description: "解释与降级"
+    scenarios:
+      - id: SC-PLAN-002
+        confidence: medium
+        evidence: "proposal what_changes C1–C4; design Decisions"
+        given: "当天安排存在且准备度为低分、正常分、缺失、校准或旧数据"
+        when: "查看每日安排和调整选项"
+        then: "SHALL按design规则优先级展示；只在当前有效低准备度提供休息或已预设轻量选项，其他状态保持原定安排并解释；不自动加量或换算分钟"
+        and: []
+  - id: REQ-PLAN-003
+    description: "执行与回顾"
+    scenarios:
+      - id: SC-PLAN-003
+        confidence: high
+        evidence: "proposal what_changes C1–C4; design Decisions"
+        given: "有当周计划，含跨日及DST边界"
+        when: "完成、重复完成、替换、休息或撤销"
+        then: "SHALL按固定时区计划日幂等记录；替换不等于完成，休息单列；周回顾保留原安排，未完成不补课"
+        and: []
+  - id: REQ-PLAN-004
+    description: "页面、演示与隐私"
+    scenarios:
+      - id: SC-PLAN-004
+        confidence: high
+        evidence: "proposal what_changes C1–C4; design Decisions"
+        given: "空状态或真实/演示数据及大字体"
+        when: "在现有五Tab浏览和切换来源"
+        then: "SHALL各入口可达且单位状态可读；演示独立，退出不残留；不发送体重到Watch/Widget，不新增健康授权，不把手动完成标为自动识别"
+        and: []

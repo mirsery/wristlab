@@ -1,0 +1,17 @@
+meta:
+  task_id: weight-goal
+  change_id: 2026-10-22-activity-weight-plan
+  task_type: code
+  system: "Wristlab手机本地计划"
+  preconditions: ["Gate2确认", "仅合成数据"]
+steps:
+  - id: CP-1
+    description: "领域规则、持久化回归；不代替UI或真实HealthKit验收"
+    action: "./scripts/check.sh"
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-2
+    description: "双平台编译和Widget注册回归，不安装实体手表"
+    action: "./scripts/build-apple.sh"
+    assertions: [{type: exit_code, expected: 0}]
+rollback:
+  steps: ["只撤回本轮代码，保留已存在的用户数据；不自动覆盖旧存储。"]

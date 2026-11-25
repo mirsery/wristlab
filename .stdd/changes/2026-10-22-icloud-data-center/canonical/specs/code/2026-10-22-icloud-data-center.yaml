@@ -1,0 +1,36 @@
+# spec.yaml — 行为规格（Canonical YAML）
+
+meta:
+  capability: "icloud-data-center"
+  change_id: "2026-10-22-icloud-data-center"
+  created: "2026-10-22T20:55:45.920969"
+  confidence: medium
+
+requirements:
+  - id: "REQ-CLOUD-001"
+    description: "当前iCloud账户的非健康界面偏好同步、恢复及隔离。"
+    scenarios:
+      - id: "SC-CLOUD-001"
+        given: "账户状态或应用配置不同"
+        when: "查看数据中心"
+        then: "SHALL区分账户可用性与同步完成，不伪造Apple ID身份，未配置不发无效请求。"
+      - id: "SC-CLOUD-002"
+        given: "界面偏好及健康/计划/体重合成数据"
+        when: "主动开启并上传"
+        then: "SHALL默认关闭，说明后只序列化四字段及版本元数据，演示与健康数据不上传。"
+      - id: "SC-CLOUD-003"
+        given: "首次启用或服务端并发/未知版本"
+        when: "恢复或上传偏好"
+        then: "SHALL先读并明确选择，服务器版本检测冲突，未知schema不覆盖。"
+      - id: "SC-CLOUD-004"
+        given: "旧账户请求或队列尚未完成"
+        when: "账户变化、关闭或回调返回"
+        then: "SHALL以账号环境和generation失效旧任务，不跨账户同步或把身份未知当作新账户。"
+      - id: "SC-CLOUD-005"
+        given: "离线/服务失败/重启或新机健康历史未到"
+        when: "编辑和重试"
+        then: "SHALL保留本地及原账号队列，准确标待同步，成功时间只在确认后更新，不宣称完整健康恢复。"
+      - id: "SC-CLOUD-006"
+        given: "云偏好、本地副本和旧设备待传任务"
+        when: "关闭或清除本机/云端"
+        then: "SHALL区分清除范围，删除标记阻旧副本静默复活，云未确认不报成功，健康原始不删除。"

@@ -16,10 +16,14 @@ HealthKitReader / DemoData
 
 ## 模块边界
 
+Watch独立分支：`SharedHealth/HealthKitReader → Watch私有HealthRepository → 同一HealthEngine → local快照`；手机快照仍经原SnapshotReceiver保存在独立phone缓存。`WatchReportModel → WatchDisplayEnvelope → Watch UI / Widget`以单一原子展示包提交所选来源，切换不跨producer混比revision或拼接指标。停止标记先持久化，清理失败重启保持停止；普通展示写失败则保留旧展示并可重试。协议与选择/分页逻辑在Core，Apple API留在适配层，协调器通过Swift Package的WatchSupport目标做可控测试。
+
+可选界面偏好支路与健康仓库隔离：`TrendsNavigationState → InterfacePreferences → PreferenceSyncCoordinator → iOS CloudKit私有库`。载荷仅四项选择和版本/删除元数据；账户环境分区、epoch拒绝晚回调、服务端版本冲突需选择，删除标记阻旧副本自动复活。独立缓存排除系统备份，演示不发送；健康/体重/计划及健康配置不进此支路。真实签名/两设备验证见icloud-data-center报告，不能把实现当可用。
+
 - WristlabCore只依赖Foundation，模型均可Codable/Sendable。日期、时区、配置和asOf显式输入；数据不足为状态，不给默认正常分。
 - iOS适配器在系统回调边界把HKSample转为规范值。HealthKit读取权限请求与可读记录分开处理，观察完成回调在刷新后执行。应用启动委托恢复已启用的观察，不依赖前台视图task；锁屏暂不可读时保留文件并在前台启动重试。
 - HealthRepository为actor，串行计算并原子写文件；失败不推进anchor、旧revision不能覆盖新任务。当前以确定性全量重放优先保证一致性，最多保留150日规范记录，不依赖不完整的增量电量检查点。
-- iPhone是评分权威。Watch和表盘组件只展示最小快照，校验schema、producer、epoch/sequence与数值；Watch的App Group缓存是Watch与表盘组件的共同来源。iPhone小组件读取手机自己写入iPhone App Group的最近一次真实快照，只校验schema、大小、来源与数值（手机是生产者，不需要epoch确认）。
+- 手机模式以iPhone为生产者，Watch独立模式以自身仓库为生产者，两者同算法但不保证不同输入同分。App与表盘共同读取已选来源展示包，缺失/损坏不偷偷回退其它来源。手机原接收分区仍校验schema、producer、epoch/sequence与数值；iPhone小组件仍读手机自己的最近一次真实快照，不受手表本地模式影响。
 - 演示通过相同业务引擎处理合成记录，界面有明确标识；真实同步拒收demo来源。
 
 ## ADR-001：原生双端，共享领域包

@@ -1,0 +1,27 @@
+# 2026-10-22-readme-feature-dashboard.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-22-readme-feature-dashboard"
+  title: "README功能面板与展示优化草案"
+  created: "2026-10-22T19:56:11.799267"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    README偏技术清单，未呈现五Tab和新运动/体重闭环；本轮提供文档预览与信息架构建议，不修改App。
+
+what_changes:
+  - description: "原创SVG功能面板与中英文README入口，标注非截图或健康数据。"
+  - description: "补充已实现计划/体重功能；提出分层与页面职责建议，明确尚未实施。"
+
+capabilities:
+  new:
+    - name: "feature-dashboard"
+      description: "文档功能示意和信息架构建议草案。"
+  modified: []
+
+success_criteria:
+  - "README显示自包含SVG，五Tab有文本替代；真实/合成、实现/验收状态不混淆。"
+  - "图形可渲染、链接有效；只文档，不更改业务行为、不记录未经发生的Gate批准。"

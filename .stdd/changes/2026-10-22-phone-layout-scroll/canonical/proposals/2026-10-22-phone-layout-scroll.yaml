@@ -1,0 +1,27 @@
+meta:
+  change_id: 2026-10-22-phone-layout-scroll
+  title: "睡眠页字体与滚动异常排查"
+  created: "2026-10-22"
+  status: draft
+why:
+  problem: "用户反馈页面字体显示有bug、滑动有问题，随后确认发生在睡眠页；具体视觉症状尚待补充。"
+  motivation: "先建立针对实际症状的复现证据，再锁定修复范围，避免猜测。"
+what_changes:
+  - {id: C1, type: modified, description: "定位睡眠页字体和滚动异常，建立可重复验证后再修复。"}
+capabilities:
+  new: []
+  modified:
+    - {name: phone-sleep-layout, description: "睡眠详情字体及滚动体验"}
+constraints: ["仅手机睡眠展示，不改健康读取、评分或已有数据。", "保留所有已有本地改动，不伪造复现或Gate确认。"]
+stakeholders: ["手机使用者"]
+risk_areas:
+  - {capability: phone-sleep-layout, risk: "无实际症状证据时误改其它布局", mitigation: "待截图或具体步骤后再做变量对照"}
+non_goals: ["自动周计划", "Watch修改", "领域算法变更"]
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L1
+  reference_changes: ["2026-10-22-phone-tabs"]
+  anchor_implementations: ["SleepDetailView", "PhoneDashboardView"]
+success_criteria: ["明确重叠/截断或滚动异常的具体区域及操作步骤。", "相同合成场景能在修复前后比较，未复现时不宣称修好。", "确认范围后再走Spec与Build，手机UI验证与编译分开。"]

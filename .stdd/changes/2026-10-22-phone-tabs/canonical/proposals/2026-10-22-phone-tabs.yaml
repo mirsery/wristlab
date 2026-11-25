@@ -1,0 +1,39 @@
+meta:
+  change_id: "2026-10-22-phone-tabs"
+  title: "iPhone 五 Tab 与已有健康数据展示"
+  created: "2026-10-22"
+  status: confirmed
+why:
+  problem: "首页串联全部内容，阅读路径过长，已有数据未充分展开。"
+  motivation: "用户真机试用后要求多Tab和更丰富数据，并回复先这么推进确认范围。"
+what_changes:
+  - {id: C1, type: new, description: "今天、睡眠、活动、趋势、我的五个底部Tab，独立导航并保留会话内浏览位置。"}
+  - {id: C2, type: modified, description: "今天仅三项估算和睡眠、活动摘要，详情移至主题页。"}
+  - {id: C3, type: modified, description: "展开已有睡眠、活动负荷、运动记录、覆盖度、7/30日历史、个人基线和心情。"}
+  - {id: C4, type: modified, description: "我的集中健康连接、来源、校准进度、更新时间及现有设置。"}
+capabilities:
+  new:
+    - {name: phone-tabs, description: "五Tab及独立浏览状态"}
+  modified:
+    - {name: phone-health-content, description: "已有健康报告的主题化展示"}
+constraints:
+  - "只改手机展示；不改评分、读取类型、Watch协议。"
+  - "缺失保持缺失，零值保留；演示与真实缓存隔离，健康信息仅本地处理。"
+stakeholders: ["手机使用者"]
+risk_areas:
+  - {capability: phone-tabs, risk: "切换丢失位置或重复读取", mitigation: "稳定页面标识、独立导航与共享DashboardModel"}
+  - {capability: phone-health-content, risk: "旧数据或低覆盖误读", mitigation: "明确日期来源、校准、覆盖和缺失原因"}
+non_goals: ["Watch调整或安装", "新增健康读取类型", "新评分模型", "账号和云端"]
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []
+success_criteria:
+  - "默认今天，五Tab固定可达；会话内保留详情路径、滚动位置和趋势筛选。"
+  - "今天仅核心状态和主题摘要，完整曲线、历史和心情移入主题页。"
+  - "四个主题页充分展示已有数据，所有设置操作可达。"
+  - "空数据、校准、过期、演示、大字体及VoiceOver均有验收。"
+  - "执行check.sh及Apple构建，模拟器和真机验证分开报告。"

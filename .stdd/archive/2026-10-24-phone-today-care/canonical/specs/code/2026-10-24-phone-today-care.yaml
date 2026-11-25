@@ -1,0 +1,78 @@
+# spec.yaml — 行为规格（Canonical YAML）
+
+meta:
+  capability: "phone-today-care"
+  change_id: "2026-10-24-phone-today-care"
+  created: "2026-10-24T11:42:46.074063"
+  confidence: high
+
+requirements:
+  - id: "PTC-R1"
+    description: "原位展示可解释的日常状态，不突出评分。"
+    confidence: high
+    scenarios:
+      - id: "PTC-001"
+        confidence: high
+        evidence: "proposal C1；specs/002-scoring.md 展示分段及 Watch 关怀文案"
+        given: "准备度或压力有当前有效数值，MetricEstimate.value 已按既有规则四舍五入。"
+        when: "显示手机今天页指标卡。"
+        then: "SHALL 用图标加短句展示准备度 0–32 较低、33–66 接近个人常态、67–100 较高；压力 0–19 较低、20–59 常态、60–79 偏高、80–100 较高。"
+        and:
+          - "压力 activity 模式 SHALL 优先显示运动中，不用压力高低推断心理紧张或心情。"
+          - "HR-only SHALL 就近显示仅心率估算；其他 partial 指标 SHALL 标明部分数据估算。"
+          - "首页三指标 SHALL 不显示或朗读原始分数、/100 或百分比评分，不新增休息/训练建议。"
+      - id: "PTC-002"
+        confidence: high
+        evidence: "proposal C1/C2；电量不新增分段；真实 0 与缺失区分"
+        given: "身体电量有有效显示整数 0、1、50、100，或无可显示值。"
+        when: "生成电量卡片与无障碍标签。"
+        then: "SHALL 只在有有效值时显示按 value/100 连续填充的电量图形及身体电量估算短句，不新增高低等级。"
+        and:
+          - "真实 0 SHALL 是有效空填充并标明实验估算；缺失 SHALL 不显示任何有效电量填充，改为原因图标和文字。"
+          - "图形 SHALL 不通过系统 ProgressView 默认语义朗读百分比，原数值可在详情查看。"
+  - id: "PTC-R2"
+    description: "指标原有数据质量与有效期优先于状态图标。"
+    confidence: high
+    scenarios:
+      - id: "PTC-003"
+        confidence: high
+        evidence: "proposal C2；MetricExplanation；specs/001-product.md 缺失原因可见"
+        given: "无报告，或指标校准、缺输入、低覆盖、重校准、读取失败或不支持。"
+        when: "展示今天页或打开对应详情。"
+        then: "SHALL 使用 MetricExplanation 的具体原因，不显示正常等级、虚构电量或等待手机同步的 Watch 专属提示。"
+        and:
+          - "校准 SHALL 显示实际有效日数及 14 日门槛，不承诺固定自然日后必有分数。"
+          - "空读取 SHALL 不等同拒绝授权；卡片始终可进入解释详情。"
+      - id: "PTC-004"
+        confidence: high
+        evidence: "proposal C2/constraints；MetricEstimate.isStale；手机与 Watch 快照时限隔离"
+        given: "指标有 effectiveAt/validUntil，且真实时钟或冻结的演示时钟显式传入展示层。"
+        when: "时间到达有效期边界、超过有效期或早于有效观测。"
+        then: "SHALL 严格沿用 now > validUntil 或 effectiveAt > now 的过期判定，过期时隐藏等级与电量填充并显示数据已过期。"
+        and:
+          - "首页和详情 SHALL 在前台最多 30 秒内更新展示状态；演示时间固定为演示报告 asOf。"
+          - "有效期内的手机准备度 SHALL 不因报告生成超过 60 分钟而过期；不套用 Watch 快照 TTL。"
+          - "刷新时间 SHALL 不替代有效观测时间，不因此恢复过期数值；不修改读取或后台任务。"
+  - id: "PTC-R3"
+    description: "保留可追溯详情、演示隔离与易读布局。"
+    confidence: high
+    scenarios:
+      - id: "PTC-005"
+        confidence: high
+        evidence: "proposal C2/C3；原数值、依据和更新时间保留详情"
+        given: "今天页的准备度、压力或电量卡，以及真实空报告或合成演示报告。"
+        when: "点击卡片并返回。"
+        then: "SHALL 导航到对应生产详情，保留有效数值（包括 0）、贡献依据、数据原因、来源、模型版本与有效观测时间，并分别标出报告 asOf 更新时间。"
+        and:
+          - "过期或缺失 SHALL 不显示旧数值或贡献；未知时间/无报告来源 SHALL 不伪造为当前时间或 Apple 健康。"
+          - "演示 SHALL 始终有合成演示标记，不读取健康、不写真实缓存或同步。"
+          - "返回 SHALL 保留今天页与其他页签导航行为。"
+      - id: "PTC-006"
+        confidence: high
+        evidence: "proposal C1/C3；原位卡片与辅助功能回归"
+        given: "窄屏及最大辅助字体，包含接近个人常态与长缺失原因。"
+        when: "阅读、滚动今天页或用 VoiceOver 访问指标入口。"
+        then: "SHALL 在原三卡位置显示图标、完整状态短句、数据质量说明与详情入口；大字体单列、文字可换行，不固定高度裁切。"
+        and:
+          - "图标和颜色 SHALL 不作为唯一信息；每个入口 SHALL 有指标名、状态、原因/数据质量及查看详情语义，无隐藏分数。"
+          - "SHALL 保留日计划和睡眠/活动摘要，不添加第四张关怀卡、额外页签或强制弹层。"

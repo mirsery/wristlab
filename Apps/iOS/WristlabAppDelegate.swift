@@ -4,6 +4,7 @@ import UserNotifications
 @MainActor
 enum AppServices {
     static let dashboard = DashboardModel()
+    static let cloudPreferences = CloudPreferencesModel()
 }
 
 @MainActor

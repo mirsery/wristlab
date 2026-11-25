@@ -1,0 +1,49 @@
+change_id: 2026-10-24-watch-activity-calendar-crash
+complexity_score: 6
+current_phase: deliver
+design_adjustments:
+  count: 0
+last_modified: '2026-10-24T03:12:51.598227'
+mode: standard
+phases:
+  build:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T10:20:35'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示最终报告：手机2404已更新本地报告、Watch2402不再闪退且页面可打开，245项Swift/4项设置UI/双端构建验签通过；仅验收两项故障修复，健康类型/评分/活动值/表盘/后台/性能仍保留未验，默认无云、不清数据、不提交推送。用户回复：确认，本轮修复验收并本地归档。
+    slices_completed:
+      S1:
+        evidence: work/calendar-crash-platform-red.log; work/calendar-crash-platform-green.log;
+          work/calendar-crash-check.log; work/calendar-crash-apple.log
+        new_tests: 3
+        status: done
+        tc_coverage: ACAL001-003 SDK and scoped no-crash feedback; other activity
+          checks not audited
+        verified_at: '2026-10-24T03:21:46+08:00'
+    status: completed
+    verification_status: gate3_accepted_scoped_watch_crash_fix_with_disclosed_gaps
+  deliver:
+    status: completed
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T03:12:51'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示真实calendar异常、显式携带系统日Gregorian calendar与时区且不改日归属、补真实HealthKit谓词和时区/DST回归、2402同包覆盖不清数据的方案；用户回复：确认，实施这个修复方案。手机问题先同步只读诊断；用户状态为无数据，刷新已取消。不代批Gate3。
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T03:12:51'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示仅修新版Watch启动/页面崩溃、补复现测试、同包覆盖，不卸载清数据、不改评分同步iCloud的范围；用户回复：确认，按这个范围修复。
+    status: completed
+score_confidence: preliminary
+status: archived
+task_type: code
+traceability:
+  device_acceptance: user_confirmed_watch2402_no_crash_pages_open_other_activity_checks_not_audited
+  platform_probe_functions: 3
+  spec_scenarios: 3
+  swift_package_tests: 231
+  tc_cases: 3
+  test_functions: 3
+version: '3.0'

@@ -1,0 +1,35 @@
+# 2026-10-22-activity-page-hierarchy.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-22-activity-page-hierarchy"
+  title: "活动页信息层级与计划入口整合"
+  created: "2026-10-22T20:08:32.772948"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    依据已展示的docs/display-optimization.md首个优先项，活动页当前把自动周计划和今日/手动计划并排堆叠，重复展开周安排和管理入口。先突出今日安排和健康记录进度，把管理收进二级页面，保留现有操作与数据边界。
+
+what_changes:
+  - description: "活动页以今日任务、紧凑本周安排、负荷摘要和详情入口组织；不新增主Tab。"
+  - description: "自动生成、手动模板、模式切换、周反馈与旧记录重读进入统一管理计划页，已存在功能不删除。"
+  - description: "空计划提供一个建立计划主入口，已计划提供管理入口；区分当前模式和未来生效计划。"
+
+capabilities:
+  new: []
+  modified:
+    - name: "activity-presentation"
+      description: "仅活动页的展示层与导航组织，关联P-011、P-013/014及P-017–019。"
+
+success_criteria:
+  - "今日任务与健康实际分钟先于完整周草案，自动与手动不重复占据首屏。"
+  - "完成、休息、撤销、替换、预览采纳、切换模式、反馈和重读入口全部可达，取消/浏览不写数据。"
+  - "缺失不补零，人工状态和真实记录分开，保存/来源切换保护及历史快照不改变。"
+  - "默认与辅助大字体、窄屏、空态、刷新和Tab切换有明确验证，不以编译冒充实际交互。"
+constraints:
+  - "保留其他未提交改动、睡眠安全区修复与kg-only。"
+  - "不更改生成公式、评分、HealthKit授权、持久化schema或Watch协议；实体Watch不安装。"
+non_goals:
+  - "本轮不同时实施趋势分段或全局状态条重构，按已展示的优先级逐步推进。"

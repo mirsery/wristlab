@@ -1,0 +1,40 @@
+meta:
+  change_id: "2026-10-22-activity-weight-plan"
+  title: "运动计划与减重目标追踪"
+  created: "2026-10-22"
+  status: confirmed
+why:
+  problem: "现有状态和负荷解释缺少下一步行动与长期目标管理。"
+  motivation: "用户要求参考竞品增加运动建议和减肥计划，对两阶段方案回复可以。"
+what_changes:
+  - {id: C1, type: new, description: "按目标、偏好、可用日期和时长建立本地运动周计划，支持完成、替换与休息。"}
+  - {id: C2, type: new, description: "结合现有报告解释计划调整；数据不足或过期时退回用户原定安排，不将分数换算成运动分钟。"}
+  - {id: C3, type: new, description: "设置起始/目标体重和期望周期，记录体重、展示周趋势、差距和执行情况，支持暂停和调整。"}
+  - {id: C4, type: modified, description: "保留五Tab，今天摘要、活动执行、趋势回顾、我的设置；手动记录优先，可选健康体重导入作为后续独立切片。"}
+capabilities:
+  new:
+    - {name: activity-plan, description: "可解释、用户可调整的运动计划"}
+    - {name: weight-goal, description: "本地减重目标和体重趋势"}
+  modified: []
+constraints:
+  - "无新评分、无AI服务、无医学处方；不改现有准备度和负荷模型。"
+  - "健康数据仅本地；演示隔离，缺失不造值；只读HealthKit，不写回。"
+  - "先定建议规则、数据模型和缺失策略再实现；Gate2/3需实际确认。"
+stakeholders: ["手机使用者"]
+risk_areas:
+  - {capability: activity-plan, risk: "实验分数被当成安全运动额度", mitigation: "不自动加量、不换算分钟、显示依据和输入时效"}
+  - {capability: weight-goal, risk: "目标期限被当成疗效保证或敏感体重泄露", mitigation: "用户设定意向、无达标承诺、受保护本地存储和清除"}
+non_goals: ["饮食记录与热量预算", "达标日期预测", "训练录制和动作库", "Watch功能或安装", "云同步", "自动加量"]
+critical:
+  is_critical: false
+  risk_assessment: {safety_critical: false, financial: false, cross_system: false}
+anchoring:
+  level: L2
+  reference_changes: []
+  anchor_implementations: ["HealthReport", "HealthRepository", "MetricExplanation", "AnalysisClock"]
+success_criteria:
+  - "运动偏好与周计划可保存、执行、替换、休息并回顾，状态解释可追溯。"
+  - "缺失/校准/过期时显示原定安排和原因，不虚构个性化时长或安全保证。"
+  - "体重记录可编辑删除，周趋势保留缺失与记录数，目标可暂停调整。"
+  - "所有入口在现有五Tab内可达，演示/真实隔离，清除语义明确。"
+  - "规则、持久化、时间边界、失败路径与UI均有测试方案。"

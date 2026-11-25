@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-23-watch-refresh-handshake: proposals/2026-10-23-watch-refresh-handshake.yaml
+specs:
+  agent:
+    2026-10-23-watch-refresh-handshake: specs/agent/2026-10-23-watch-refresh-handshake.yaml
+  code:
+    2026-10-23-watch-refresh-handshake: specs/code/2026-10-23-watch-refresh-handshake.yaml
+version: '2.9'

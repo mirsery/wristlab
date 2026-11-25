@@ -1,0 +1,7 @@
+designs: {}
+proposals:
+  2026-10-22-phone-layout-scroll: proposals/2026-10-22-phone-layout-scroll.yaml
+specs:
+  agent: {}
+  code: {}
+version: '2.9'

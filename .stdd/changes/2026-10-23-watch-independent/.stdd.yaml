@@ -1,0 +1,32 @@
+change_id: 2026-10-23-watch-independent
+complexity_score: null
+current_phase: build
+design_adjustments:
+  count: 0
+last_modified: '2026-10-23T18:24:44.748281'
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T18:24:44'
+    confirmed_by: dialog
+    confirmed_evidence: 用户对设计与10场景回复：开始实现
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T18:12:01'
+    confirmed_by: dialog
+    confirmed_evidence: 用户对独立使用范围回复：设计吧
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

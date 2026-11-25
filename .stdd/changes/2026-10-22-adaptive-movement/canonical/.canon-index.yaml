@@ -1,0 +1,11 @@
+designs: {}
+proposals:
+  2026-10-22-adaptive-movement: proposals/2026-10-22-adaptive-movement.yaml
+specs:
+  agent:
+    generated-week: specs/agent/generated-week.yaml
+    workout-completion: specs/agent/workout-completion.yaml
+  code:
+    generated-week: specs/code/generated-week.yaml
+    workout-completion: specs/code/workout-completion.yaml
+version: '2.9'

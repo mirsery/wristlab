@@ -1,0 +1,32 @@
+change_id: 2026-10-23-watch-refresh-handshake
+complexity_score: null
+current_phase: build
+design_adjustments:
+  count: 0
+last_modified: '2026-10-23T17:23:07.533428'
+mode: standard
+phases:
+  build:
+    status: in_progress
+  deliver:
+    status: pending
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T17:23:07'
+    confirmed_by: dialog
+    confirmed_evidence: 用户对设计与五个验收场景回复：可以
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T16:24:27'
+    confirmed_by: dialog
+    confirmed_evidence: 用户在修复范围确认请求后回复：推进推进
+    status: completed
+score_confidence: null
+status: active
+task_type: code
+traceability:
+  spec_scenarios: 0
+  tc_cases: 0
+  test_functions: 0
+version: '3.0'

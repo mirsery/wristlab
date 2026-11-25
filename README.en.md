@@ -2,6 +2,8 @@
 
 # Wristlab
 
+Watch daily care is implemented in the working tree, with Gate 3 accepted for the code/simulator stage and disclosed platform gaps; device acceptance is still pending. It adds Care / Activity / State pages, icons with short labels instead of direct scores, opt-in read-only daily activity, and an optional same-day private mood record. Mood is not scored, synced, or placed in widgets. Local-only stress history is never fabricated from phone snapshots. See the [acceptance report and remaining checks](.stdd/archive/2026-10-23-watch-daily-care/test-report.md). Existing checked-in Watch screenshots predate this redesign; simulator builds do not prove real-device behavior.
+
 <img src="docs/brand/icon-master.png" width="88" alt="Wristlab app icon" />
 
 **A clearer view of your day.**
@@ -17,7 +19,19 @@ A local-first health trends lab for iPhone and Apple Watch.
 
 </div>
 
-## Preview
+## Feature Dashboard
+
+The iCloud data-center implementation optionally syncs only four interface preferences, never health records, weights, goals or plans. It requires CloudKit-capable signing; the current Personal Team cannot sign that capability. Real cloud writes, device installation and cross-device restoration remain unverified. See [configuration notes (Chinese)](docs/development.md#icloud界面偏好同步).
+
+The default build disables CloudKit capabilities and runtime access while retaining its implementation. Future cloud builds explicitly use `project-icloud.yml` with a capable team. Local iPhone/Watch sync does not require iCloud.
+
+![Wristlab feature map: Today, Sleep, Activity, Trends and My Data](docs/feature-dashboard.svg)
+
+Illustrative feature map in Chinese, **not an app screenshot or health data**. Today summarizes readiness, energy and stress; Sleep explains rest; Activity holds editable weekly plans and recorded workout progress; Trends combines health history with manual weight entries and weight goals; My Data controls connections and settings. Watch snapshots, widgets and optional local morning briefs extend the experience.
+
+Weekly planning and weight goals are implemented; real-data matching and interactions still need device acceptance. Plans require confirmation. Weight or deadline differences are not converted into prescribed exercise. See the [proposed display improvements (Chinese)](docs/display-optimization.md); these are recommendations, not shipped UI changes.
+
+## Native App Captures
 
 <table align="center">
 <tr><th>iPhone · Today</th><th>Apple Watch · At a glance</th></tr>
@@ -49,7 +63,7 @@ Real mode starts empty. Reading requires an explicit Apple Health connection. De
 
 ## Run
 
-Install full **Xcode** and its iOS/watchOS platforms. CI uses Xcode16.4. Install [XcodeGen](https://github.com/yonaskolb/XcodeGen), then:
+Install full **Xcode** and its iOS/watchOS platforms. Only the latest Xcode is supported; CI uses Xcode 27. Install [XcodeGen](https://github.com/yonaskolb/XcodeGen), then:
 
 ```sh
 git clone https://github.com/mirsery/wristlab.git
@@ -66,7 +80,9 @@ To preview synthetic data in a simulator, add `--demo` to the scheme's launch ar
 
 ## Data and models
 
-Health records stay on device with file protection and atomic persistence. There is no backend, analytics/advertising SDK, account, subscription or AI upload. Watch receives a compact display snapshot, not raw heart-rate series.
+Health records stay on device with file protection and atomic persistence. There is no self-hosted backend, analytics/advertising SDK, separate registration, subscription or AI upload. Optional Apple CloudKit carries only four interface preferences, subject to capable signing and explicit consent. Watch receives a compact display snapshot, not raw heart-rate series.
+
+Independent Watch reporting is implemented but awaits physical-device acceptance: users explicitly select local Watch or phone-synced reports. Local mode requests read-only HealthKit access and stores its own available records; foreground/manual refresh reuses the same engine without reducing baseline requirements. No raw records or baselines are merged across devices, and no fixed background cadence is promised.
 
 Readiness, stress and body energy are **experimental estimates** with published, versioned formulas. They are not measurements, medical assessments or training prescriptions. PeakWatch's public behavior is a product reference; Wristlab uses original branding, UI and code, has no affiliation, and neither reproduces private formulas nor promises matching scores. HRV v1 uses **SDNN**, not RMSSD. See [sources and differences](specs/000-reference-behavior.md).
 
@@ -89,7 +105,7 @@ HealthKit changes → normalized records/sources → sleep and personal baseline
 
 CI validates specifications, tests domain behavior, builds both simulator targets and captures screenshots. Twelve numeric fixtures come from the spec; see [validation coverage](docs/validation.md) for additional cases. **Simulator builds and screenshots do not establish physical HealthKit access, background delivery, signing or complication installation.**
 
-AI, food recognition, workout recording/courses, cloud sync, monetization and App Store distribution are outside v1. See the [spec index](specs/README.md) for scope.
+AI, food recognition, workout recording/courses, health-data cloud replication, monetization and App Store distribution are outside v1. The optional interface-preference cloud extension does not restore weights, goals or plans. See the [spec index](specs/README.md) for scope.
 
 ## Contributing
 

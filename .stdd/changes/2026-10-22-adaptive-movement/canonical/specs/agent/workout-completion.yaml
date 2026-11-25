@@ -1,0 +1,17 @@
+meta:
+  task_id: workout-completion
+  change_id: 2026-10-22-adaptive-movement
+  task_type: code
+  system: Wristlab
+  preconditions: ["Gate2已确认", "仅合成数据"]
+steps:
+  - id: CP-1
+    description: "领域/仓库回归，不代替UI"
+    action: "./scripts/check.sh"
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-2
+    description: "双平台构建及Widget运行注册，不安装实体手表"
+    action: "./scripts/build-apple.sh"
+    assertions: [{type: exit_code, expected: 0}]
+rollback:
+  steps: ["只撤回本轮代码，保留已存在用户数据及其他change。"]

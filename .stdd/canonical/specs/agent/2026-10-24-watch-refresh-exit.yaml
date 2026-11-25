@@ -1,0 +1,20 @@
+meta:
+  task_id: watch-refresh-exit
+  change_id: 2026-10-24-watch-refresh-exit
+  task_type: code
+  system: Watch 刷新回复的 WatchConnectivity 回调隔离
+preconditions: [Gate 2 已实际确认后实施, 崩溃报告仅提取异常类型与调用栈且不入库]
+steps:
+  - id: CP-WRX-1
+    description: Core 后台队列 handler 测试 RED（类型缺失）→ GREEN
+    action: scripts/swift-test.sh (WristlabCore)
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-WRX-2
+    description: 完整回归与双端构建
+    action: scripts/check.sh and scripts/build-apple.sh
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-WRX-3
+    description: 2406 同包覆盖，用户刷新与切页后核对崩溃目录无新增
+    action: device verification with build 2406 + devicectl systemCrashLogs listing
+    assertions: [{type: manual, expected: record user feedback and crash listing honestly}]
+expected_outcomes: [刷新回复不再 trap, 状态分支与原行为一致, 不改协议与数据]

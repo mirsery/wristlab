@@ -102,6 +102,8 @@ public struct HealthRecord: Codable, Equatable, Sendable, Identifiable {
     public var value: Double?
     public var stage: SleepStage?
     public var workoutType: String?
+    public var workoutDurationSeconds: Double?
+    public var workoutActiveIntervals: [DateInterval]?
     public var source: SampleSource
     public var manual: Bool
     public var version: Int
@@ -159,7 +161,9 @@ public enum RecordNormalizer {
     }
     static func fingerprint(_ r: HealthRecord) -> String {
         [r.kind.rawValue, r.source.group, r.source.device, String(r.start.timeIntervalSince1970),
-         String(r.end.timeIntervalSince1970), r.value.map(String.init(describing:)) ?? "", r.stage?.rawValue ?? "", r.workoutType ?? ""].joined(separator: "|")
+         String(r.end.timeIntervalSince1970), r.value.map(String.init(describing:)) ?? "", r.stage?.rawValue ?? "", r.workoutType ?? "",
+         r.workoutDurationSeconds.map(String.init(describing:)) ?? "",
+         r.workoutActiveIntervals.map { $0.map { "\($0.start.timeIntervalSince1970):\($0.end.timeIntervalSince1970)" }.joined(separator: ",") } ?? ""].joined(separator: "|")
     }
     public static func selected(_ records: [HealthRecord], kind: HealthKind, profile: HealthProfile,
                                 sourceWindow: DateInterval? = nil) -> [HealthRecord] {

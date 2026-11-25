@@ -2,8 +2,13 @@ import SwiftUI
 import Charts
 import WristlabCore
 
-struct SleepDetailView: View {
+struct SleepDetailView<StatusContent: View>: View {
     let report: HealthReport
+    private let statusContent: StatusContent
+    init(report: HealthReport, @ViewBuilder statusContent: () -> StatusContent) {
+        self.report = report
+        self.statusContent = statusContent()
+    }
     private var sleep: SleepBreakdown { SleepBreakdown(report.sleep) }
     private func minutes(_ value: Double) -> String { "\(Int(value.rounded())) 分钟" }
     private func duration(_ value: Double) -> String { "\(Int(value) / 60) 小时 \(Int(value) % 60) 分钟" }
@@ -17,8 +22,10 @@ struct SleepDetailView: View {
     }
     var body: some View {
         List {
-            if report.source == .demo {
-                Label("合成演示数据 · 非健康评估", systemImage: "sparkles").font(.caption).foregroundStyle(wristMint)
+            Section {
+                statusContent
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
             }
             Section {
                 LabeledContent("实际睡眠", value: sleep.totalMinutes.map(duration) ?? "暂无睡眠记录")
@@ -49,7 +56,7 @@ struct SleepDetailView: View {
                         return total > 0 ? "\(lane.title)\(minutes(total))" : nil
                     }.joined(separator: "，"))
                 }
-            } header: { Text(report.sleep.settled ? "昨晚睡眠 · 已汇总" : "昨晚睡眠 · 暂定") }
+            } header: { Text("\(report.day.formatted(reportStyle(.dateTime.month().day(), report.timeZoneID))) · \(report.sleep.settled ? "主睡眠已汇总" : "主睡眠暂定")") }
             Section {
                 if let stages = sleep.stageMinutes, let shares = sleep.stageShares {
                     ForEach([SleepStage.deep, .core, .rem, .unspecified], id: \.self) { stage in
@@ -71,6 +78,11 @@ struct SleepDetailView: View {
                 LabeledContent("已记录清醒", value: sleep.awakeMinutes.map { "\(minutes($0)) · \(sleep.awakenings ?? 0) 次" } ?? "—")
             } header: { Text("指标") } footer: {
                 Text("“—”表示缺少卧床时段或阶段分类不足，无法计算；已记录清醒只统计明确标为清醒的时段。")
+            }
+            Section("近期睡眠") {
+                LabeledContent("7日睡眠债", value: report.sleepDebtMinutes.map { "\(Int($0.rounded())) 分钟" } ?? "有效记录不足")
+                LabeledContent("入睡时间偏差", value: report.regularityMinutes.map { "\(Int($0.rounded())) 分钟" } ?? "有效记录不足")
+                Text("睡眠债按个人睡眠目标计算；入睡时间偏差描述记录规律，不是医学评估。").font(.caption).foregroundStyle(.secondary)
             }
             Section("小睡") {
                 if sleep.naps.isEmpty { Text("无").foregroundStyle(.secondary) }

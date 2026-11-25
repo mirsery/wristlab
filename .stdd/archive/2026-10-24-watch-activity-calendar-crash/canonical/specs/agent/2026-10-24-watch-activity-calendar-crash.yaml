@@ -1,0 +1,20 @@
+meta:
+  task_id: watch-activity-calendar-crash
+  change_id: 2026-10-24-watch-activity-calendar-crash
+  task_type: code
+  system: 活动摘要生产参数和Apple SDK契约回归
+preconditions: [Gate 2已实际确认后实施, 合成日期及异常元数据不含健康记录]
+steps:
+  - id: CP-ACAL-1
+    description: 原参数真实SDK谓词RED，修后生产路径GREEN
+    action: python3 scripts/test-widget-registration.py
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-ACAL-2
+    description: 完整合成回归及双端构建
+    action: scripts/check.sh and scripts/build-apple.sh
+    assertions: [{type: exit_code, expected: 0}]
+  - id: CP-ACAL-3
+    description: 真机同包签名安装/版本与普通启动，独立收集用户稳定性反馈，不清数据
+    action: device verification with version 2402
+    assertions: [{type: manual, expected: record results and remaining gaps honestly}]
+expected_outcomes: [不再出现calendar异常, 保留系统日和数据作用域]

@@ -1,0 +1,11 @@
+designs: {}
+proposals:
+  2026-10-22-activity-weight-plan: proposals/2026-10-22-activity-weight-plan.yaml
+specs:
+  agent:
+    activity-plan: specs/agent/activity-plan.yaml
+    weight-goal: specs/agent/weight-goal.yaml
+  code:
+    activity-plan: specs/code/activity-plan.yaml
+    weight-goal: specs/code/weight-goal.yaml
+version: '2.9'

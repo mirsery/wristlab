@@ -1,0 +1,9 @@
+designs: {}
+proposals:
+  2026-10-22-icloud-data-center: proposals/2026-10-22-icloud-data-center.yaml
+specs:
+  agent:
+    2026-10-22-icloud-data-center: specs/agent/2026-10-22-icloud-data-center.yaml
+  code:
+    2026-10-22-icloud-data-center: specs/code/2026-10-22-icloud-data-center.yaml
+version: '2.9'

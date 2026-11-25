@@ -1,0 +1,38 @@
+meta:
+  capability: phone-today-care
+  change_id: 2026-10-24-phone-care-layout
+  created: '2026-10-24T16:30:00+08:00'
+  confidence: high
+requirements:
+  - id: PCL-REQ-001
+    confidence: high
+    description: 标准字号下今日关怀双列卡片顶边对齐、等高，说明全文保留。
+    scenarios:
+      - id: PCL-001
+        confidence: high
+        evidence: proposal Success Criteria 1; 模拟器两卡顶边差 7pt
+        given: 标准字号，身体电量为校准中 9/14 天（合成）长说明，生理压力为短状态
+        when: 渲染今日关怀两列卡片
+        then: SHALL 两卡顶边差与高度差均不超过 1pt，各自状态、说明全文和查看详情入口可见且可点击。
+      - id: PCL-002
+        confidence: high
+        evidence: proposal Success Criteria 2; 原 PTC-006
+        given: 最大辅助字号与同一长短混合数据
+        when: 渲染今日关怀卡片
+        then: SHALL 保持单列，电量卡完全位于压力卡上方不重叠，文本不截断且两卡均可进入详情。
+  - id: PCL-REQ-002
+    confidence: medium
+    description: 今天页滚动内容不与状态栏重叠，末尾内容可越过底部页签栏。
+    scenarios:
+      - id: PCL-003
+        confidence: medium
+        evidence: proposal Success Criteria 2; 模拟器滚动截图
+        given: 正式 App 今天页（合成演示）已向上滚动，使页头位于状态栏区域
+        when: 截取屏幕
+        then: SHALL 状态栏区域只显示与页面同色的背板和系统状态栏，不透出页面文字；背板不可交互且对 VoiceOver 隐藏。
+      - id: PCL-004
+        confidence: high
+        evidence: proposal Success Criteria 2; 模拟器滚动到底截图
+        given: 正式 App 今天页
+        when: 滚动到底
+        then: SHALL 最后一张卡片底边不低于页签栏顶边，五个页签与三张关怀卡的导航保持原行为。

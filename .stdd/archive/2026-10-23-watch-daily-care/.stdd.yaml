@@ -1,0 +1,72 @@
+change_id: 2026-10-23-watch-daily-care
+complexity_score: 12
+current_phase: deliver
+design_adjustments:
+  count: 2
+last_modified: '2026-10-24T02:35:41.064421'
+long_range:
+  enabled: true
+  mode: full_auto
+  pre_auth_completed: true
+  pre_auth_evidence: 用户选择全自动长程并对已展示范围/本地编辑测试/模拟器/只读Git/非安全偏差授权回复“确认以上预授权，连续推进”；不提交推送、不操作清除真机、不开云、不导出健康数据；重大隐私权限变化暂停，Gate3保留。
+  pre_auth_timestamp: '2026-10-24T00:18:00+08:00'
+mode: thorough
+phases:
+  build:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T02:35:40'
+    confirmed_by: dialog
+    confirmed_evidence: 已向用户展示231项测试、双端模拟器构建及组件注册结果，并明确真机未安装、iCloud关闭、Crown滚动/VoiceOver/实际表盘等仍待验，询问是否通过本轮Gate
+      3并保留待验项；用户回复：确认开始完成吧。仅批准本轮代码和模拟器阶段收尾，不批准提交推送、真机操作、开启iCloud或把待验项记为通过。
+    gate_3: accepted_with_disclosed_platform_gaps
+    slices_completed:
+      S1:
+        evidence: work/watch-care-check-pass.log
+        new_tests: 9
+        status: done
+        tc_coverage: 8/8 code references
+        verified_at: '2026-10-24T02:16:58+08:00'
+      S2:
+        evidence: work/watch-care-check-pass.log
+        new_tests: 10
+        status: done
+        tc_coverage: 5/5 code references
+        verified_at: '2026-10-24T02:16:58+08:00'
+      S3:
+        evidence: work/watch-care-check-pass.log; work/watch-care-build-pass.log;
+          test-report.md
+        new_tests: 2
+        status: implemented_platform_validation_partial
+        tc_coverage: 2/2 code references; UI and platform acceptance partial
+        verified_at: '2026-10-24T02:16:58+08:00'
+    status: completed
+    verification_status: automated_pass_platform_gaps
+  deliver:
+    cloud_enablement: not_performed
+    device_deployment: not_performed
+    scope: local_archive_and_specs_only
+    status: completed
+    vcs_release: not_authorized_no_commit_push_or_tag
+  spec:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-24T00:12:01'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示关怀优先/图标总览交互草图及完整设计规则链接，明确图标加短标签、事实数字保留、主动只读活动、仅本机心情、手机无趋势不伪造及未安装。询问采用关怀优先进入实现，用户回复：实现吧。仅批准Gate2，不批准Gate3或发布。
+    status: completed
+  understand:
+    confirmed_actor: ai
+    confirmed_at: '2026-10-23T23:50:29'
+    confirmed_by: dialog
+    confirmed_evidence: 已展示Watch日常关怀版范围：关怀首页、步数/活动分钟/圆环、可解释生理压力、可选自报心情、小确幸反馈、图表与表盘；无诊断/强制目标/新增打扰通知。用户回复：开始。随后补充：各种心情状态压力水平设置图标，避免直接给分数
+      看不懂。此为范围与设计启动确认，不批准尚未展示的Gate2设计或Build。
+    status: completed
+score_confidence: preliminary
+status: archived
+task_type: code
+traceability:
+  code_tc_references: 15
+  full_scenario_acceptance: pending_platform_checks
+  spec_scenarios: 15
+  tc_cases: 15
+  test_functions: 21
+version: '3.0'

@@ -1,0 +1,102 @@
+meta:
+  capability: integrated-weekly-review
+  change_id: 2026-10-23-integrated-weekly-review
+  created: '2026-10-23T23:16:50+08:00'
+  confidence: medium
+requirements:
+  - id: REQ-IWR-001
+    description: 三类数据使用一致的已结束日窗口。
+    scenarios:
+      - id: IWR-001
+        confidence: medium
+        evidence: proposal C1/C2；design Decision 1，具体周期待Gate 2
+        given: 有合法分析时区与显式now，可选择本周或上周
+        when: 生成当前和对比窗口
+        then: SHALL本周取周一00点至今天00点并对比上周同星期范围，上周取完整周并对比此前完整周，半开区间排除今天未来。
+        and:
+          - SHALL共用窗口并列日期/时区/已结束日数，夏令时不使用固定86400秒分日。
+      - id: IWR-002
+        confidence: medium
+        evidence: proposal C1缺失约束；design Decision 1
+        given: 当前为周一或当前区间不足3日
+        when: 查看默认本周或切换上周
+        then: SHALL周一显示尚无已结束日而不自动填上周或0值，切换后才展示所选周期。
+        and:
+          - SHALL不足3有效日的均值为空，n为0时不催补记录。
+  - id: REQ-IWR-002
+    description: 睡眠和体重保持缺失、门槛与可解释数值。
+    scenarios:
+      - id: IWR-003
+        confidence: high
+        evidence: proposal C1及constraints；specs/004-sleep；design Decision 2
+        given: 一致profile的history有非负睡眠分钟、nil、真实0及尚未结算日
+        when: 汇总睡眠
+        then: SHALL按已有报告归属日取区间内已结束且在report.asOf达到原14点结算时刻的记录，保留0与缺失区别，含小睡，不修改睡眠算法。
+        and:
+          - SHALL各段至少3有效日才给均值，两段都有才给显示整数分钟之差，并列N/n和读取时间。
+      - id: IWR-004
+        confidence: high
+        evidence: proposal C1及kg/体重门槛约束；P-015；design Decision 2
+        given: 体重含同日多条、未来、非法记录，两段有效日可能分别不足
+        when: 生成体重均值及差值
+        then: SHALL合法非未来记录按分析日选最后采样，同at再按recordedAt和id定序，每日等权且各段至少3日才给均值。
+        and:
+          - SHALL仅kg与N/n，两段均值按0.1kg展示后相减，不拿起始或单条替代，不预测脂肪变化/达标日期。
+  - id: REQ-IWR-003
+    description: 历史计划和完成证据不混淆。
+    scenarios:
+      - id: IWR-005
+        confidence: high
+        evidence: proposal C1成功标准4；specs/005-activity；design Decision 2
+        given: 计划日有人工完成、自动达标、两者均有、休息、待确认及无安排日
+        when: 汇总执行情况
+        then: SHALL休息优先，其余完成证据去重；去重完成加休息加待确认等于安排数，人工与健康证据分别可见并标交集。
+        and:
+          - SHALL沿用WorkoutCompletion精确秒数、可靠活跃时段和类型来源规则，无证据/不支持为待确认，无安排不称休息或给完成率。
+          - SHALL删除修订后可回退，人工状态独立，不把计划完成称减脂达标。
+      - id: IWR-006
+        confidence: medium
+        evidence: proposal C1风险缓解；design Decision 2历史限制
+        given: 周中变更计划、未生效/异时区自动周或旧手动模板无生效历史
+        when: 获取回顾日安排
+        then: SHALL仅用该日已生效历史，同区自动周从effectiveFrom使用，排除今天未来。
+        and:
+          - SHALL旧模板无生效日期时只用显式当日entry并说明历史可能不全，不反推过去或借异时区自动周。
+  - id: REQ-IWR-004
+    description: 部分数据独立可用且不跨来源恢复旧内容。
+    scenarios:
+      - id: IWR-007
+        confidence: high
+        evidence: proposal C1及成功标准3/5；specs/003；design Decision 3
+        given: 健康报告缺失、较旧/未来、profile或时区不符，本地体重/人工标记存在
+        when: 生成周报
+        then: SHALL保留本地部分，对不匹配/未来报告停用睡眠与自动判定，缺健康不推断拒绝或补0。
+        and:
+          - SHALL旧的一致报告仅提供其asOf已结算事实并标读取时间与不足，不以墙钟伪装新读取。
+      - id: IWR-008
+        confidence: high
+        evidence: proposal C2/C3及演示约束；EXP-20261022-008；design Decision 3/4
+        given: 详情打开后切换演示、清除、改时区/来源、数据修订或跨分析日前台恢复
+        when: 输入身份或日期改变
+        then: SHALL旧来源详情失效并按当前同源输入重算，演示固定时钟且不写真实存储或发到Watch/Widget/云。
+        and:
+          - SHALL不新增持久化或健康读取，清除不复活旧周报。
+  - id: REQ-IWR-005
+    description: 紧凑可达且不自动执行。
+    scenarios:
+      - id: IWR-009
+        confidence: high
+        evidence: proposal C2成功标准1；design Decision 4
+        given: 五Tab与趋势三分区存在，使用默认或辅助字体
+        when: 从今天摘要或趋势入口进入周报并返回
+        then: SHALL今天仅一张三行摘要卡，两入口到同一二级详情，不加一级Tab/主题且保留旧筛选和窗口。
+        and:
+          - SHALL窗口/有效数/值或缺失/时间可朗读，长文字可滚动、顶部不覆盖，颜色非唯一状态。
+      - id: IWR-010
+        confidence: medium
+        evidence: proposal C3及非目标；design Decision 5
+        given: 连接不足、体重不足3日、计划待确认、睡眠不足3日或数据充分
+        when: 生成并点击下一步
+        then: SHALL按连接检查/记录体重/查看计划/查看睡眠/回顾或设置计划取最多3项，n为0不催补，动作仅进入原页面或表单。
+        and:
+          - SHALL写入仍需原确认，不自动读取/勾完成/改计划/加量，不生成处方、饮食预算或减脂预测。

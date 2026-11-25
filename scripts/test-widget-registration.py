@@ -19,7 +19,7 @@ EXECUTABLE = "WidgetRegistrationTest"
 PLATFORMS = {
     "watchos": {
         "runtime": "watchOS", "device": "", "source": "Apps/Widgets/WristlabWidget.swift",
-        "widgets": [("energy", "EnergyWidget"), ("readiness", "ReadinessWidget"), ("stress", "StressWidget"), ("overview", "OverviewWidget")],
+        "widgets": [("energy", "EnergyWidget"), ("readiness", "ReadinessWidget"), ("stress", "StressWidget"), ("overview", "OverviewWidget"), ("activity", "ActivityWidget")],
         "deployment": 'watchOS: "10.0"', "platform": "watchOS", "products": "Debug-watchsimulator",
         "info": "WKApplication: true\n        WKWatchOnly: true", "bundle": "com.mirsery.wristlab.registrationtest", "work": "widget-registration-test",
     },
@@ -117,15 +117,35 @@ def main():
         raise SystemExit("Review probe extraction: expected one WidgetBundle entry point.")
     # Copy the real views/configuration bodies, changing only the entry point.
     (sources / "WidgetUnderTest.swift").write_text(widget.replace("@main\n", ""))
+    activity_calls = ""
+    activity_markers = []
+    activity_sources = {
+        "ActivityReaderUnderTest.swift": ROOT / "Apps/watchOS/DailyActivityReader.swift",
+        "ActivityCalendarProbe.swift": ROOT / "Tests/Apple/ActivityCalendarProbe.swift",
+    }
+    for filename, source in activity_sources.items():
+        destination = sources / filename
+        if args.platform == "watchos":
+            destination.write_text(source.read_text())
+        elif destination.exists():
+            destination.unlink()
+    if args.platform == "watchos":
+        activity_calls = '''        do {
+            try checkActivityCalendar_TC_ACAL_001()
+            try checkActivityDayBoundaries_TC_ACAL_002()
+            try checkRepeatedActivityPredicate_TC_ACAL_003()
+        } catch { fatalError("Synthetic activity calendar probe failed") }
+'''
+        activity_markers = ["ACTIVITY_DATE: TC-ACAL-001 OK", "ACTIVITY_DATE: TC-ACAL-002 OK", "ACTIVITY_DATE: TC-ACAL-003 CONTRACT OK"]
     # Run the configurations in App.init: it needs no visible scene, which a slow CI simulator may never activate.
     calls = "".join(f'        withExtendedLifetime({type_name}().body) {{ print("REGISTRATION: {name} OK") }}\n' for name, type_name in config["widgets"])
     (sources / "ProbeApp.swift").write_text('''import SwiftUI
 import Darwin
 @main struct RegistrationProbe: App {
     init() {
-''' + calls + '''        print("REGISTRATION: PASS")
+''' + activity_calls + calls + '''        print("REGISTRATION: PASS")
         fflush(stdout)
-        exit(0)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { exit(0) }
     }
     var body: some Scene { WindowGroup { Text("Widget registration test") } }
 }
@@ -179,7 +199,7 @@ targets:
         (WORK / "runtime.log").write_text(output)
         print(output)
         # simctl can return zero even when the child traps: require every marker.
-        markers = [f"REGISTRATION: {name} OK" for name, _ in config["widgets"]] + ["REGISTRATION: PASS"]
+        markers = activity_markers + [f"REGISTRATION: {name} OK" for name, _ in config["widgets"]] + ["REGISTRATION: PASS"]
         if not all(marker in output for marker in markers) or "Fatal error:" in output:
             diagnose(udid, since)
             raise SystemExit("FAIL: production Widget configuration trapped or did not finish.")

@@ -1,0 +1,55 @@
+# 2026-10-24-watch-refresh-exit.yaml — Canonical Proposal (YAML-first, V2.9)
+# AI 起草、AI 修改、AI 消费。Human View 由 `stdd canon generate` 生成。
+
+meta:
+  change_id: "2026-10-24-watch-refresh-exit"
+  title: "Watch 2405 切页或刷新后退出诊断与修复"
+  created: "2026-10-24T13:21:55.180792"
+  status: draft
+  version: "2.9"
+
+why:
+  problem: |
+    2405 已覆盖安装并初次启动，但用户确认切页或刷新后退出；后续定向进程检查仅剩 Widget。异常类型与根因尚未确认，不能把安装成功当稳定通过。
+  motivation: "用户已确认此修复范围；当前真机体验未通过，先证据定位，再实施已确认设计。"
+
+what_changes:
+  - id: C1
+    description: "采集不含健康数值的异常类型、退出状态及必要调用栈，定位切页/刷新崩溃路径。"
+    type: modified
+  - id: C2
+    description: "针对已复现根因修复回归、补合成测试并同包覆盖验证；不靠停用活动或独立读取掩盖崩溃。"
+    type: modified
+
+capabilities:
+  new: []
+  modified:
+    - name: "watch-runtime-stability"
+      description: "Watch 2405 切页或刷新后退出诊断与修复"
+
+success_criteria:
+  - "有明确命令与合成/平台反馈循环复现所定位故障，根因与修复方案经 Gate 2 确认后实施。"
+  - "对应回归及双端构建通过；真机切页/刷新路径由实际用户反馈确认，不将普通启动或进程瞬时存在作为通过。"
+
+constraints:
+  - "不卸载、不清数据、不改评分/有效期/健康权限/同步/iCloud，不提交推送。"
+  - "真实健康数据不进入测试、规格、日志或仓库；只使用合成夹具。"
+  - "Gate 1 仅批准范围；具体方案须实际 Gate 2 确认，最终 Gate 3 由用户验收。"
+stakeholders:
+  - "自用 iPhone/Watch 用户"
+risk_areas:
+  - capability: "watch-runtime-stability"
+    risk: "崩溃可能来自 Apple API 契约、并发或系统资源，须先复现再选方案；不预设为既有 calendar 问题，不抓完整健康日志。"
+    mitigation: "先建可复现反馈循环，报告代码/模拟器与真机证据边界。"
+non_goals:
+  - "新增产品功能、评分规则、权限、云能力或扩大健康采集。"
+critical:
+  is_critical: false
+  risk_assessment:
+    safety_critical: false
+    financial: false
+    cross_system: false
+anchoring:
+  level: L1
+  reference_changes: []
+  anchor_implementations: []

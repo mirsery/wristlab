@@ -1,0 +1,17 @@
+include:
+  - project.yml
+targets:
+  Wristlab:
+    attributes:
+      SystemCapabilities:
+        com.apple.iCloud:
+          enabled: 1
+    info:
+      properties:
+        WristlabCloudKitEnabled: true
+    entitlements:
+      path: work/Generated/iOS-Cloud.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers: [iCloud.com.mirsery.wristlab]
+        com.apple.developer.icloud-services: [CloudKit]
+        com.apple.developer.icloud-container-environment: $(CLOUDKIT_ENVIRONMENT)

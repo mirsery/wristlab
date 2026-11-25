@@ -1,0 +1,28 @@
+# agent_spec.yaml — Agent 验证规格（Canonical YAML）
+
+meta:
+  task_id: "watch-refresh-handshake"
+  change_id: "2026-10-23-watch-refresh-handshake"
+  created: "2026-10-23T15:55:41.437133"
+  task_type: code
+  system: "iPhone / Watch 刷新握手"
+
+preconditions:
+  - "Gate 2 经用户确认；测试只用合成数据。"
+
+steps:
+  - id: CP-1
+    description: "SC-001至005单元与适配器验证"
+    action: "scripts/check.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+  - id: CP-2
+    description: "双端及组件构建"
+    action: "scripts/build-apple.sh"
+    assertions:
+      - type: exit_code
+        expected: 0
+
+expected_outcomes:
+  - "真机同revision收到、断连、无回执和重新启动缓存分别记录，未执行不得标为通过。"
